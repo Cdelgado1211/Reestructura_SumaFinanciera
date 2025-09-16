@@ -1,0 +1,44 @@
+# ─── Dependencias ──────────────────────────────────────────────────────────────
+node_modules/
+
+# ─── Builds / Bundles ──────────────────────────────────────────────────────────
+dist/
+dist-ssr/
+*.local
+
+# ─── Cachés y artefactos temporales ────────────────────────────────────────────
+.vite/
+.eslintcache
+.stylelintcache
+*.tsbuildinfo
+
+# ─── Logs ──────────────────────────────────────────────────────────────────────
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ─── Variables de entorno (mantén un .env.example) ────────────────────────────
+.env
+.env.*
+!.env.example
+
+# ─── SO / editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+*.iml
+
+# Ignora todo .vscode excepto recomendaciones útiles
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ─── Testing / Coverage ────────────────────────────────────────────────────────
+coverage/
+
+# ─── Herramientas de deploy locales (opcional) ────────────────────────────────
+.vercel/
+.netlify/
