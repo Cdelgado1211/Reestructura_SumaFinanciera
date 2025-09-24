@@ -19,7 +19,7 @@ export default function LoadingAdjust() {
           <img
             src={clock}
             alt="Reloj"
-            className="w-12 h-12 sm:w-6 sm:h-20 mb-20 object-contain"
+            className="w-20 h-20 sm:w-6 sm:h-20 mb-20 object-contain"
           />
 
           <h1 className="text-2xl font-semibold text-gray-900">Un momento</h1>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 export default function PlanSelection() {
   const navigate = useNavigate()
-  const [selected, setSelected] = useState('p2') // por defecto Plan 2 como en tu captura
+  const [selected, setSelected] = useState('p2') // por defecto Plan 2
 
   const loan = useMemo(() => ({
     nombre: 'Daniel Rojas López',
@@ -42,64 +42,62 @@ export default function PlanSelection() {
 
           {/* Nombre */}
           <div className="mt-4">
-            
-            <div className="rounded-xl border border-gray-200 px-4 py-3 bg-white"><label className="block text-sm text-gray-700 mb-1">Nombre</label>
+            <div className="rounded-xl border border-gray-200 px-4 py-3 bg-white">
+              <label className="block text-sm text-gray-700 mb-1">Nombre</label>
               {loan.nombre}
             </div>
           </div>
 
-          {/* Info del préstamo */}
           {/* Información de tu préstamo actual (una sola tarjeta, sin sub-cards) */}
-<div className="mt-6">
-  <h2 className="text-sm font-medium text-gray-900 mb-3">
-    Información de tu préstamo actual
-  </h2>
+          <div className="mt-6">
+            <h2 className="text-sm font-medium text-gray-900 mb-3">
+              Información de tu préstamo actual
+            </h2>
 
-  <div className="rounded-2xl border border-gray-200 p-6">
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10">
-      {/* Saldo total (destacado) */}
-      <div>
-        <div className="text-sm text-gray-600">Saldo total actual:</div>
-        <div className="text-2xl font-extrabold text-gray-900">
-          ${loan.saldoTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-        </div>
-      </div>
+            <div className="rounded-2xl border border-gray-200 p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10">
+                {/* Saldo total (destacado) */}
+                <div>
+                  <div className="text-sm text-gray-600">Saldo total actual:</div>
+                  <div className="text-2xl font-extrabold text-gray-900">
+                    ${loan.saldoTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                  </div>
+                </div>
 
-      <div>
-        <div className="text-sm text-gray-600">Plazo</div>
-        <div className="text-lg font-semibold text-gray-900">{loan.plazoMeses}</div>
-      </div>
+                <div>
+                  <div className="text-sm text-gray-600">Plazo</div>
+                  <div className="text-lg font-semibold text-gray-900">{loan.plazoMeses}</div>
+                </div>
 
-      <div>
-        <div className="text-sm text-gray-600">Monto vencido</div>
-        <div className="text-lg font-semibold text-gray-900">{loan.montoVencido}</div>
-      </div>
+                <div>
+                  <div className="text-sm text-gray-600">Monto vencido</div>
+                  <div className="text-lg font-semibold text-gray-900">{loan.montoVencido}</div>
+                </div>
 
-      <div>
-        <div className="text-sm text-gray-600">Producto</div>
-        <div className="text-lg font-semibold text-gray-900">{loan.producto}</div>
-      </div>
+                <div>
+                  <div className="text-sm text-gray-600">Producto</div>
+                  <div className="text-lg font-semibold text-gray-900">{loan.producto}</div>
+                </div>
 
-      <div>
-        <div className="text-sm text-gray-600">N° de Crédito</div>
-        <div className="text-lg font-semibold text-gray-900">{loan.numCredito}</div>
-      </div>
+                <div>
+                  <div className="text-sm text-gray-600">N° de Crédito</div>
+                  <div className="text-lg font-semibold text-gray-900">{loan.numCredito}</div>
+                </div>
 
-      <div>
-        <div className="text-sm text-gray-600">Tasa actual</div>
-        <div className="text-lg font-extrabold text-gray-900">{loan.tasaActual}</div>
-      </div>
+                <div>
+                  <div className="text-sm text-gray-600">Tasa actual</div>
+                  <div className="text-lg font-extrabold text-gray-900">{loan.tasaActual}</div>
+                </div>
 
-      <div>
-        <div className="text-sm text-gray-600">Letra actual</div>
-        <div className="text-lg font-semibold text-gray-900">
-          ${loan.letraActual.toFixed(2)}
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
+                <div>
+                  <div className="text-sm text-gray-600">Letra actual</div>
+                  <div className="text-lg font-semibold text-gray-900">
+                    ${loan.letraActual.toFixed(2)}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Opciones */}
           <div className="mt-5">
@@ -139,67 +137,69 @@ export default function PlanSelection() {
   )
 }
 
-/* ------------ Subcomponentes ------------ */
-
-function Stepper({ current }) {
+/* ------------ Stepper nuevo (estilo igual al screenshot) ------------ */
+function Stepper({ current = 1 }) {
   const steps = [
-    { id:1, label:'Plan de pago' },
-    { id:2, label:'Verificación' },
-    { id:3, label:'Contrato' },
+    { id: 1, label: 'Plan de pago' },
+    { id: 2, label: 'Verificación' },
+    { id: 3, label: 'Contrato' },
   ]
+
+  const total = steps.length
+  const idx = Math.min(Math.max(current, 1), total)
+  const progressPercent = total > 1 ? ((idx - 1) / (total - 1)) * 100 : 0
+
   return (
-    <div>
-      <div className="flex items-center gap-3">
+    <div className="mb-4">
+      {/* Línea base + progreso */}
+      <div className="relative h-8">
+        {/* Línea gris */}
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[3px] bg-gray-200 rounded" />
+        {/* Línea verde de progreso */}
+        <div
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-emerald-500 rounded transition-all"
+          style={{ width: `${progressPercent}%` }}
+        />
+        {/* Puntos */}
         {steps.map((s, i) => {
-          const isActive = s.id === current
-          const isDone = s.id < current
-          const showBar = i < steps.length - 1
+          const left = (i / (total - 1)) * 100
+          const isActive = s.id === idx
+          const isDone = s.id < idx
+
           return (
-            <div key={s.id} className="flex items-center gap-3 flex-1">
+            <div
+              key={s.id}
+              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
+              style={{ left: `${left}%` }}
+            >
               <div
                 className={[
-                  'w-7 h-7 rounded-full flex items-center justify-center text-xs font-semibold border',
-                  isActive ? 'bg-green-500 text-white border-green-500'
-                  : isDone ? 'bg-green-100 text-green-700 border-green-500'
-                  : 'bg-gray-200 text-gray-700 border-gray-300'
+                  'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-colors',
+                  isActive
+                    ? 'bg-emerald-500 text-white border-emerald-500'
+                    : isDone
+                      ? 'bg-emerald-100 text-emerald-700 border-emerald-500'
+                      : 'bg-gray-100 text-gray-600 border-gray-300'
                 ].join(' ')}
               >
                 {s.id}
               </div>
-              {showBar && (
-                <div className="flex-1">
-                  <div className="h-1 rounded bg-gray-200">
-                    <div
-                      className={[
-                        'h-1 rounded',
-                        current > s.id ? 'bg-green-500 w-full' : current === s.id ? 'bg-green-500 w-1/4' : 'w-0'
-                      ].join(' ')}
-                    />
-                  </div>
-                </div>
-              )}
             </div>
           )
         })}
       </div>
-      <div className="mt-2 grid grid-cols-3 text-s text-gray-600">
-        <div className="text-left">Plan de pago</div>
-        <div className="text-center">Verificación</div>
-        <div className="text-right">Contrato</div>
+
+      {/* Etiquetas debajo */}
+      <div className="mt-2 grid grid-cols-3 text-sm text-gray-600">
+        <div className="text-left">{steps[0].label}</div>
+        <div className="text-center">{steps[1].label}</div>
+        <div className="text-right">{steps[2].label}</div>
       </div>
     </div>
   )
 }
 
-function Stat({ label, value, strong }) {
-  return (
-    <div className="rounded-xl bg-gray-50 border border-gray-200 p-3">
-      <div className="text-[11px] text-gray-500">{label}</div>
-      <div className={strong ? 'font-semibold' : ''}>{value}</div>
-    </div>
-  )
-}
-
+/* ------------ PlanCard e iconos ------------ */
 function PlanCard({ plan, checked, onSelect }) {
   return (
     <label
@@ -230,7 +230,7 @@ function PlanCard({ plan, checked, onSelect }) {
   )
 }
 
-/* ------------ Iconos (24px max) ------------ */
+/* ------------ Iconos (24px máx) ------------ */
 function CheckIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">

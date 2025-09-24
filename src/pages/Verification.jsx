@@ -94,53 +94,63 @@ export default function Verification() {
   )
 }
 
-/* =================== Stepper (labels debajo) =================== */
-function Stepper({ current }) {
+/* =================== Stepper (igual estilo que el de PlanSelection) =================== */
+function Stepper({ current = 1 }) {
   const steps = [
     { id: 1, label: 'Plan de pago' },
     { id: 2, label: 'Verificación' },
     { id: 3, label: 'Contrato' },
   ]
 
+  const total = steps.length
+  const idx = Math.min(Math.max(current, 1), total)
+  const progressPercent = total > 1 ? ((idx - 1) / (total - 1)) * 100 : 0
+
   return (
-    <div className="w-full">
-      <div className="grid grid-cols-3 gap-4">
-        {steps.map((s, idx) => {
-          const isActive = s.id === current
-          const isDone = s.id < current
-          const showBar = idx < steps.length - 1
+    <div className="mb-4">
+      {/* Línea base + progreso */}
+      <div className="relative h-8">
+        {/* Línea gris */}
+        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[3px] bg-gray-200 rounded" />
+        {/* Línea verde de progreso */}
+        <div
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-emerald-500 rounded transition-all"
+          style={{ width: `${progressPercent}%` }}
+        />
+        {/* Puntos */}
+        {steps.map((s, i) => {
+          const left = (i / (total - 1)) * 100
+          const isActive = s.id === idx
+          const isDone = s.id < idx
 
           return (
-            <div key={s.id} className="relative flex flex-col items-center">
+            <div
+              key={s.id}
+              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
+              style={{ left: `${left}%` }}
+            >
               <div
                 className={[
-                  'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border',
+                  'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-colors',
                   isActive
-                    ? 'bg-green-500 text-white border-green-500'
+                    ? 'bg-emerald-500 text-white border-emerald-500'
                     : isDone
-                    ? 'bg-green-100 text-green-700 border-green-500'
-                    : 'bg-gray-200 text-gray-700 border-gray-300',
+                      ? 'bg-emerald-100 text-emerald-700 border-emerald-500'
+                      : 'bg-gray-100 text-gray-600 border-gray-300'
                 ].join(' ')}
               >
                 {s.id}
               </div>
-
-              {/* barra hacia el siguiente */}
-              {showBar && (
-                <div className="absolute top-1/2 -translate-y-1/2 left-1/2 right-0 h-1 rounded bg-gray-200 overflow-hidden">
-                  <div
-                    className="h-1 bg-green-500 rounded"
-                    style={{ width: current > s.id ? '100%' : current === s.id ? '80%' : '0%' }}
-                  />
-                </div>
-              )}
-
-              <div className="mt-2 text-xs sm:text-sm text-gray-700 text-center">
-                {s.label}
-              </div>
             </div>
           )
         })}
+      </div>
+
+      {/* Etiquetas debajo */}
+      <div className="mt-2 grid grid-cols-3 text-sm text-gray-600">
+        <div className="text-left">{steps[0].label}</div>
+        <div className="text-center">{steps[1].label}</div>
+        <div className="text-right">{steps[2].label}</div>
       </div>
     </div>
   )

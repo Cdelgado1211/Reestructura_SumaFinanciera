@@ -19,7 +19,7 @@ export default function IntroVerification() {
 
   const onSubmit = (e) => {
     e.preventDefault()
-    if (canContinue) navigate('/plan')
+      if (canContinue) navigate('/metodo-verificacion')
   }
 
   return (
