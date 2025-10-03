@@ -4,9 +4,12 @@ import pantalla1 from '../assets/pantalla1.png'   // tu imagen local
 
 export default function IntroVerification() {
   const navigate = useNavigate()
+  const [docId, setDocId] = useState('')       // ← nuevo: número de cédula
   const [docDate, setDocDate] = useState('')
   const [accepted, setAccepted] = useState(false)
-  const canContinue = Boolean(docDate && accepted)
+
+  // Puede continuar si hay cédula, fecha y aceptó
+  const canContinue = Boolean(docId && docDate && accepted)
 
   // 🔹 Nombre hardcodeado en variable (puedes cambiar este string)
   const NOMBRE_CLIENTE = 'Daniel Fernando Rojas López'
@@ -19,7 +22,7 @@ export default function IntroVerification() {
 
   const onSubmit = (e) => {
     e.preventDefault()
-      if (canContinue) navigate('/metodo-verificacion')
+    if (canContinue) navigate('/aviso-privacidad')
   }
 
   return (
@@ -61,30 +64,63 @@ export default function IntroVerification() {
           <section className="bg-white rounded-2xl shadow p-6 sm:p-8">
             <form onSubmit={onSubmit} className="max-w-md mx-auto">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
-                {/* 🔹 usamos el primer nombre desde la variable */}
                 ¡Hola {primerNombre}!
               </h1>
               <p className="text-center text-gray-600 mt-2">
                 Bienvenido al portal de Reestructuración de deuda
               </p>
 
-              <p className="text-center text-gray-500 mt-6 text-sm">
-                Escribe la fecha de expiración de tu documento para validar tu identidad
-              </p>
+              {/* Bloque: datos de cédula */}
+              <div className="mt-8">
+                <p className="text-sm text-gray-500 font-medium">
+                  Ingresa los datos de tu cédula
+                </p>
 
-              <label className="block mt-4">
-                <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
-                  <CalendarIcon className="w-5 h-5 text-gray-500" />
-                  <input
-                    type="text"
-                    placeholder="12/03/2030"
-                    value={docDate}
-                    onChange={(e) => setDocDate(e.target.value)}
-                    className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
-                  />
-                </div>
-              </label>
+                {/* Número de cédula */}
+                <label className="block mt-3">
+                  <div className="border rounded-lg px-3 py-3">
+                    <div className="flex items-center gap-3">
+                      <IdCardIcon className="w-5 h-5 text-gray-600" />
+                      <div className="flex-1">
+                        <p className="text-xs text-gray-600 leading-none">
+                          Número de cédula
+                        </p>
+                        <input
+                          type="text"
+                          inputMode="text"
+                          placeholder="Ej. 8-123-456"
+                          value={docId}
+                          onChange={(e) => setDocId(e.target.value)}
+                          className="mt-1 w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
+                          aria-label="Número de cédula"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <p className="mt-2 text-xs text-gray-500">Incluye los guiones</p>
+                </label>
 
+                {/* Fecha de expiración (debajo de cédula) */}
+                <p className="text-center text-gray-500 mt-6 text-sm">
+                  Escribe la fecha de expiración de tu documento para validar tu identidad
+                </p>
+
+                <label className="block mt-3">
+                  <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
+                    <CalendarIcon className="w-5 h-5 text-gray-500" />
+                    <input
+                      type="text"
+                      placeholder="12/03/2030"
+                      value={docDate}
+                      onChange={(e) => setDocDate(e.target.value)}
+                      className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
+                      aria-label="Fecha de expiración del documento"
+                    />
+                  </div>
+                </label>
+              </div>
+
+              {/* Consentimiento */}
               <label className="flex items-start gap-3 mt-6 text-sm leading-5">
                 <input
                   type="checkbox"
@@ -100,6 +136,7 @@ export default function IntroVerification() {
                 </span>
               </label>
 
+              {/* Botón */}
               <div className="mt-8 flex justify-center">
                 <button
                   type="submit"
@@ -132,6 +169,7 @@ function CalendarIcon({ className }) {
     </svg>
   )
 }
+
 function ShieldIcon({ className }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -140,6 +178,18 @@ function ShieldIcon({ className }) {
     </svg>
   )
 }
+
+function IdCardIcon({ className }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+      <rect x="3" y="5" width="18" height="14" rx="2.5" stroke="currentColor" />
+      <circle cx="9" cy="11" r="2" stroke="currentColor" />
+      <path d="M6.5 15.5c0-1.38 1.57-2.5 3.5-2.5s3.5 1.12 3.5 2.5" stroke="currentColor" />
+      <path d="M14.5 10.5h4M14.5 13h4" stroke="currentColor" />
+    </svg>
+  )
+}
+
 function Feature({ icon, title, desc }) {
   return (
     <div className="flex items-start gap-3">
