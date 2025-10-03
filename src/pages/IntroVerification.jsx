@@ -101,16 +101,14 @@ export default function IntroVerification() {
                 </label>
 
                 {/* Fecha de expiración (debajo de cédula) */}
-                <p className="text-center text-gray-500 mt-6 text-sm">
-                  Escribe la fecha de expiración de tu documento para validar tu identidad
-                </p>
+                
 
                 <label className="block mt-3">
                   <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
                     <CalendarIcon className="w-5 h-5 text-gray-500" />
                     <input
                       type="text"
-                      placeholder="12/03/2030"
+                      placeholder="Fecha de expiración"
                       value={docDate}
                       onChange={(e) => setDocDate(e.target.value)}
                       className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
