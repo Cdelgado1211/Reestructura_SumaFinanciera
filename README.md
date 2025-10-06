@@ -150,4 +150,4 @@ Súbelos a cualquier hosting estático: **Vercel, Netlify, GitHub Pages, S3, Clo
 
 ## Licencia
 
-Uso interno / demo para Banistmo. Ajusta según tus necesidades.
+Uso interno
