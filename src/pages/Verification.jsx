@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import React, { useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 const formatCurrency = (value) => {
@@ -128,6 +128,29 @@ export default function Verification() {
     [],
   )
 
+  useEffect(() => {
+    if (!storedPlan?.id) {
+      navigate('/plan', { replace: true })
+    }
+  }, [navigate, storedPlan])
+
+  const generalInfo = useMemo(
+    () => [
+      {
+        label: 'Saldo total actual',
+        value: formatCurrency(record?.SALDOCAPITAL),
+        highlight: true,
+      },
+      { label: 'Plazo', value: record?.PLAZO_CONTRATADO || '—' },
+      { label: 'Monto vencido', value: formatCurrency(record?.TOTALVENC_POST) },
+      { label: 'Producto', value: record?.PRODUCTO || '—' },
+      { label: 'N° de Crédito', value: record?.NUMCRED || '—' },
+      { label: 'Tasa actual', value: formatPercent(record?.TASA_COBROS) },
+      { label: 'Letra actual', value: formatCurrency(record?.LETRA_COMPLETA) },
+    ],
+    [record],
+  )
+
   const displayPlan = useMemo(() => {
     const extension = resolveFieldValue(storedPlan.fields?.extension, record)
     const tasa = resolveFieldValue(storedPlan.fields?.tasa, record)
@@ -170,34 +193,74 @@ export default function Verification() {
             </div>
           )}
 
-          {/* Sub-tarjeta: Información del préstamo */}
-          <div className="mt-6 rounded-2xl border border-gray-200 p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Información del préstamo</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <div className="text-sm text-gray-600">Extensión del plazo</div>
-                <div className="text-lg font-bold text-gray-900">{displayPlan.extension}</div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Tasa de interés</div>
-                <div className="text-lg font-bold text-gray-900">{displayPlan.tasa}</div>
+          {/* Información del préstamo */}
+          <div className="mt-6">
+            <h2 className="text-base font-semibold text-gray-900 mb-3">Información de tu préstamo actual</h2>
+            <div className="rounded-2xl border border-gray-200 p-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10">
+                {generalInfo.map(({ label, value, highlight }) => (
+                  <div key={label}>
+                    <div className="text-sm text-gray-600">{label}</div>
+                    <div
+                      className={[
+                        'text-lg font-semibold text-gray-900',
+                        highlight ? 'text-2xl font-extrabold' : '',
+                      ].join(' ')}
+                    >
+                      {value}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* Sub-tarjeta: Datos del período */}
-          <div className="mt-4 rounded-2xl border border-gray-200 p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Datos del período</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <div className="text-sm text-gray-600">Próxima letra a pagar</div>
-                <div className="text-lg font-bold text-gray-900">{displayPlan.cuota}</div>
+          {/* Plan seleccionado */}
+          <div className="mt-6">
+            <h2 className="text-base font-semibold text-gray-900 mb-3">Plan seleccionado</h2>
+
+            {hasPlanSelection ? (
+              <div className="rounded-2xl border-2 border-yellow-300 bg-white p-5">
+                <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
+                  <div className="text-sm text-gray-600">{storedPlan.titulo}</div>
+                  <div>
+                    <div className="text-3xl font-extrabold text-gray-900">{displayPlan.cuota}</div>
+                    <div className="text-xs text-gray-500 text-right sm:text-left">Total plan</div>
+                  </div>
+                </div>
+
+                <ul className="mt-4 space-y-3 text-sm text-gray-800">
+                  <li className="flex items-center gap-2">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                      1
+                    </span>
+                    <span>
+                      Extensión del plazo <strong>{displayPlan.extension}</strong>
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                      2
+                    </span>
+                    <span>
+                      Tasa de interés anual <strong>{displayPlan.tasa}</strong>
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
+                      3
+                    </span>
+                    <span>
+                      Fecha de pago <strong>{displayPlan.fecha}</strong>
+                    </span>
+                  </li>
+                </ul>
               </div>
-              <div>
-                <div className="text-sm text-gray-600">Próxima fecha de pago</div>
-                <div className="text-lg font-bold text-gray-900">{displayPlan.fecha}</div>
+            ) : (
+              <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
+                Selecciona un plan en el paso anterior para revisar sus detalles.
               </div>
-            </div>
+            )}
           </div>
 
           {/* Pregunta + acciones */}
