@@ -32,6 +32,32 @@ const formatPercent = (value) => {
   return stringValue
 }
 
+const formatDate = (value) => {
+  if (value == null || value === '') return '—'
+
+  const trimmed = String(value).trim()
+  if (!trimmed) return '—'
+
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch
+    return `${day}/${month}/${year}`
+  }
+
+  const shortMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/)
+  if (shortMatch) {
+    let [, day, month, year] = shortMatch
+    if (year.length === 2) {
+      year = `20${year}`
+    }
+    day = day.padStart(2, '0')
+    month = month.padStart(2, '0')
+    return `${day}/${month}/${year}`
+  }
+
+  return trimmed
+}
+
 const formatMonths = (value) => {
   if (value == null || value === '') return '—'
   const stringValue = String(value).trim()
@@ -108,38 +134,85 @@ export default function PlanSelection() {
     return () => controller.abort()
   }, [location.search])
 
-  const loan = useMemo(() => ({
-    nombre: record?.nombre || '—',
-    saldoTotal: formatCurrency(record?.SALDOCAPITAL),
-    plazoMeses: record?.PLAZO_CONTRATADO || '—',
-    montoVencido: formatCurrency(record?.TOTALVENC_POST),
-    producto: record?.PRODUCTO || '—',
-    numCredito: record?.NUMCRED || '—',
-    tasaActual: formatPercent(record?.TASA_COBROS),
-    letraActual: formatCurrency(record?.LETRA_COMPLETA),
-  }), [record])
+  const generalInfo = useMemo(
+    () => [
+      {
+        label: 'Saldo total actual',
+        value: formatCurrency(record?.SALDOCAPITAL),
+        highlight: true,
+      },
+      { label: 'Plazo', value: record?.PLAZO_CONTRATADO || '—' },
+      { label: 'Monto vencido', value: formatCurrency(record?.TOTALVENC_POST) },
+      { label: 'Producto', value: record?.PRODUCTO || '—' },
+      { label: 'N° de Crédito', value: record?.NUMCRED || '—' },
+      { label: 'Tasa actual', value: formatPercent(record?.TASA_COBROS) },
+      { label: 'Letra actual', value: formatCurrency(record?.LETRA_COMPLETA) },
+    ],
+    [record],
+  )
 
   const plans = useMemo(() => {
     if (!record) return []
 
-    return [1, 2, 3]
-      .map((index) => {
-        const cuotaLabel = formatCurrency(record?.[`CUOTA_FINAL_${index}`])
-        const extLabel = formatMonths(record?.[`PLAZO_OFERTA_${index}`])
-        const tasaLabel = formatPercent(record?.[`TASA_OFERTA_${index}`])
+    const resolveValue = (keys) => {
+      if (!Array.isArray(keys)) {
+        return record?.[keys]
+      }
 
-        if (cuotaLabel === '—' && extLabel === '—' && tasaLabel === '—') {
+      for (const key of keys) {
+        const value = record?.[key]
+        if (value != null && value !== '') {
+          return value
+        }
+      }
+
+      return undefined
+    }
+
+    const planDefinitions = [
+      {
+        id: 'plan1',
+        titulo: 'Plan / Oferta 1',
+        cuotaKey: 'CUOTA_FINAL_1',
+        extensionKey: 'PLAZO_OFERTA_1',
+        tasaKey: 'TASA_OFERTA_1',
+        fechaKeys: ['FECHA_PAGO_3', 'FECHA_PAGO_1'],
+      },
+      {
+        id: 'plan2',
+        titulo: 'Plan / Oferta 2',
+        cuotaKey: 'CUOTA_FINAL_2',
+        extensionKey: 'PLAZO_OFERTA_2',
+        tasaKey: 'TASA_OFERTA_2',
+        fechaKeys: ['FECHA_PAGO_2', 'FECHA_PAGO_3'],
+      },
+      {
+        id: 'plan3',
+        titulo: 'Plan / Oferta 3',
+        cuotaKey: 'CUOTA_FINAL_3',
+        extensionKey: 'PLAZO_OFERTA_3',
+        tasaKey: 'TASA_OFERTA_3',
+        fechaKeys: ['FECHA_PAGO_3', 'FECHA_PAGO_2'],
+      },
+    ]
+
+    return planDefinitions
+      .map((definition) => {
+        const cuotaLabel = formatCurrency(resolveValue(definition.cuotaKey))
+        const extLabel = formatMonths(resolveValue(definition.extensionKey))
+        const tasaLabel = formatPercent(resolveValue(definition.tasaKey))
+        const fechaLabel = formatDate(resolveValue(definition.fechaKeys))
+
+        if (cuotaLabel === '—' && extLabel === '—' && tasaLabel === '—' && fechaLabel === '—') {
           return null
         }
 
         return {
-          id: `p${index}`,
-          titulo: `Plan ${index}`,
+          ...definition,
           cuotaLabel,
           extLabel,
           tasaLabel,
-          fechaLabel: 'Por definir',
-          recomendado: index === 2,
+          fechaLabel,
         }
       })
       .filter(Boolean)
@@ -175,7 +248,7 @@ export default function PlanSelection() {
           <div className="mt-4">
             <div className="rounded-xl border border-gray-200 px-4 py-3 bg-white">
               <label className="block text-sm text-gray-700 mb-1">Nombre</label>
-              {loan.nombre}
+              {record?.nombre || '—'}
             </div>
           </div>
 
@@ -187,41 +260,19 @@ export default function PlanSelection() {
 
             <div className="rounded-2xl border border-gray-200 p-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10">
-                {/* Saldo total (destacado) */}
-                <div>
-                  <div className="text-sm text-gray-600">Saldo total actual:</div>
-                  <div className="text-2xl font-extrabold text-gray-900">{loan.saldoTotal}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">Plazo</div>
-                  <div className="text-lg font-semibold text-gray-900">{loan.plazoMeses}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">Monto vencido</div>
-                  <div className="text-lg font-semibold text-gray-900">{loan.montoVencido}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">Producto</div>
-                  <div className="text-lg font-semibold text-gray-900">{loan.producto}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">N° de Crédito</div>
-                  <div className="text-lg font-semibold text-gray-900">{loan.numCredito}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">Tasa actual</div>
-                  <div className="text-lg font-extrabold text-gray-900">{loan.tasaActual}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">Letra actual</div>
-                  <div className="text-lg font-semibold text-gray-900">{loan.letraActual}</div>
-                </div>
+                {generalInfo.map(({ label, value, highlight }) => (
+                  <div key={label}>
+                    <div className="text-sm text-gray-600">{label}</div>
+                    <div
+                      className={[
+                        'text-lg font-semibold text-gray-900',
+                        highlight ? 'text-2xl font-extrabold' : '',
+                      ].join(' ')}
+                    >
+                      {value}
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
@@ -367,23 +418,26 @@ function PlanCard({ plan, checked, onSelect }) {
 
       <div className="text-xs text-gray-600">{plan.titulo}</div>
       <div className="text-2xl font-extrabold text-gray-900">{plan.cuotaLabel}</div>
-      <div className="text-xs text-gray-500">Letra mensual</div>
-
-      {plan.recomendado ? (
-        <span className="mt-3 inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
-          Recomendado
-        </span>
-      ) : null}
+      <div className="text-xs text-gray-500">Total plan</div>
 
       <ul className="mt-3 space-y-2 text-sm text-gray-800">
         <li className="flex items-center gap-2">
-          <IconFeature /> <span>Extensión del plazo <strong>{plan.extLabel}</strong></span>
+          <IconFeature />
+          <span>
+            Extensión del plazo <strong>{plan.extLabel}</strong>
+          </span>
         </li>
         <li className="flex items-center gap-2">
-          <IconPercent /> <span>Tasa de interés anual <strong>{plan.tasaLabel}</strong></span>
+          <IconPercent />
+          <span>
+            Tasa de interés anual <strong>{plan.tasaLabel}</strong>
+          </span>
         </li>
         <li className="flex items-center gap-2">
-          <IconCalendar /> <span>Fecha de pago <strong>{plan.fechaLabel}</strong></span>
+          <IconCalendar />
+          <span>
+            Fecha de pago <strong>{plan.fechaLabel}</strong>
+          </span>
         </li>
       </ul>
     </label>
