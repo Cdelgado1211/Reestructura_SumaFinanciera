@@ -32,7 +32,7 @@ export default function IntroVerification() {
         const response = await fetch(
           `https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
             danaParamValue,
-          )}&s=0`,
+          )}&s=n`,
           { signal: controller.signal },
         )
 
