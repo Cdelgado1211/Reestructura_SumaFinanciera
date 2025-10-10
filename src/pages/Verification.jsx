@@ -215,32 +215,55 @@ export default function Verification() {
     setSubmitError(null)
     setSubmitting(true)
 
+    const sanitizeValue = (detail, fallback) => {
+      if (detail && detail.value != null && detail.value !== '') {
+        return detail.value
+      }
+
+      if (fallback != null && fallback !== '') {
+        return fallback
+      }
+
+      return ''
+    }
+
     try {
-      const params = new URLSearchParams({ dana: danaParam, s: 'c' })
-
-      const detailEntries = [
-        displayPlan.cuota,
-        displayPlan.extension,
-        displayPlan.tasa,
-        displayPlan.fecha,
-      ]
-
-      for (const detail of detailEntries) {
-        if (!detail || !detail.key) continue
-        const value = detail.value
-        if (value == null || value === '') continue
-        params.set(detail.key, value)
+      const payload = {
+        dana: danaParam,
+        s: 'c',
+        NEW_LETRA_MENSUAL: sanitizeValue(
+          displayPlan.cuota,
+          storedPlan?.fields?.cuota?.raw,
+        ),
+        NEW_EXTENSION_PLAZO: sanitizeValue(
+          displayPlan.extension,
+          storedPlan?.fields?.extension?.raw,
+        ),
+        NEW_TASA_INTERES: sanitizeValue(
+          displayPlan.tasa,
+          storedPlan?.fields?.tasa?.raw,
+        ),
+        NEW_FECHA_PAGO_FIN: sanitizeValue(
+          displayPlan.fecha,
+          storedPlan?.fields?.fecha?.raw,
+        ),
       }
 
       if (storedPlan?.id) {
-        params.set('planId', storedPlan.id)
+        payload.planId = storedPlan.id
       }
 
       if (storedPlan?.titulo) {
-        params.set('planTitulo', storedPlan.titulo)
+        payload.planTitulo = storedPlan.titulo
       }
 
-      const response = await fetch(`${LAMBDA_ENDPOINT}?${params.toString()}`)
+      const response = await fetch(LAMBDA_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload),
+      })
 
       if (!response.ok) {
         throw new Error(`Error ${response.status}`)
