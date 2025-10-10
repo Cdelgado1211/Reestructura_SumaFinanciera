@@ -1,28 +1,148 @@
 import React, { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 
+const formatCurrency = (value) => {
+  if (value == null || value === '') return '—'
+
+  const directNumber = Number(value)
+  if (Number.isFinite(directNumber)) {
+    return directNumber.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+  }
+
+  const normalized = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(normalized)) {
+    return normalized.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+  }
+
+  return String(value)
+}
+
+const formatPercent = (value) => {
+  if (value == null || value === '') return '—'
+  const stringValue = String(value).trim()
+  if (stringValue.includes('%')) return stringValue
+
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric)) {
+    return `${numeric}%`
+  }
+
+  return stringValue
+}
+
+const formatMonths = (value) => {
+  if (value == null || value === '') return '—'
+  const stringValue = String(value).trim()
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric) && numeric !== 0) {
+    return `${numeric} meses`
+  }
+
+  return stringValue
+}
+
+const formatDate = (value) => {
+  if (value == null || value === '') return '—'
+
+  const trimmed = String(value).trim()
+  if (!trimmed) return '—'
+
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch
+    return `${day}/${month}/${year}`
+  }
+
+  const shortMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/)
+  if (shortMatch) {
+    let [, day, month, year] = shortMatch
+    if (year.length === 2) {
+      year = `20${year}`
+    }
+    day = day.padStart(2, '0')
+    month = month.padStart(2, '0')
+    return `${day}/${month}/${year}`
+  }
+
+  return trimmed
+}
+
+const EMPTY_PLAN = {
+  id: null,
+  titulo: null,
+  fields: {
+    cuota: { raw: null, label: null, key: null },
+    extension: { raw: null, label: null, key: null },
+    tasa: { raw: null, label: null, key: null },
+    fecha: { raw: null, label: null, key: null },
+  },
+}
+
+const parseJSON = (value) => {
+  if (!value) return null
+  try {
+    return JSON.parse(value)
+  } catch (error) {
+    console.error('No se pudo interpretar un valor almacenado', error)
+    return null
+  }
+}
+
+const resolveFieldValue = (field, record) => {
+  if (!field) return undefined
+
+  if (field.label && field.label !== '—') {
+    return field.label
+  }
+
+  if (field.raw != null && field.raw !== '') {
+    return field.raw
+  }
+
+  if (!record || !field.key) {
+    return undefined
+  }
+
+  if (Array.isArray(field.key)) {
+    for (const key of field.key) {
+      const candidate = record?.[key]
+      if (candidate != null && candidate !== '') {
+        return candidate
+      }
+    }
+    return undefined
+  }
+
+  return record?.[field.key]
+}
+
 export default function Verification() {
   const navigate = useNavigate()
 
-  // Defaults por si no hay nada en localStorage
-  const defaultPlan = { id: 'p2', titulo: 'Plan 2', cuota: 184.8, ext: 24, tasa: '10%', fecha: '30 ene 2024' }
+  const storedPlan = useMemo(
+    () => parseJSON(localStorage.getItem('banistmo:selectedPlan')) || EMPTY_PLAN,
+    [],
+  )
+  const record = useMemo(
+    () => parseJSON(localStorage.getItem('banistmo:clienteData')),
+    [],
+  )
 
-  const plan = useMemo(() => {
-    try { return JSON.parse(localStorage.getItem('banistmo:selectedPlan')) || defaultPlan }
-    catch { return defaultPlan }
-  }, [])
+  const displayPlan = useMemo(() => {
+    const extension = resolveFieldValue(storedPlan.fields?.extension, record)
+    const tasa = resolveFieldValue(storedPlan.fields?.tasa, record)
+    const cuota = resolveFieldValue(storedPlan.fields?.cuota, record)
+    const fecha = resolveFieldValue(storedPlan.fields?.fecha, record)
 
-  const formatCurrency = (n) =>
-    new Intl.NumberFormat('es-PA', { style: 'currency', currency: 'USD' }).format(Number(n || 0))
+    return {
+      extension: formatMonths(extension),
+      tasa: formatPercent(tasa),
+      cuota: formatCurrency(cuota),
+      fecha: formatDate(fecha),
+    }
+  }, [record, storedPlan])
 
-  const expandEsMonth = (txt) => {
-    // convierte "30 ene 2024" -> "30 enero 2024" si viene abreviado
-    const map = { ene: 'enero', feb: 'febrero', mar: 'marzo', abr: 'abril', may: 'mayo', jun: 'junio',
-                  jul: 'julio', ago: 'agosto', sep: 'septiembre', oct: 'octubre', nov: 'noviembre', dic: 'diciembre' }
-    const m = String(txt).match(/^(\d{1,2})\s+([a-zñ]{3})\s+(\d{4})$/i)
-    if (!m) return txt
-    return `${m[1]} ${map[m[2].toLowerCase()] || m[2]} ${m[3]}`
-  }
+  const hasPlanSelection = Boolean(storedPlan?.id)
 
   const onCancel = () => navigate('/plan')
   const onConfirm = () => navigate('/contrato')
@@ -39,17 +159,28 @@ export default function Verification() {
             Verifica la información del nuevo plan de pagos de tu préstamo
           </p>
 
+          {hasPlanSelection ? (
+            <div className="mt-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+              Confirmaste el <span className="font-semibold">{storedPlan.titulo}</span>. Revisa los
+              detalles antes de continuar.
+            </div>
+          ) : (
+            <div className="mt-3 text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
+              Selecciona un plan para continuar con la verificación.
+            </div>
+          )}
+
           {/* Sub-tarjeta: Información del préstamo */}
           <div className="mt-6 rounded-2xl border border-gray-200 p-5">
             <h2 className="text-base font-semibold text-gray-900 mb-3">Información del préstamo</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <div className="text-sm text-gray-600">Extensión del plazo</div>
-                <div className="text-lg font-bold text-gray-900">{plan.ext} meses</div>
+                <div className="text-lg font-bold text-gray-900">{displayPlan.extension}</div>
               </div>
               <div>
                 <div className="text-sm text-gray-600">Tasa de interés</div>
-                <div className="text-lg font-bold text-gray-900">{plan.tasa}</div>
+                <div className="text-lg font-bold text-gray-900">{displayPlan.tasa}</div>
               </div>
             </div>
           </div>
@@ -60,11 +191,11 @@ export default function Verification() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
                 <div className="text-sm text-gray-600">Próxima letra a pagar</div>
-                <div className="text-lg font-bold text-gray-900">{formatCurrency(plan.cuota)}</div>
+                <div className="text-lg font-bold text-gray-900">{displayPlan.cuota}</div>
               </div>
               <div>
                 <div className="text-sm text-gray-600">Próxima fecha de pago</div>
-                <div className="text-lg font-bold text-gray-900">{expandEsMonth(plan.fecha)}</div>
+                <div className="text-lg font-bold text-gray-900">{displayPlan.fecha}</div>
               </div>
             </div>
           </div>
@@ -83,7 +214,13 @@ export default function Verification() {
             <button
               type="button"
               onClick={onConfirm}
-              className="px-6 py-2.5 rounded-full font-semibold bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-colors"
+              disabled={!hasPlanSelection}
+              className={[
+                'px-6 py-2.5 rounded-full font-semibold transition-colors',
+                hasPlanSelection
+                  ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
+                  : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
+              ].join(' ')}
             >
               Confirmar
             </button>

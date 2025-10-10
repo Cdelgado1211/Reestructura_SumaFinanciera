@@ -198,10 +198,15 @@ export default function PlanSelection() {
 
     return planDefinitions
       .map((definition) => {
-        const cuotaLabel = formatCurrency(resolveValue(definition.cuotaKey))
-        const extLabel = formatMonths(resolveValue(definition.extensionKey))
-        const tasaLabel = formatPercent(resolveValue(definition.tasaKey))
-        const fechaLabel = formatDate(resolveValue(definition.fechaKeys))
+        const cuotaRaw = resolveValue(definition.cuotaKey)
+        const extensionRaw = resolveValue(definition.extensionKey)
+        const tasaRaw = resolveValue(definition.tasaKey)
+        const fechaRaw = resolveValue(definition.fechaKeys)
+
+        const cuotaLabel = formatCurrency(cuotaRaw)
+        const extLabel = formatMonths(extensionRaw)
+        const tasaLabel = formatPercent(tasaRaw)
+        const fechaLabel = formatDate(fechaRaw)
 
         if (cuotaLabel === '—' && extLabel === '—' && tasaLabel === '—' && fechaLabel === '—') {
           return null
@@ -209,6 +214,10 @@ export default function PlanSelection() {
 
         return {
           ...definition,
+          cuotaRaw,
+          extensionRaw,
+          tasaRaw,
+          fechaRaw,
           cuotaLabel,
           extLabel,
           tasaLabel,
@@ -225,7 +234,46 @@ export default function PlanSelection() {
   }, [plans])
 
   const onContinuar = () => {
-    if (selectedPlan) navigate('/verificacion')
+    if (!selectedPlan) return
+
+    const plan = plans.find((item) => item.id === selectedPlan)
+
+    if (plan) {
+      const payload = {
+        id: plan.id,
+        titulo: plan.titulo,
+        fields: {
+          cuota: {
+            raw: plan.cuotaRaw,
+            label: plan.cuotaLabel,
+            key: plan.cuotaKey,
+          },
+          extension: {
+            raw: plan.extensionRaw,
+            label: plan.extLabel,
+            key: plan.extensionKey,
+          },
+          tasa: {
+            raw: plan.tasaRaw,
+            label: plan.tasaLabel,
+            key: plan.tasaKey,
+          },
+          fecha: {
+            raw: plan.fechaRaw,
+            label: plan.fechaLabel,
+            key: plan.fechaKeys,
+          },
+        },
+      }
+
+      try {
+        localStorage.setItem('banistmo:selectedPlan', JSON.stringify(payload))
+      } catch (storageError) {
+        console.error('No se pudo guardar el plan seleccionado', storageError)
+      }
+    }
+
+    navigate('/verificacion')
   }
 
   return (
