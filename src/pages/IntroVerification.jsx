@@ -255,12 +255,11 @@ export default function IntroVerification() {
                   <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
                     <CalendarIcon className="w-5 h-5 text-gray-500" />
                     <input
-                      type="text"
-                      inputMode="numeric"
-                      placeholder="dd-mm-aaaa"
-                      value={docDate}
+                      type="date"
+                      value={normalizeDisplayDate(docDate) || ''}
                       onChange={(e) => {
-                        setDocDate(formatDateInput(e.target.value))
+                        const isoValue = e.target.value
+                        setDocDate(isoValue ? formatDateForDisplay(isoValue) : '')
                         setErrors((prev) => ({ ...prev, docDate: undefined, general: undefined }))
                       }}
                       className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
@@ -362,30 +361,6 @@ function normalizeDisplayDate(value) {
     return ''
   }
   return `${year}-${month}-${day}`
-}
-
-function formatDateInput(rawValue) {
-  const digits = (rawValue || '').replace(/\D/g, '').slice(0, 8)
-
-  if (!digits) {
-    return ''
-  }
-
-  const parts = []
-  const day = digits.slice(0, Math.min(2, digits.length))
-  if (day) parts.push(day)
-
-  if (digits.length > 2) {
-    const month = digits.slice(2, Math.min(4, digits.length))
-    if (month) parts.push(month)
-  }
-
-  if (digits.length > 4) {
-    const year = digits.slice(4, 8)
-    if (year) parts.push(year)
-  }
-
-  return parts.join('-')
 }
 
 function CalendarIcon({ className }) {
