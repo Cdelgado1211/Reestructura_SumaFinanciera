@@ -1,5 +1,8 @@
-import React, { useEffect, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { isServiceErrorResponse } from '../utils/serviceResponse'
+
+const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
 
 const formatCurrency = (value) => {
   if (value == null || value === '') return '—'
@@ -88,36 +91,67 @@ const parseJSON = (value) => {
   }
 }
 
-const resolveFieldValue = (field, record) => {
-  if (!field) return undefined
-
-  if (field.label && field.label !== '—') {
-    return field.label
+const resolveFieldDetails = (field, record) => {
+  if (!field) {
+    return { value: undefined, key: undefined }
   }
+
+  const deriveKey = () => {
+    if (!field.key) return undefined
+
+    if (Array.isArray(field.key)) {
+      if (record) {
+        for (const key of field.key) {
+          const candidate = record?.[key]
+          if (candidate != null && candidate !== '') {
+            if (field.raw != null && field.raw !== '' && candidate === field.raw) {
+              return key
+            }
+            if (!field.raw && field.label && field.label !== '—' && String(candidate) === field.label) {
+              return key
+            }
+          }
+        }
+      }
+
+      return field.key[0]
+    }
+
+    return field.key
+  }
+
+  const key = deriveKey()
 
   if (field.raw != null && field.raw !== '') {
-    return field.raw
+    return { value: field.raw, key }
   }
 
-  if (!record || !field.key) {
-    return undefined
+  if (field.label && field.label !== '—') {
+    return { value: field.label, key }
+  }
+
+  if (!record || !key) {
+    return { value: undefined, key }
   }
 
   if (Array.isArray(field.key)) {
-    for (const key of field.key) {
-      const candidate = record?.[key]
+    for (const candidateKey of field.key) {
+      const candidate = record?.[candidateKey]
       if (candidate != null && candidate !== '') {
-        return candidate
+        return { value: candidate, key: candidateKey }
       }
     }
-    return undefined
+    return { value: undefined, key }
   }
 
-  return record?.[field.key]
+  return { value: record?.[key], key }
 }
 
 export default function Verification() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [submitError, setSubmitError] = useState(null)
+  const [submitting, setSubmitting] = useState(false)
 
   const storedPlan = useMemo(
     () => parseJSON(localStorage.getItem('banistmo:selectedPlan')) || EMPTY_PLAN,
@@ -128,11 +162,21 @@ export default function Verification() {
     [],
   )
 
+  const danaParam = useMemo(() => {
+    const params = new URLSearchParams(location.search)
+    return params.get('dana') || localStorage.getItem('banistmo:danaParam') || ''
+  }, [location.search])
+
   useEffect(() => {
     if (!storedPlan?.id) {
       navigate('/plan', { replace: true })
+      return
     }
-  }, [navigate, storedPlan])
+
+    if (!danaParam) {
+      navigate('/error', { replace: true })
+    }
+  }, [danaParam, navigate, storedPlan])
 
   const generalInfo = useMemo(
     () => [
@@ -152,23 +196,76 @@ export default function Verification() {
   )
 
   const displayPlan = useMemo(() => {
-    const extension = resolveFieldValue(storedPlan.fields?.extension, record)
-    const tasa = resolveFieldValue(storedPlan.fields?.tasa, record)
-    const cuota = resolveFieldValue(storedPlan.fields?.cuota, record)
-    const fecha = resolveFieldValue(storedPlan.fields?.fecha, record)
+    const extension = resolveFieldDetails(storedPlan.fields?.extension, record)
+    const tasa = resolveFieldDetails(storedPlan.fields?.tasa, record)
+    const cuota = resolveFieldDetails(storedPlan.fields?.cuota, record)
+    const fecha = resolveFieldDetails(storedPlan.fields?.fecha, record)
 
-    return {
-      extension: formatMonths(extension),
-      tasa: formatPercent(tasa),
-      cuota: formatCurrency(cuota),
-      fecha: formatDate(fecha),
-    }
+    return { extension, tasa, cuota, fecha }
   }, [record, storedPlan])
 
   const hasPlanSelection = Boolean(storedPlan?.id)
 
   const onCancel = () => navigate('/plan')
-  const onConfirm = () => navigate('/contrato')
+  const onConfirm = async () => {
+    if (!hasPlanSelection || submitting || !danaParam) {
+      return
+    }
+
+    setSubmitError(null)
+    setSubmitting(true)
+
+    try {
+      const params = new URLSearchParams({ dana: danaParam, s: 'c' })
+
+      const detailEntries = [
+        displayPlan.cuota,
+        displayPlan.extension,
+        displayPlan.tasa,
+        displayPlan.fecha,
+      ]
+
+      for (const detail of detailEntries) {
+        if (!detail || !detail.key) continue
+        const value = detail.value
+        if (value == null || value === '') continue
+        params.set(detail.key, value)
+      }
+
+      if (storedPlan?.id) {
+        params.set('planId', storedPlan.id)
+      }
+
+      if (storedPlan?.titulo) {
+        params.set('planTitulo', storedPlan.titulo)
+      }
+
+      const response = await fetch(`${LAMBDA_ENDPOINT}?${params.toString()}`)
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}`)
+      }
+
+      let data = null
+      try {
+        data = await response.json()
+      } catch (parseError) {
+        console.warn('La respuesta del servicio no contenía JSON', parseError)
+      }
+
+      if (data && isServiceErrorResponse(data)) {
+        navigate('/error', { replace: true })
+        return
+      }
+
+      navigate('/contrato')
+    } catch (error) {
+      console.error('No se pudo confirmar el plan seleccionado', error)
+      setSubmitError('No pudimos confirmar tu selección. Intenta nuevamente en unos minutos.')
+    } finally {
+      setSubmitting(false)
+    }
+  }
 
   return (
     <div className="py-6">
@@ -224,7 +321,9 @@ export default function Verification() {
                 <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
                   <div className="text-sm text-gray-600">{storedPlan.titulo}</div>
                   <div>
-                    <div className="text-3xl font-extrabold text-gray-900">{displayPlan.cuota}</div>
+                    <div className="text-3xl font-extrabold text-gray-900">
+                      {formatCurrency(displayPlan.cuota.value)}
+                    </div>
                     <div className="text-xs text-gray-500 text-right sm:text-left">Total plan</div>
                   </div>
                 </div>
@@ -235,7 +334,8 @@ export default function Verification() {
                       1
                     </span>
                     <span>
-                      Extensión del plazo <strong>{displayPlan.extension}</strong>
+                      Extensión del plazo{' '}
+                      <strong>{formatMonths(displayPlan.extension.value)}</strong>
                     </span>
                   </li>
                   <li className="flex items-center gap-2">
@@ -243,7 +343,8 @@ export default function Verification() {
                       2
                     </span>
                     <span>
-                      Tasa de interés anual <strong>{displayPlan.tasa}</strong>
+                      Tasa de interés anual{' '}
+                      <strong>{formatPercent(displayPlan.tasa.value)}</strong>
                     </span>
                   </li>
                   <li className="flex items-center gap-2">
@@ -251,7 +352,7 @@ export default function Verification() {
                       3
                     </span>
                     <span>
-                      Fecha de pago <strong>{displayPlan.fecha}</strong>
+                      Fecha de pago <strong>{formatDate(displayPlan.fecha.value)}</strong>
                     </span>
                   </li>
                 </ul>
@@ -266,6 +367,12 @@ export default function Verification() {
           {/* Pregunta + acciones */}
           <p className="mt-6 text-gray-700">¿Confirmas la reestructuración de la deuda?</p>
 
+          {submitError && (
+            <p className="mt-2 text-sm text-red-600" role="alert">
+              {submitError}
+            </p>
+          )}
+
           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
             <button
               type="button"
@@ -277,15 +384,15 @@ export default function Verification() {
             <button
               type="button"
               onClick={onConfirm}
-              disabled={!hasPlanSelection}
+              disabled={!hasPlanSelection || submitting || !danaParam}
               className={[
                 'px-6 py-2.5 rounded-full font-semibold transition-colors',
-                hasPlanSelection
+                hasPlanSelection && !submitting && danaParam
                   ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
                   : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
               ].join(' ')}
             >
-              Confirmar
+              {submitting ? 'Confirmando…' : 'Confirmar'}
             </button>
           </div>
         </div>

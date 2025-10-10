@@ -164,18 +164,18 @@ export default function PlanSelection() {
     if (!record) return []
 
     const resolveValue = (keys) => {
-      if (!Array.isArray(keys)) {
-        return record?.[keys]
-      }
-
-      for (const key of keys) {
-        const value = record?.[key]
-        if (value != null && value !== '') {
-          return value
+      if (Array.isArray(keys)) {
+        for (const key of keys) {
+          const value = record?.[key]
+          if (value != null && value !== '') {
+            return { value, key }
+          }
         }
+
+        return { value: undefined, key: keys[0] }
       }
 
-      return undefined
+      return { value: record?.[keys], key: keys }
     }
 
     const planDefinitions = [
@@ -207,15 +207,15 @@ export default function PlanSelection() {
 
     return planDefinitions
       .map((definition) => {
-        const cuotaRaw = resolveValue(definition.cuotaKey)
-        const extensionRaw = resolveValue(definition.extensionKey)
-        const tasaRaw = resolveValue(definition.tasaKey)
-        const fechaRaw = resolveValue(definition.fechaKeys)
+        const cuota = resolveValue(definition.cuotaKey)
+        const extension = resolveValue(definition.extensionKey)
+        const tasa = resolveValue(definition.tasaKey)
+        const fecha = resolveValue(definition.fechaKeys)
 
-        const cuotaLabel = formatCurrency(cuotaRaw)
-        const extLabel = formatMonths(extensionRaw)
-        const tasaLabel = formatPercent(tasaRaw)
-        const fechaLabel = formatDate(fechaRaw)
+        const cuotaLabel = formatCurrency(cuota.value)
+        const extLabel = formatMonths(extension.value)
+        const tasaLabel = formatPercent(tasa.value)
+        const fechaLabel = formatDate(fecha.value)
 
         if (cuotaLabel === '—' && extLabel === '—' && tasaLabel === '—' && fechaLabel === '—') {
           return null
@@ -223,10 +223,14 @@ export default function PlanSelection() {
 
         return {
           ...definition,
-          cuotaRaw,
-          extensionRaw,
-          tasaRaw,
-          fechaRaw,
+          cuotaRaw: cuota.value,
+          cuotaKey: cuota.key,
+          extensionRaw: extension.value,
+          extensionKeyUsed: extension.key,
+          tasaRaw: tasa.value,
+          tasaKey: tasa.key,
+          fechaRaw: fecha.value,
+          fechaKey: fecha.key,
           cuotaLabel,
           extLabel,
           tasaLabel,
@@ -260,7 +264,7 @@ export default function PlanSelection() {
           extension: {
             raw: plan.extensionRaw,
             label: plan.extLabel,
-            key: plan.extensionKey,
+            key: plan.extensionKeyUsed,
           },
           tasa: {
             raw: plan.tasaRaw,
@@ -270,7 +274,7 @@ export default function PlanSelection() {
           fecha: {
             raw: plan.fechaRaw,
             label: plan.fechaLabel,
-            key: plan.fechaKeys,
+            key: plan.fechaKey,
           },
         },
       }
