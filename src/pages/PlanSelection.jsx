@@ -95,6 +95,7 @@ export default function PlanSelection() {
     const danaParam = searchParams.get('dana') || localStorage.getItem('banistmo:danaParam')
 
     if (!danaParam) {
+      navigate('/error', { replace: true })
       return () => controller.abort()
     }
 
@@ -140,7 +141,7 @@ export default function PlanSelection() {
     fetchPlanData()
 
     return () => controller.abort()
-  }, [location.search])
+  }, [location.search, navigate])
 
   const generalInfo = useMemo(
     () => [

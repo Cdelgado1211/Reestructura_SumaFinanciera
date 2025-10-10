@@ -23,6 +23,7 @@ export default function IntroVerification() {
 
     if (!danaParamValue) {
       setDanaParam('')
+      navigate('/error', { replace: true })
       return () => controller.abort()
     }
 
@@ -75,7 +76,7 @@ export default function IntroVerification() {
     fetchClientData()
 
     return () => controller.abort()
-  }, [location.search])
+  }, [location.search, navigate])
 
   // Puede continuar si hay datos, se aceptó y contamos con la data del servicio
   const canContinue = Boolean(docId && docDate.length === 10 && accepted && danaParam)
