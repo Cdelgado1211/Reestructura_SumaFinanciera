@@ -1,28 +1,159 @@
-import React, { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+
+const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
+
+const formatCurrency = (value) => {
+  if (value == null || value === '') return '—'
+
+  const directNumber = Number(value)
+  if (Number.isFinite(directNumber)) {
+    return directNumber.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+  }
+
+  const normalized = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(normalized)) {
+    return normalized.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+  }
+
+  return String(value)
+}
+
+const formatPercent = (value) => {
+  if (value == null || value === '') return '—'
+  const stringValue = String(value).trim()
+  if (stringValue.includes('%')) return stringValue
+
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric)) {
+    return `${numeric}%`
+  }
+
+  return stringValue
+}
+
+const formatMonths = (value) => {
+  if (value == null || value === '') return '—'
+  const stringValue = String(value).trim()
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric) && numeric !== 0) {
+    return `${numeric} meses`
+  }
+
+  return stringValue
+}
 
 export default function PlanSelection() {
   const navigate = useNavigate()
-  const [selected, setSelected] = useState('p2') // por defecto Plan 2
+  const location = useLocation()
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [record, setRecord] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const storedData = localStorage.getItem('banistmo:clienteData')
+    if (storedData) {
+      try {
+        setRecord(JSON.parse(storedData))
+      } catch (parseError) {
+        console.error('No se pudo leer la información guardada del cliente', parseError)
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    const controller = new AbortController()
+    const searchParams = new URLSearchParams(location.search)
+    const danaParam = searchParams.get('dana') || localStorage.getItem('banistmo:danaParam')
+
+    if (!danaParam) {
+      return () => controller.abort()
+    }
+
+    const fetchPlanData = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const response = await fetch(
+          `${LAMBDA_ENDPOINT}?dana=${encodeURIComponent(danaParam)}&s=a`,
+          { signal: controller.signal },
+        )
+
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}`)
+        }
+
+        const data = await response.json()
+        if (data?.record) {
+          setRecord(data.record)
+          try {
+            localStorage.setItem('banistmo:clienteData', JSON.stringify(data.record))
+          } catch (storageError) {
+            console.error('No se pudo guardar la información del cliente', storageError)
+          }
+        }
+      } catch (fetchError) {
+        if (fetchError.name !== 'AbortError') {
+          console.error('No se pudo obtener la información del plan', fetchError)
+          setError('No se pudo obtener la información más reciente. Intenta nuevamente en unos minutos.')
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPlanData()
+
+    return () => controller.abort()
+  }, [location.search])
 
   const loan = useMemo(() => ({
-    nombre: 'Daniel Rojas López',
-    saldoTotal: 10000.00,
-    producto: 'Préstamo Personal',
-    plazoMeses: 18,
-    montoVencido: 346,
-    numCredito: '12345',
-    tasaActual: '12% anual',
-    letraActual: 200.00,
-  }), [])
+    nombre: record?.nombre || '—',
+    saldoTotal: formatCurrency(record?.SALDOCAPITAL),
+    plazoMeses: record?.PLAZO_CONTRATADO || '—',
+    montoVencido: formatCurrency(record?.TOTALVENC_POST),
+    producto: record?.PRODUCTO || '—',
+    numCredito: record?.NUMCRED || '—',
+    tasaActual: formatPercent(record?.TASA_COBROS),
+    letraActual: formatCurrency(record?.LETRA_COMPLETA),
+  }), [record])
 
-  const planes = useMemo(() => ([
-    { id:'p1', titulo:'Plan 1', cuota:234.80, ext:12, tasa:'10%', fecha:'30 ene 2024' },
-    { id:'p2', titulo:'Plan 2', cuota:184.80, ext:24, tasa:'10%', fecha:'30 ene 2024', recomendado:true },
-    { id:'p3', titulo:'Plan 3', cuota:134.80, ext:36, tasa:'8%',  fecha:'30 ene 2024'  },
-  ]), [])
+  const plans = useMemo(() => {
+    if (!record) return []
 
-  const onContinuar = () => { if (selected) navigate('/verificacion') }
+    return [1, 2, 3]
+      .map((index) => {
+        const cuotaLabel = formatCurrency(record?.[`CUOTA_FINAL_${index}`])
+        const extLabel = formatMonths(record?.[`PLAZO_OFERTA_${index}`])
+        const tasaLabel = formatPercent(record?.[`TASA_OFERTA_${index}`])
+
+        if (cuotaLabel === '—' && extLabel === '—' && tasaLabel === '—') {
+          return null
+        }
+
+        return {
+          id: `p${index}`,
+          titulo: `Plan ${index}`,
+          cuotaLabel,
+          extLabel,
+          tasaLabel,
+          fechaLabel: 'Por definir',
+          recomendado: index === 2,
+        }
+      })
+      .filter(Boolean)
+  }, [record])
+
+  useEffect(() => {
+    if (plans.length > 0) {
+      setSelectedPlan((prev) => (prev && plans.some((plan) => plan.id === prev) ? prev : plans[0].id))
+    }
+  }, [plans])
+
+  const onContinuar = () => {
+    if (selectedPlan) navigate('/verificacion')
+  }
 
   return (
     <div className="py-6">
@@ -59,9 +190,7 @@ export default function PlanSelection() {
                 {/* Saldo total (destacado) */}
                 <div>
                   <div className="text-sm text-gray-600">Saldo total actual:</div>
-                  <div className="text-2xl font-extrabold text-gray-900">
-                    ${loan.saldoTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </div>
+                  <div className="text-2xl font-extrabold text-gray-900">{loan.saldoTotal}</div>
                 </div>
 
                 <div>
@@ -91,9 +220,7 @@ export default function PlanSelection() {
 
                 <div>
                   <div className="text-sm text-gray-600">Letra actual</div>
-                  <div className="text-lg font-semibold text-gray-900">
-                    ${loan.letraActual.toFixed(2)}
-                  </div>
+                  <div className="text-lg font-semibold text-gray-900">{loan.letraActual}</div>
                 </div>
               </div>
             </div>
@@ -103,11 +230,28 @@ export default function PlanSelection() {
           <div className="mt-5">
             <h2 className="text-sm font-medium text-gray-900 mb-3">Opciones de reestructuración de la deuda</h2>
 
+            {loading && (
+              <p className="text-sm text-gray-500 mb-3">Cargando opciones de reestructuración…</p>
+            )}
+
+            {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {planes.map(p => (
-                <PlanCard key={p.id} plan={p} checked={selected === p.id} onSelect={() => setSelected(p.id)} />
+              {plans.map((plan) => (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  checked={selectedPlan === plan.id}
+                  onSelect={() => setSelectedPlan(plan.id)}
+                />
               ))}
             </div>
+
+            {!loading && !error && plans.length === 0 && (
+              <p className="text-sm text-gray-600 mt-3">
+                No hay planes disponibles en este momento. Intenta nuevamente más tarde.
+              </p>
+            )}
 
             {/* Botones */}
             <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center ">
@@ -120,11 +264,13 @@ export default function PlanSelection() {
               </button>
               <button
                 type="button"
-                disabled={!selected}
+                disabled={!selectedPlan}
                 onClick={onContinuar}
                 className={[
                   'px-6 py-2.5 rounded-full font-semibold transition-colors',
-                  selected ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900' : 'bg-yellow-200 text-gray-500 cursor-not-allowed'
+                  selectedPlan
+                    ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
+                    : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
                 ].join(' ')}
               >
                 Confirmar
@@ -162,7 +308,7 @@ function Stepper({ current = 1 }) {
         />
         {/* Puntos */}
         {steps.map((s, i) => {
-          const left = (i / (total - 1)) * 100
+          const left = total > 1 ? (i / (total - 1)) * 100 : 0
           const isActive = s.id === idx
           const isDone = s.id < idx
 
@@ -179,7 +325,7 @@ function Stepper({ current = 1 }) {
                     ? 'bg-emerald-500 text-white border-emerald-500'
                     : isDone
                       ? 'bg-emerald-100 text-emerald-700 border-emerald-500'
-                      : 'bg-gray-100 text-gray-600 border-gray-300'
+                      : 'bg-gray-100 text-gray-600 border-gray-300',
                 ].join(' ')}
               >
                 {s.id}
@@ -205,26 +351,40 @@ function PlanCard({ plan, checked, onSelect }) {
     <label
       className={[
         'relative block rounded-2xl border-2 bg-white p-4 cursor-pointer transition-shadow',
-        checked ? 'border-yellow-400 ring-2 ring-yellow-300 shadow-md' : 'border-gray-200 hover:shadow'
+        checked ? 'border-yellow-400 ring-2 ring-yellow-300 shadow-md' : 'border-gray-200 hover:shadow',
       ].join(' ')}
       onClick={onSelect}
     >
       {/* círculo/check en esquina derecha */}
-      <span className={[
-        'absolute top-3 right-3 w-5 h-5 rounded-full border flex items-center justify-center',
-        checked ? 'bg-yellow-400 border-yellow-400' : 'border-gray-300 bg-white'
-      ].join(' ')}>
+      <span
+        className={[
+          'absolute top-3 right-3 w-5 h-5 rounded-full border flex items-center justify-center',
+          checked ? 'bg-yellow-400 border-yellow-400' : 'border-gray-300 bg-white',
+        ].join(' ')}
+      >
         {checked ? <CheckIcon /> : null}
       </span>
 
       <div className="text-xs text-gray-600">{plan.titulo}</div>
-      <div className="text-2xl font-extrabold text-gray-900">${plan.cuota.toFixed(2)}</div>
+      <div className="text-2xl font-extrabold text-gray-900">{plan.cuotaLabel}</div>
       <div className="text-xs text-gray-500">Letra mensual</div>
 
+      {plan.recomendado ? (
+        <span className="mt-3 inline-flex items-center rounded-full bg-yellow-100 px-3 py-1 text-xs font-semibold text-yellow-800">
+          Recomendado
+        </span>
+      ) : null}
+
       <ul className="mt-3 space-y-2 text-sm text-gray-800">
-        <li className="flex items-center gap-2"><IconFeature /> <span>Extensión del plazo <strong>{plan.ext} meses</strong></span></li>
-        <li className="flex items-center gap-2"><IconPercent /> <span>Tasa de interés anual <strong>{plan.tasa}</strong></span></li>
-        <li className="flex items-center gap-2"><IconCalendar /> <span>Fecha de pago <strong>{plan.fecha}</strong></span></li>
+        <li className="flex items-center gap-2">
+          <IconFeature /> <span>Extensión del plazo <strong>{plan.extLabel}</strong></span>
+        </li>
+        <li className="flex items-center gap-2">
+          <IconPercent /> <span>Tasa de interés anual <strong>{plan.tasaLabel}</strong></span>
+        </li>
+        <li className="flex items-center gap-2">
+          <IconCalendar /> <span>Fecha de pago <strong>{plan.fechaLabel}</strong></span>
+        </li>
       </ul>
     </label>
   )
@@ -241,7 +401,7 @@ function CheckIcon() {
 function IconFeature() {
   return (
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
-      <path d="M5 4h14v12a2 2 0 0 1-2 2h-3l-2 2-2-2H7a2 2 0 0 1-2-2V4z" stroke="currentColor"/>
+      <path d="M5 4h14v12a2 2 0 0 1-2 2h-3l-2 2-2-2H7a2 2 0 0 1-2-2V4z" stroke="currentColor" />
     </svg>
   )
 }
