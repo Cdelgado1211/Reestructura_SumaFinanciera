@@ -1,17 +1,32 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
 export default function PrivacyConsent() {
   const navigate = useNavigate()
+  const location = useLocation()
   const scrollRef = useRef(null)
   const [atEnd, setAtEnd] = useState(false)
+  const [danaParam, setDanaParam] = useState('')
+
+  useEffect(() => {
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return
+    }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+  }, [location.search, navigate])
 
   const handleContinue = useCallback(() => {
     try {
       localStorage.setItem('banistmo:privacyConsent', 'accepted')
     } catch {}
-    navigate('/plan')
-  }, [navigate])
+    navigate(buildPathWithDana('/plan', danaParam))
+  }, [danaParam, navigate])
 
   const checkEnd = useCallback(() => {
     const el = scrollRef.current

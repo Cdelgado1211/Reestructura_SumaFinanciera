@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
 const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
 
@@ -152,6 +153,7 @@ export default function Verification() {
   const location = useLocation()
   const [submitError, setSubmitError] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const [danaParam, setDanaParam] = useState('')
 
   const storedPlan = useMemo(
     () => parseJSON(localStorage.getItem('banistmo:selectedPlan')) || EMPTY_PLAN,
@@ -162,21 +164,22 @@ export default function Verification() {
     [],
   )
 
-  const danaParam = useMemo(() => {
-    const params = new URLSearchParams(location.search)
-    return params.get('dana') || localStorage.getItem('banistmo:danaParam') || ''
-  }, [location.search])
-
   useEffect(() => {
-    if (!storedPlan?.id) {
-      navigate('/plan', { replace: true })
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
       return
     }
 
-    if (!danaParam) {
-      navigate('/error', { replace: true })
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+
+    if (!storedPlan?.id) {
+      navigate(buildPathWithDana('/plan', danaValue), { replace: true })
+      return
     }
-  }, [danaParam, navigate, storedPlan])
+  }, [location.search, navigate, storedPlan])
 
   const generalInfo = useMemo(
     () => [
@@ -206,7 +209,7 @@ export default function Verification() {
 
   const hasPlanSelection = Boolean(storedPlan?.id)
 
-  const onCancel = () => navigate('/plan')
+  const onCancel = () => navigate(buildPathWithDana('/plan', danaParam))
   const onConfirm = async () => {
     if (!hasPlanSelection || submitting || !danaParam) {
       return
@@ -229,8 +232,6 @@ export default function Verification() {
 
     try {
       const payload = {
-        dana: danaParam,
-        s: 'c',
         NEW_LETRA_MENSUAL: sanitizeValue(
           displayPlan.cuota,
           storedPlan?.fields?.cuota?.raw,
@@ -249,21 +250,26 @@ export default function Verification() {
         ),
       }
 
-      if (storedPlan?.id) {
-        payload.planId = storedPlan.id
+      if (storedPlan?.id || storedPlan?.titulo) {
+        payload.metadata = {}
+        if (storedPlan?.id) {
+          payload.metadata.planId = storedPlan.id
+        }
+        if (storedPlan?.titulo) {
+          payload.metadata.planTitulo = storedPlan.titulo
+        }
       }
 
-      if (storedPlan?.titulo) {
-        payload.planTitulo = storedPlan.titulo
-      }
-
-      const response = await fetch(LAMBDA_ENDPOINT, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = await fetch(
+        `${LAMBDA_ENDPOINT}?dana=${encodeURIComponent(danaParam)}&s=c`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
         },
-        body: JSON.stringify(payload),
-      })
+      )
 
       if (!response.ok) {
         throw new Error(`Error ${response.status}`)
@@ -281,7 +287,7 @@ export default function Verification() {
         return
       }
 
-      navigate('/contrato')
+      navigate(buildPathWithDana('/contrato', danaParam))
     } catch (error) {
       console.error('No se pudo confirmar el plan seleccionado', error)
       setSubmitError('No pudimos confirmar tu selección. Intenta nuevamente en unos minutos.')

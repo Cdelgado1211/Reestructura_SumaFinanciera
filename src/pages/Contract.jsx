@@ -1,15 +1,30 @@
-import React, { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
 export default function Contract() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [danaParam, setDanaParam] = useState('')
   const [accepted, setAccepted] = useState(false)
 
-  const onCancel = () => navigate('/verificacion')
+  useEffect(() => {
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return
+    }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+  }, [location.search, navigate])
+
+  const onCancel = () => navigate(buildPathWithDana('/verificacion', danaParam))
   const onConfirm = (e) => {
     e.preventDefault()
     if (!accepted) return
-    navigate('/ajustando') // siguiente pantalla: “Un momento…”
+    navigate(buildPathWithDana('/ajustando', danaParam)) // siguiente pantalla: “Un momento…”
   }
 
   return (

@@ -1,14 +1,33 @@
-import React, { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 import clock from '../assets/clock.png' // ⬅️ asegúrate de tener src/assets/clock.png
 
 export default function LoadingAdjust() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [danaParam, setDanaParam] = useState('')
 
   useEffect(() => {
-    const t = setTimeout(() => navigate('/confirmacion'), 2200)
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return
+    }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+  }, [location.search, navigate])
+
+  useEffect(() => {
+    if (!danaParam) {
+      return undefined
+    }
+
+    const t = setTimeout(() => navigate(buildPathWithDana('/confirmacion', danaParam)), 2200)
     return () => clearTimeout(t)
-  }, [navigate])
+  }, [danaParam, navigate])
 
   return (
     <div className="py-10">

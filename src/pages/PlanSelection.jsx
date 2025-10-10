@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
 const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
 
@@ -77,6 +78,7 @@ export default function PlanSelection() {
   const [record, setRecord] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [danaParam, setDanaParam] = useState('')
 
   useEffect(() => {
     const storedData = localStorage.getItem('banistmo:clienteData')
@@ -91,20 +93,23 @@ export default function PlanSelection() {
 
   useEffect(() => {
     const controller = new AbortController()
-    const searchParams = new URLSearchParams(location.search)
-    const danaParam = searchParams.get('dana') || localStorage.getItem('banistmo:danaParam')
+    const danaValue = getDanaParamFromSearch(location.search)
 
-    if (!danaParam) {
+    if (!danaValue) {
+      setDanaParam('')
       navigate('/error', { replace: true })
       return () => controller.abort()
     }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
 
     const fetchPlanData = async () => {
       setLoading(true)
       setError(null)
       try {
         const response = await fetch(
-          `${LAMBDA_ENDPOINT}?dana=${encodeURIComponent(danaParam)}&s=a`,
+          `${LAMBDA_ENDPOINT}?dana=${encodeURIComponent(danaValue)}&s=a`,
           { signal: controller.signal },
         )
 
@@ -286,7 +291,7 @@ export default function PlanSelection() {
       }
     }
 
-    navigate('/verificacion')
+    navigate(buildPathWithDana('/verificacion', danaParam))
   }
 
   return (
@@ -369,7 +374,7 @@ export default function PlanSelection() {
             <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center ">
               <button
                 type="button"
-                onClick={() => navigate('/')}
+                onClick={() => navigate(buildPathWithDana('/', danaParam))}
                 className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
               >
                 Cancelar

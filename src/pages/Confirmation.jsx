@@ -1,8 +1,23 @@
-import React, { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
 export default function Confirmation() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [danaParam, setDanaParam] = useState('')
+
+  useEffect(() => {
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return
+    }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+  }, [location.search, navigate])
 
   // Recupera lo elegido (o usa defaults si no hay storage)
   const defaultLoan = {
@@ -78,7 +93,7 @@ export default function Confirmation() {
             <div className="mt-6">
               <button
                 type="button"
-                onClick={() => navigate('/')}
+                onClick={() => navigate(buildPathWithDana('/', danaParam))}
                 className="px-8 py-3 rounded-full font-semibold bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-colors"
               >
                 Terminar

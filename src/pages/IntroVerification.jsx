@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 import pantalla1 from '../assets/pantalla1.png'   // tu imagen local
 
 export default function IntroVerification() {
@@ -18,8 +19,7 @@ export default function IntroVerification() {
   // Recupera datos del cliente desde el endpoint usando el parámetro `danaparam`
   useEffect(() => {
     const controller = new AbortController()
-    const searchParams = new URLSearchParams(location.search)
-    const danaParamValue = searchParams.get('dana')
+    const danaParamValue = getDanaParamFromSearch(location.search)
 
     if (!danaParamValue) {
       setDanaParam('')
@@ -28,6 +28,7 @@ export default function IntroVerification() {
     }
 
     setDanaParam(danaParamValue)
+    persistDanaParam(danaParamValue)
 
     const fetchClientData = async () => {
       try {
@@ -60,7 +61,6 @@ export default function IntroVerification() {
           try {
             localStorage.setItem('banistmo:clienteNombre', nombre)
             localStorage.setItem('banistmo:clienteData', JSON.stringify(record))
-            localStorage.setItem('banistmo:danaParam', danaParamValue)
           } catch (error) {
             console.error('No se pudo guardar la información del cliente', error)
           }
@@ -172,7 +172,7 @@ export default function IntroVerification() {
       }
 
       setErrors({})
-      navigate('/aviso-privacidad')
+      navigate(buildPathWithDana('/aviso-privacidad', danaParam))
     } catch (error) {
       console.error('No se pudo validar la información del cliente', error)
       if (error.name !== 'AbortError') {
