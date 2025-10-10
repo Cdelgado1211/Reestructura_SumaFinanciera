@@ -176,7 +176,7 @@ export default function PlanSelection() {
         cuotaKey: 'CUOTA_FINAL_1',
         extensionKey: 'PLAZO_OFERTA_1',
         tasaKey: 'TASA_OFERTA_1',
-        fechaKeys: ['FECHA_PAGO_3', 'FECHA_PAGO_1'],
+        fechaKeys: ['FECHA_PAGO_1', 'FECHA_PAGO_3', 'FECHA_PAGO_2'],
       },
       {
         id: 'plan2',
@@ -184,7 +184,7 @@ export default function PlanSelection() {
         cuotaKey: 'CUOTA_FINAL_2',
         extensionKey: 'PLAZO_OFERTA_2',
         tasaKey: 'TASA_OFERTA_2',
-        fechaKeys: ['FECHA_PAGO_2', 'FECHA_PAGO_3'],
+        fechaKeys: ['FECHA_PAGO_2', 'FECHA_PAGO_1', 'FECHA_PAGO_3'],
       },
       {
         id: 'plan3',
@@ -192,7 +192,7 @@ export default function PlanSelection() {
         cuotaKey: 'CUOTA_FINAL_3',
         extensionKey: 'PLAZO_OFERTA_3',
         tasaKey: 'TASA_OFERTA_3',
-        fechaKeys: ['FECHA_PAGO_3', 'FECHA_PAGO_2'],
+        fechaKeys: ['FECHA_PAGO_3', 'FECHA_PAGO_2', 'FECHA_PAGO_1'],
       },
     ]
 
