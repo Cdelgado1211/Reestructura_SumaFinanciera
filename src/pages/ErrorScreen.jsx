@@ -1,9 +1,6 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 
 export default function ErrorScreen() {
-  const navigate = useNavigate()
-
   return (
     <div className="py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
@@ -18,15 +15,6 @@ export default function ErrorScreen() {
             Por favor regresa al correo con tu oferta y vuelve a hacer clic en el enlace para
             intentarlo nuevamente. Si el problema persiste, contáctanos para ayudarte.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-            <button
-              type="button"
-              onClick={() => navigate('/')}
-              className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
-            >
-              Volver al inicio
-            </button>
-          </div>
         </div>
       </div>
     </div>
