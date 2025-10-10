@@ -12,6 +12,7 @@ import Verification from './pages/Verification'
 import Contract from './pages/Contract'
 import LoadingAdjust from './pages/LoadingAdjust'
 import Confirmation from './pages/Confirmation'
+import ErrorScreen from './pages/ErrorScreen'
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
           <Route path="/contrato" element={<Contract />} />
           <Route path="/ajustando" element={<LoadingAdjust />} />
           <Route path="/confirmacion" element={<Confirmation />} />
+          <Route path="/error" element={<ErrorScreen />} />
         </Routes>
       </main>
       <Footer />

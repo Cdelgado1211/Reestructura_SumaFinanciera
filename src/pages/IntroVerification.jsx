@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { isServiceErrorResponse } from '../utils/serviceResponse'
 import pantalla1 from '../assets/pantalla1.png'   // tu imagen local
 
 export default function IntroVerification() {
@@ -41,6 +42,11 @@ export default function IntroVerification() {
         }
 
         const data = await response.json()
+
+        if (isServiceErrorResponse(data)) {
+          navigate('/error', { replace: true })
+          return
+        }
         const record = data?.record
         const nombre = record?.nombre
 
@@ -61,6 +67,7 @@ export default function IntroVerification() {
       } catch (error) {
         if (error.name !== 'AbortError') {
           console.error('No se pudo obtener la información del cliente', error)
+          navigate('/error', { replace: true })
         }
       }
     }
@@ -120,6 +127,10 @@ export default function IntroVerification() {
       }
 
       const data = await response.json()
+      if (isServiceErrorResponse(data)) {
+        navigate('/error', { replace: true })
+        return
+      }
       const record = data?.record
 
       if (!record) {
@@ -163,9 +174,9 @@ export default function IntroVerification() {
       navigate('/aviso-privacidad')
     } catch (error) {
       console.error('No se pudo validar la información del cliente', error)
-      setErrors({
-        general: 'No pudimos validar tus datos. Intenta nuevamente más tarde.',
-      })
+      if (error.name !== 'AbortError') {
+        navigate('/error', { replace: true })
+      }
     } finally {
       setIsSubmitting(false)
     }

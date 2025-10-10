@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { isServiceErrorResponse } from '../utils/serviceResponse'
 
 const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
 
@@ -111,6 +112,12 @@ export default function PlanSelection() {
         }
 
         const data = await response.json()
+
+        if (isServiceErrorResponse(data)) {
+          navigate('/error', { replace: true })
+          return
+        }
+
         if (data?.record) {
           setRecord(data.record)
           try {
@@ -123,6 +130,7 @@ export default function PlanSelection() {
         if (fetchError.name !== 'AbortError') {
           console.error('No se pudo obtener la información del plan', fetchError)
           setError('No se pudo obtener la información más reciente. Intenta nuevamente en unos minutos.')
+          navigate('/error', { replace: true })
         }
       } finally {
         setLoading(false)
