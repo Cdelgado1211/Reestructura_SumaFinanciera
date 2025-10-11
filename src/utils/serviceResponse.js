@@ -1,4 +1,6 @@
-export function isServiceErrorResponse(payload) {
+export function isServiceErrorResponse(payload, options = {}) {
+  const { requireRecord = true } = options
+
   if (!payload || typeof payload !== 'object') {
     return true
   }
@@ -11,14 +13,16 @@ export function isServiceErrorResponse(payload) {
     return true
   }
 
-  const { record } = payload
+  if (requireRecord) {
+    const { record } = payload
 
-  if (!record || typeof record !== 'object' || Array.isArray(record)) {
-    return true
-  }
+    if (!record || typeof record !== 'object' || Array.isArray(record)) {
+      return true
+    }
 
-  if (Object.keys(record).length === 0) {
-    return true
+    if (Object.keys(record).length === 0) {
+      return true
+    }
   }
 
   return false

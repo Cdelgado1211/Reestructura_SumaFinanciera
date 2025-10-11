@@ -282,7 +282,7 @@ export default function Verification() {
         console.warn('La respuesta del servicio no contenía JSON', parseError)
       }
 
-      if (data && isServiceErrorResponse(data)) {
+      if (data && isServiceErrorResponse(data, { requireRecord: false })) {
         navigate('/error', { replace: true })
         return
       }
