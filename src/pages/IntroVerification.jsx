@@ -52,6 +52,11 @@ export default function IntroVerification() {
         const record = data?.record
         const nombre = record?.nombre
 
+        if (record && hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
+          navigate('/error', { replace: true, state: { messageKey: 'alreadyCommitted' } })
+          return
+        }
+
         if (record) {
           setExpectedDocDate(normalizeRecordDate(record.P_FECHA_EXP))
         }
@@ -136,6 +141,11 @@ export default function IntroVerification() {
 
       if (!record) {
         throw new Error('Sin datos para validar')
+      }
+
+      if (hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
+        navigate('/error', { replace: true, state: { messageKey: 'alreadyCommitted' } })
+        return
       }
 
       if (record.nombre) {
@@ -373,6 +383,23 @@ function normalizeDisplayDate(value) {
     return ''
   }
   return `${year}-${month}-${day}`
+}
+
+function hasCommittedChoice(value) {
+  if (typeof value === 'boolean') {
+    return value
+  }
+
+  if (typeof value === 'number') {
+    return value === 1
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase()
+    return normalized === 'true' || normalized === '1' || normalized === 'si'
+  }
+
+  return false
 }
 
 function CalendarIcon({ className }) {

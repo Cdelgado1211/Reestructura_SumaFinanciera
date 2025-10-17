@@ -1,6 +1,24 @@
 import React from 'react'
+import { useLocation } from 'react-router-dom'
+
+const errorMessages = {
+  default: {
+    title: 'No pudimos cargar tu información',
+    description:
+      'Por favor regresa al correo con tu oferta y vuelve a hacer clic en el enlace para intentarlo nuevamente. Si el problema persiste, contáctanos para ayudarte.',
+  },
+  alreadyCommitted: {
+    title: 'Tu reestructuración ya fue procesada',
+    description:
+      'Ya registramos tu selección previamente. Si necesitas hacer algún ajuste adicional, comunícate con nosotros para revisar nuevas alternativas.',
+  },
+}
 
 export default function ErrorScreen() {
+  const location = useLocation()
+  const messageKey = location.state?.messageKey
+  const { title, description } = errorMessages[messageKey] || errorMessages.default
+
   return (
     <div className="py-8">
       <div className="max-w-3xl mx-auto px-4 sm:px-6">
@@ -10,11 +28,8 @@ export default function ErrorScreen() {
               !
             </span>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900">No pudimos cargar tu información</h1>
-          <p className="text-gray-600">
-            Por favor regresa al correo con tu oferta y vuelve a hacer clic en el enlace para
-            intentarlo nuevamente. Si el problema persiste, contáctanos para ayudarte.
-          </p>
+          <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
+          <p className="text-gray-600">{description}</p>
         </div>
       </div>
     </div>
