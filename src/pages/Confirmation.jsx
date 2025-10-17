@@ -257,13 +257,12 @@ export default function Confirmation() {
             </p>
 
             <div className="mt-6">
-              <button
-                type="button"
-                onClick={() => navigate(buildPathWithDana('/', danaParam))}
-                className="px-8 py-3 rounded-full font-semibold bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-colors"
+              <a
+                href="https://www.banistmo.com/"
+                className="inline-block px-8 py-3 rounded-full font-semibold bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-colors"
               >
                 Terminar
-              </button>
+              </a>
             </div>
           </div>
         </div>
