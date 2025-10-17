@@ -6,7 +6,7 @@ export default function Header() {
   const navigate = useNavigate()
 
   // Mostrar el icono de salir solo después de la primera pantalla
-  const showExit = location.pathname !== '/'
+  const showExit = location.pathname !== '/' && location.pathname !== '/error'
 
   const onExit = () => {
     try {
