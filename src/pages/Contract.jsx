@@ -31,7 +31,7 @@ export default function Contract() {
     <div className="py-0">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
         {/* Tarjeta maestro a alto de viewport */}
-        <div className="bg-white sm:rounded-2xl shadow h-screen sm:h-[calc(100vh-2rem)] sm:my-4 flex flex-col">
+        <div className="bg-white sm:rounded-2xl shadow min-h-[calc(100vh-3rem)] sm:min-h-[calc(100vh-2rem)] mb-8 sm:my-4 flex flex-col">
           {/* Header */}
           <div className="p-5 md:p-6">
             <Stepper current={3} />
@@ -92,7 +92,10 @@ export default function Contract() {
           </div>
 
           {/* Footer fijo dentro de la tarjeta: checkbox + acciones */}
-          <div className="px-5 md:px-6 pb-6 sm:pb-8 pt-4 mt-auto border-t border-gray-100 bg-white">
+          <div
+            className="px-5 md:px-6 pt-4 mt-auto border-t border-gray-100 bg-white"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 2.5rem)' }}
+          >
             <label className="flex items-start gap-3 text-sm">
               <input
                 type="checkbox"
