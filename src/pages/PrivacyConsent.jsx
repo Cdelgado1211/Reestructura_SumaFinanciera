@@ -51,7 +51,7 @@ export default function PrivacyConsent() {
     <div className="w-full py-0">
       <div className="mx-auto max-w-3xl">
         {/* Alto viewport */}
-        <section className="bg-white sm:rounded-2xl shadow h-[calc(100vh-50px)] sm:h-[calc(100vh-50px)] mt-[-50px] flex flex-col">
+        <section className="bg-white sm:rounded-2xl shadow min-h-[calc(100vh-50px)] sm:min-h-[calc(100vh-50px)] mt-[-50px] flex flex-col">
 
           {/* Header fijo dentro de la tarjeta */}
           <header className="px-6 sm:px-10 pt-6 sm:pt-10">
@@ -121,7 +121,10 @@ export default function PrivacyConsent() {
           </div>
 
           {/* Footer con CTA */}
-          <div className="px-6 sm:px-10 pb-6 sm:pb-8 pt-4 border-t border-gray-100">
+          <div
+            className="px-6 sm:px-10 pb-6 sm:pb-8 pt-4 border-t border-gray-100"
+            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1.5rem)' }}
+          >
             {!atEnd && (
               <p className="mb-3 text-xs sm:text-sm text-gray-500">
                 Desplázate hasta el final del texto para habilitar el botón.
