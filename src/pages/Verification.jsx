@@ -248,6 +248,7 @@ export default function Verification() {
           displayPlan.fecha,
           storedPlan?.fields?.fecha?.raw,
         ),
+        USER_COMMITTED_CHOICE: true,
       }
 
       if (storedPlan?.id || storedPlan?.titulo) {
