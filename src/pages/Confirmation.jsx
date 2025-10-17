@@ -2,10 +2,160 @@ import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
+const formatCurrency = (value) => {
+  if (value == null || value === '') return '—'
+
+  const numeric = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric)) {
+    return numeric.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+  }
+
+  const directNumber = Number(value)
+  if (Number.isFinite(directNumber)) {
+    return directNumber.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+  }
+
+  return String(value)
+}
+
+const formatPercent = (value) => {
+  if (value == null || value === '') return '—'
+
+  const stringValue = String(value).trim()
+  if (stringValue.includes('%')) return stringValue
+
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric)) {
+    return `${numeric}%`
+  }
+
+  return stringValue
+}
+
+const formatMonths = (value) => {
+  if (value == null || value === '') return '—'
+
+  const stringValue = String(value).trim()
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric) && numeric !== 0) {
+    return `${numeric} meses`
+  }
+
+  return stringValue
+}
+
+const formatDate = (value) => {
+  if (value == null || value === '') return '—'
+
+  const trimmed = String(value).trim()
+  if (!trimmed) return '—'
+
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch
+    return `${day}/${month}/${year}`
+  }
+
+  const shortMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/)
+  if (shortMatch) {
+    let [, day, month, year] = shortMatch
+    if (year.length === 2) {
+      year = `20${year}`
+    }
+    day = day.padStart(2, '0')
+    month = month.padStart(2, '0')
+    return `${day}/${month}/${year}`
+  }
+
+  return trimmed
+}
+
+const EMPTY_PLAN = {
+  id: null,
+  titulo: null,
+  fields: {
+    cuota: { raw: null, label: null, key: null },
+    extension: { raw: null, label: null, key: null },
+    tasa: { raw: null, label: null, key: null },
+    fecha: { raw: null, label: null, key: null },
+  },
+}
+
+const parseJSON = (value) => {
+  if (!value) return null
+  try {
+    return JSON.parse(value)
+  } catch (error) {
+    console.error('No se pudo interpretar un valor almacenado', error)
+    return null
+  }
+}
+
+const resolveFieldDetails = (field, record) => {
+  if (!field) {
+    return { value: undefined }
+  }
+
+  const deriveKey = () => {
+    if (!field.key) return undefined
+
+    if (Array.isArray(field.key)) {
+      if (record) {
+        for (const key of field.key) {
+          const candidate = record?.[key]
+          if (candidate != null && candidate !== '') {
+            if (field.raw != null && field.raw !== '' && candidate === field.raw) {
+              return key
+            }
+            if (!field.raw && field.label && field.label !== '—' && String(candidate) === field.label) {
+              return key
+            }
+          }
+        }
+      }
+
+      return field.key[0]
+    }
+
+    return field.key
+  }
+
+  const key = deriveKey()
+
+  if (field.raw != null && field.raw !== '') {
+    return { value: field.raw, key }
+  }
+
+  if (field.label && field.label !== '—') {
+    return { value: field.label, key }
+  }
+
+  if (!record || !key) {
+    return { value: undefined, key }
+  }
+
+  if (Array.isArray(field.key)) {
+    for (const candidateKey of field.key) {
+      const candidate = record?.[candidateKey]
+      if (candidate != null && candidate !== '') {
+        return { value: candidate, key: candidateKey }
+      }
+    }
+    return { value: undefined, key }
+  }
+
+  return { value: record?.[key], key }
+}
+
 export default function Confirmation() {
   const navigate = useNavigate()
   const location = useLocation()
   const [danaParam, setDanaParam] = useState('')
+  const storedPlan = useMemo(
+    () => parseJSON(localStorage.getItem('banistmo:selectedPlan')) || EMPTY_PLAN,
+    [],
+  )
+  const record = useMemo(() => parseJSON(localStorage.getItem('banistmo:clienteData')), [])
 
   useEffect(() => {
     const danaValue = getDanaParamFromSearch(location.search)
@@ -19,33 +169,48 @@ export default function Confirmation() {
     persistDanaParam(danaValue)
   }, [location.search, navigate])
 
-  // Recupera lo elegido (o usa defaults si no hay storage)
-  const defaultLoan = {
-    nombre: 'Daniel Fernando Rojas López',
-    plazoMeses: 24,
-    nuevaLetra: 184.8,
-    tasa: '10%',
+  const displayPlan = useMemo(() => {
+    const extension = resolveFieldDetails(storedPlan?.fields?.extension, record)
+    const tasa = resolveFieldDetails(storedPlan?.fields?.tasa, record)
+    const cuota = resolveFieldDetails(storedPlan?.fields?.cuota, record)
+    const fecha = resolveFieldDetails(storedPlan?.fields?.fecha, record)
+
+    return { extension, tasa, cuota, fecha }
+  }, [record, storedPlan])
+
+  const resolveValue = (detail, fallbackField) => {
+    if (detail?.value != null && detail.value !== '') {
+      return detail.value
+    }
+
+    if (fallbackField?.raw != null && fallbackField.raw !== '') {
+      return fallbackField.raw
+    }
+
+    if (fallbackField?.label && fallbackField.label !== '—') {
+      return fallbackField.label
+    }
+
+    return undefined
   }
-  const defaultPlan = { cuota: 184.8, fecha: '30 mar 2024', ext: 24, tasa: '10%' }
 
   const loan = useMemo(() => {
-    try {
-      const l = JSON.parse(localStorage.getItem('banistmo:loan')) || {}
-      const p = JSON.parse(localStorage.getItem('banistmo:selectedPlan')) || defaultPlan
-      return {
-        nombre: l?.nombre || defaultLoan.nombre,
-        plazoMeses: p?.ext ?? defaultLoan.plazoMeses,
-        nuevaLetra: p?.cuota ?? defaultLoan.nuevaLetra,
-        tasa: p?.tasa || defaultLoan.tasa,
-        proxFecha: p?.fecha || defaultPlan.fecha,
-      }
-    } catch {
-      return { ...defaultLoan, proxFecha: defaultPlan.fecha }
-    }
-  }, [])
+    const nombre = record?.nombre || '—'
+    const planTitle = storedPlan?.titulo || '—'
+    const extension = resolveValue(displayPlan.extension, storedPlan?.fields?.extension)
+    const tasa = resolveValue(displayPlan.tasa, storedPlan?.fields?.tasa)
+    const cuota = resolveValue(displayPlan.cuota, storedPlan?.fields?.cuota)
+    const fecha = resolveValue(displayPlan.fecha, storedPlan?.fields?.fecha)
 
-  const money = (n) =>
-    new Intl.NumberFormat('es-PA', { style: 'currency', currency: 'USD' }).format(Number(n || 0))
+    return {
+      nombre,
+      planTitle,
+      extension: formatMonths(extension),
+      tasa: formatPercent(tasa),
+      cuota: formatCurrency(cuota),
+      fecha: formatDate(fecha),
+    }
+  }, [displayPlan, record, storedPlan])
 
   return (
     <div className="py-8">
@@ -69,8 +234,9 @@ export default function Confirmation() {
 
               <div className="mt-3 rounded-xl border border-gray-200 p-4">
                 <Item label="Nombre del Cliente" value={loan.nombre} strong />
-                <Item label="Nuevo plazo" value={`${loan.plazoMeses} meses`} />
-                <Item label="Nueva letra mensual" value={money(loan.nuevaLetra)} />
+                <Item label="Plan seleccionado" value={loan.planTitle} />
+                <Item label="Nuevo plazo" value={loan.extension} />
+                <Item label="Nueva letra mensual" value={loan.cuota} />
                 <Item label="Tasa de interés" value={loan.tasa} />
               </div>
             </section>
@@ -80,8 +246,8 @@ export default function Confirmation() {
               <h3 className="font-semibold text-gray-900">Datos del período</h3>
 
               <div className="mt-3 rounded-xl border border-gray-200 p-4">
-                <Item label="Próxima letra a pagar" value={money(loan.nuevaLetra)} />
-                <Item label="Próxima fecha de pago" value={loan.proxFecha} />
+                <Item label="Próxima letra a pagar" value={loan.cuota} />
+                <Item label="Próxima fecha de pago" value={loan.fecha} />
               </div>
             </section>
 
