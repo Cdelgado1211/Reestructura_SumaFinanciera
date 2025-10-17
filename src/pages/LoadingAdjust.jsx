@@ -35,11 +35,7 @@ export default function LoadingAdjust() {
         {/* Tarjeta maestro */}
         <div className="bg-white rounded-2xl shadow p-10 flex flex-col items-center text-center">
           {/* Imagen del reloj */}
-          <img
-            src={clock}
-            alt="Reloj"
-            className="w-20 h-20 sm:w-6 sm:h-20 mb-20 object-contain"
-          />
+          <img src={clock} alt="Reloj" className="mb-20 object-contain" />
 
           <h1 className="text-2xl font-semibold text-gray-900">Un momento</h1>
           <p className="mt-2 text-gray-600">
