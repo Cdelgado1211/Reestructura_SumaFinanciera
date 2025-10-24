@@ -14,6 +14,7 @@ export default function IntroVerification() {
   const [danaParam, setDanaParam] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false)
 
   // Recupera datos del cliente desde el endpoint usando el parámetro `danaparam`
   useEffect(() => {
@@ -83,7 +84,7 @@ export default function IntroVerification() {
   }, [location.search, navigate])
 
   // Puede continuar si los datos están completos y contamos con la data del servicio
-  const canContinue = Boolean(docId && docDate.length === 10 && danaParam)
+  const canContinue = Boolean(docId && docDate.length === 10 && danaParam && acceptPrivacy)
 
   // Usa el primer nombre disponible (o "Cliente" si aún no se conoce)
   const primerNombre = (clientName || 'Cliente').trim().split(/\s+/)[0] || 'Cliente'
@@ -110,6 +111,10 @@ export default function IntroVerification() {
       newErrors.docDate = 'Ingresa la fecha de expiración.'
     } else if (!normalizedInputDate) {
       newErrors.docDate = 'El formato de la fecha debe ser dd-mm-aaaa.'
+    }
+
+    if (!acceptPrivacy) {
+      newErrors.privacy = 'Debes aceptar el Aviso de Privacidad para continuar.'
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -297,6 +302,31 @@ export default function IntroVerification() {
                 </label>
               </div>
 
+              <label className="mt-6 flex items-start gap-3 text-sm text-gray-600">
+                <input
+                  type="checkbox"
+                  checked={acceptPrivacy}
+                  onChange={(event) => {
+                    setAcceptPrivacy(event.target.checked)
+                    setErrors((prev) => ({ ...prev, privacy: undefined, general: undefined }))
+                  }}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
+                />
+                <span>
+                  He leído y aceptado el tratamiento de mis datos conforme al{' '}
+                  <a
+                    href="https://www.banistmo.com/acerca-de/aviso-de-privacidad"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-yellow-500 hover:text-yellow-600 font-semibold"
+                  >
+                    Aviso de Privacidad de Banistmo
+                  </a>
+                  .
+                </span>
+              </label>
+              {errors.privacy && <p className="mt-2 text-xs text-red-600">{errors.privacy}</p>}
+
               {/* Botón */}
               <div className="mt-8 flex justify-center">
                 {errors.general && (
@@ -309,7 +339,7 @@ export default function IntroVerification() {
                     'px-6 py-3 rounded-full font-semibold transition-colors',
                     canContinue
                       ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
-                      : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed',
                   ].join(' ')}
                 >
                   {isSubmitting ? 'Validando…' : 'Ingresar'}
