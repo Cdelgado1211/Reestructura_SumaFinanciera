@@ -25,7 +25,7 @@ export default function Header() {
         {/* Logo centrado */}
         <div className="justify-self-center">
           <img
-            src="https://images.email-platform.com/banistmo=/logobanistmoblanco.png"
+            src="https://images.email-platform.com/banistmo/logobanistmoblanco.png"
             alt="Banistmo"
             className="h-7 sm:h-6 cursor-pointer"
             onClick={() => navigate('/')}
