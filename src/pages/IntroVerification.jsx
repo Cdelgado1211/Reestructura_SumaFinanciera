@@ -208,7 +208,7 @@ export default function IntroVerification() {
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
-              Reestructura tu deuda
+              Arreglo de pagos
             </h2>
             <p className="text-center text-gray-600 mt-3 max-w-[40ch]">
               Es tu oportunidad para tener la tranquilidad de estar al día con tus pagos
@@ -217,13 +217,11 @@ export default function IntroVerification() {
             <div className="mt-6 space-y-4 w-full max-w-sm">
               <Feature
                 icon={<CalendarIcon className="w-6 h-6" />}
-                title="Ajusta tu plan de pagos"
-                desc="rápido, sencillo y sin complicaciones."
+                title="Ajusta tu plan de pagos, rápido, sencillo y sin complicaciones."
               />
               <Feature
                 icon={<ShieldIcon className="w-6 h-6" />}
-                title="Gana control sobre tus finanzas personales"
-                desc="con pagos más bajos."
+                title="Gana control sobre tus finanzas personales con pagos más bajos."
               />
             </div>
           </section>
@@ -438,7 +436,7 @@ function Feature({ icon, title, desc }) {
       <div className="shrink-0 text-gray-700">{icon}</div>
       <div>
         <p className="font-medium text-gray-900">{title}</p>
-        <p className="text-gray-600">{desc}</p>
+        {desc ? <p className="text-gray-600">{desc}</p> : null}
       </div>
     </div>
   )
