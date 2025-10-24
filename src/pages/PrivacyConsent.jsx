@@ -55,7 +55,7 @@ export default function PrivacyConsent() {
 
           {/* Header fijo dentro de la tarjeta */}
           <header className="px-6 sm:px-10 pt-6 sm:pt-10">
-            <p className="inline-flex items-center justify-center rounded-full px-1 py-2 text-[10px] sm:text-xs font-semibold uppercase tracking-[0.3em] text-700">
+            <p className="privacy-heading uppercase text-[#002f6c]">
               Consentimiento de tratamiento de datos
             </p>
             <h1 className="mt-3 text-xl sm:text-xl font-semibold text-gray-900">
@@ -71,10 +71,10 @@ export default function PrivacyConsent() {
             className="mt-6 px-6 sm:px-10 flex-1 overflow-y-auto pr-4"
             aria-label="Texto del aviso de privacidad (desplázate hasta el final para continuar)"
           >
-            <article className="space-y-6 text-sm leading-relaxed text-gray-700 sm:text-base">
+            <article className="space-y-6 text-gray-700">
               <div>
-                <h2 className="text-base font-semibold text-gray-900 sm:text-lg">Aviso de privacidad</h2>
-                <p className="mt-3">
+                <h2 className="privacy-heading uppercase text-[#002f6c]">Aviso de privacidad</h2>
+                <p className="mt-3 privacy-body">
                   En Banistmo, S.A. reconocemos la importancia de la seguridad, la privacidad y la
                   confidencialidad de los datos de nuestros clientes, colaboradores y proveedores. Por
                   eso adoptamos medidas para resguardar los datos personales de las personas y no los
@@ -92,24 +92,24 @@ export default function PrivacyConsent() {
               </div>
 
               <div>
-                <p>
+                <p className="privacy-body">
                   Igualmente te informamos y recordamos que a todos los titulares de los datos personales
                   se les reconocen los siguientes derechos:
                 </p>
                 <ol className="mt-3 list-[lower-alpha] space-y-2 pl-6">
-                  <li>Derecho a obtener información sobre la existencia y las condiciones de su tratamiento.</li>
-                  <li>Derecho a rectificar o anular sus datos personales.</li>
-                  <li>Derecho a solicitar prueba de la autorización otorgada.</li>
-                  <li>Derecho a revocar su consentimiento.</li>
-                  <li>Derecho a oponerse al tratamiento de sus datos personales.</li>
-                  <li>Derecho a presentar reclamaciones ante la ANTAI.</li>
-                  <li>Derecho a ser informado sobre incidentes de seguridad.</li>
-                  <li>Derecho a ser indemnizado en caso de vulneración de sus derechos.</li>
-                  <li>Derecho a cualquier otro establecido en la Ley 81 y demás leyes aplicables.</li>
+                  <li className="privacy-body">Derecho a obtener información sobre la existencia y las condiciones de su tratamiento.</li>
+                  <li className="privacy-body">Derecho a rectificar o anular sus datos personales.</li>
+                  <li className="privacy-body">Derecho a solicitar prueba de la autorización otorgada.</li>
+                  <li className="privacy-body">Derecho a revocar su consentimiento.</li>
+                  <li className="privacy-body">Derecho a oponerse al tratamiento de sus datos personales.</li>
+                  <li className="privacy-body">Derecho a presentar reclamaciones ante la ANTAI.</li>
+                  <li className="privacy-body">Derecho a ser informado sobre incidentes de seguridad.</li>
+                  <li className="privacy-body">Derecho a ser indemnizado en caso de vulneración de sus derechos.</li>
+                  <li className="privacy-body">Derecho a cualquier otro establecido en la Ley 81 y demás leyes aplicables.</li>
                 </ol>
               </div>
 
-              <p>
+              <p className="privacy-body">
                 En cumplimiento de las disposiciones legales vigentes sobre Protección de Datos Personales en Panamá,
                 por medio del presente Aviso de Privacidad te informamos que los datos personales que confíes a
                 Banistmo, S.A., en cualquiera de sus interacciones, serán tratados conforme a la legislación aplicable.
