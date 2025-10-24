@@ -15,12 +15,18 @@ function Footer() {
         <span className='flex items-center justify-center gap-2'>
           <svg
             xmlns='http://www.w3.org/2000/svg'
-            viewBox='0 0 20 20'
-            fill='currentColor'
+            viewBox='0 0 24 24'
+            fill='none'
             aria-hidden='true'
             className='h-5 w-5'
+            stroke='currentColor'
+            strokeWidth='1.5'
           >
-            <path d='M2.003 5.884C2.003 3.742 3.745 2 5.887 2h1.313c.834 0 1.54.586 1.671 1.41l.611 3.822a1.75 1.75 0 0 1-.883 1.823l-1.02.566a.75.75 0 0 0-.278 1.04 11.48 11.48 0 0 0 4.536 4.536.75.75 0 0 0 1.04-.278l.566-1.02a1.75 1.75 0 0 1 1.823-.883l3.822.611c.824.132 1.41.837 1.41 1.672v1.312c0 2.142-1.742 3.884-3.884 3.884h-.5c-8.284 0-15-6.716-15-15v-.5Z' />
+            <path
+              strokeLinecap='round'
+              strokeLinejoin='round'
+              d='M2.25 6.75c0 8.284 6.716 15 15 15h0a1.5 1.5 0 0 0 1.5-1.5v-2.25a1.5 1.5 0 0 0-1.28-1.48l-3.013-.502a1.5 1.5 0 0 0-1.338.432l-.665.665a11.25 11.25 0 0 1-5.313-5.313l.665-.665a1.5 1.5 0 0 0 .432-1.338l-.502-3.013A1.5 1.5 0 0 0 8.25 4.5H6a1.5 1.5 0 0 0-1.5 1.5v.75Z'
+            />
           </svg>
           Sucursal Telefónica (507) 306-4700
         </span>

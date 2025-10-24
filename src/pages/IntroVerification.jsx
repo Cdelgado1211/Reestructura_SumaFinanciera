@@ -9,7 +9,6 @@ export default function IntroVerification() {
   const location = useLocation()
   const [docId, setDocId] = useState('')       // ← nuevo: número de cédula
   const [docDate, setDocDate] = useState('')
-  const [accepted, setAccepted] = useState(false)
   const [clientName, setClientName] = useState('')
   const [expectedDocDate, setExpectedDocDate] = useState('')
   const [danaParam, setDanaParam] = useState('')
@@ -83,8 +82,8 @@ export default function IntroVerification() {
     return () => controller.abort()
   }, [location.search, navigate])
 
-  // Puede continuar si hay datos, se aceptó y contamos con la data del servicio
-  const canContinue = Boolean(docId && docDate.length === 10 && accepted && danaParam)
+  // Puede continuar si los datos están completos y contamos con la data del servicio
+  const canContinue = Boolean(docId && docDate.length === 10 && danaParam)
 
   // Usa el primer nombre disponible (o "Cliente" si aún no se conoce)
   const primerNombre = (clientName || 'Cliente').trim().split(/\s+/)[0] || 'Cliente'
@@ -233,7 +232,7 @@ export default function IntroVerification() {
                 ¡Hola {primerNombre}!
               </h1>
               <p className="text-center text-gray-600 mt-2">
-                Bienvenido al portal de Reestructuración de deuda
+                Accede a la página de arreglo de pagos
               </p>
 
               {/* Bloque: datos de cédula */}
@@ -254,7 +253,7 @@ export default function IntroVerification() {
                         <input
                           type="text"
                           inputMode="text"
-                          placeholder="Ej. 8-123-456"
+                          placeholder="Ej. 123-456-789"
                           value={docId}
                           onChange={(e) => {
                             setDocId(e.target.value)
@@ -272,6 +271,9 @@ export default function IntroVerification() {
 
                 {/* Fecha de expiración (debajo de cédula) */}
                 <label className="block mt-3">
+                  <p className="text-xs text-gray-600 leading-none mb-1">
+                    Fecha de expiración de cédula
+                  </p>
                   <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
                     <CalendarIcon className="w-5 h-5 text-gray-500" />
                     <input
@@ -291,26 +293,9 @@ export default function IntroVerification() {
                       Fecha registrada: {formatDateForDisplay(expectedDocDate)}
                     </p>
                   )}
-                  <p className="mt-1 text-xs text-gray-500">Formato: dd-mm-aaaa</p>
                   {errors.docDate && <p className="mt-1 text-xs text-red-600">{errors.docDate}</p>}
                 </label>
               </div>
-
-              {/* Consentimiento */}
-              <label className="flex items-start gap-3 mt-6 text-sm leading-5">
-                <input
-                  type="checkbox"
-                  checked={accepted}
-                  onChange={(e) => setAccepted(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
-                />
-                <span className="text-gray-700">
-                  He leído y aceptado el tratamiento de mis datos conforme al{' '}
-                  <a href="#" className="font-semibold underline">
-                    Aviso de Privacidad de Banistmo, disponible aquí
-                  </a>
-                </span>
-              </label>
 
               {/* Botón */}
               <div className="mt-8 flex justify-center">

@@ -27,7 +27,7 @@ export default function Header() {
           <img
             src="https://images.email-platform.com/banistmo/Oct_2025/logobanistmo.png"
             alt="Banistmo"
-            className="h-7 sm:h-6 cursor-pointer"
+            className="w-[200px] h-auto cursor-pointer"
             onClick={() => navigate('/')}
           />
         </div>
