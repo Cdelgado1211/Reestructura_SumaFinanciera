@@ -5,20 +5,36 @@ import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../
 
 const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
 
-const formatCurrency = (value) => {
-  if (value == null || value === '') return '—'
+const parseCurrencyNumber = (value) => {
+  if (value == null || value === '') return null
 
   const directNumber = Number(value)
   if (Number.isFinite(directNumber)) {
-    return directNumber.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+    return directNumber
   }
 
   const normalized = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
   if (Number.isFinite(normalized)) {
-    return normalized.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+    return normalized
   }
 
-  return String(value)
+  return null
+}
+
+const formatCurrency = (value) => {
+  const numeric = parseCurrencyNumber(value)
+
+  if (numeric == null) {
+    const stringValue = value != null ? String(value).trim() : ''
+    return stringValue ? stringValue : '—'
+  }
+
+  const formatted = Math.abs(numeric).toLocaleString('es-PA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+
+  return `${numeric < 0 ? '-' : ''}$${formatted}`
 }
 
 const formatPercent = (value) => {
@@ -182,19 +198,15 @@ export default function Verification() {
   }, [location.search, navigate, storedPlan])
 
   const generalInfo = useMemo(
-    () => [
-      {
-        label: 'Saldo total actual',
-        value: formatCurrency(record?.SALDOCAPITAL),
-        highlight: true,
-      },
-      { label: 'Plazo', value: record?.PLAZO_CONTRATADO || '—' },
-      { label: 'Monto vencido', value: formatCurrency(record?.TOTALVENC_POST) },
-      { label: 'Producto', value: record?.PRODUCTO || '—' },
-      { label: 'N° de Crédito', value: record?.NUMCRED || '—' },
-      { label: 'Tasa actual', value: formatPercent(record?.TASA_COBROS) },
-      { label: 'Letra actual', value: formatCurrency(record?.LETRA_COMPLETA) },
-    ],
+    () => ({
+      saldo: formatCurrency(record?.SALDOCAPITAL),
+      producto: record?.PRODUCTO || '—',
+      plazo: record?.PLAZO_CONTRATADO || '—',
+      montoVencido: formatCurrency(record?.TOTALVENC_POST),
+      numeroCredito: record?.NUMCRED || '—',
+      tasaActual: formatPercent(record?.TASA_COBROS),
+      letraActual: formatCurrency(record?.LETRA_COMPLETA),
+    }),
     [record],
   )
 
@@ -304,17 +316,12 @@ export default function Verification() {
         <div className="bg-white rounded-2xl shadow p-5 md:p-6">
           <Stepper current={2} />
 
-          <h1 className="mt-4 text-2xl font-semibold text-gray-900">Reestructuración de deuda</h1>
+          <h1 className="mt-4 text-2xl font-semibold text-gray-900">Arreglo de pagos</h1>
           <p className="text-gray-600">
             Verifica la información del nuevo plan de pagos de tu préstamo
           </p>
 
-          {hasPlanSelection ? (
-            <div className="mt-3 text-sm text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
-              Confirmaste el <span className="font-semibold">{storedPlan.titulo}</span>. Revisa los
-              detalles antes de continuar.
-            </div>
-          ) : (
+          {!hasPlanSelection && (
             <div className="mt-3 text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
               Selecciona un plan para continuar con la verificación.
             </div>
@@ -324,20 +331,43 @@ export default function Verification() {
           <div className="mt-6">
             <h2 className="text-base font-semibold text-gray-900 mb-3">Información de tu préstamo actual</h2>
             <div className="rounded-2xl border border-gray-200 p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10">
-                {generalInfo.map(({ label, value, highlight }) => (
-                  <div key={label}>
-                    <div className="text-sm text-gray-600">{label}</div>
-                    <div
-                      className={[
-                        'text-lg font-semibold text-gray-900',
-                        highlight ? 'text-2xl font-extrabold' : '',
-                      ].join(' ')}
-                    >
-                      {value}
-                    </div>
+              <div className="pb-6 border-b border-gray-100">
+                <div className="text-sm text-gray-600">Saldo total actual</div>
+                <div className="mt-1 text-3xl font-extrabold text-gray-900">{generalInfo.saldo}</div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <div className="text-sm text-gray-600">Producto</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">{generalInfo.producto}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Plazo</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">{generalInfo.plazo}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Monto vencido</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {generalInfo.montoVencido}
                   </div>
-                ))}
+                </div>
+              </div>
+
+              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div>
+                  <div className="text-sm text-gray-600">N° de Crédito</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {generalInfo.numeroCredito}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Tasa actual</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">{generalInfo.tasaActual}</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Letra actual</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">{generalInfo.letraActual}</div>
+                </div>
               </div>
             </div>
           </div>
@@ -354,7 +384,7 @@ export default function Verification() {
                     <div className="text-3xl font-extrabold text-gray-900">
                       {formatCurrency(displayPlan.cuota.value)}
                     </div>
-                    <div className="text-xs text-gray-500 text-right sm:text-left">Total plan</div>
+                    <div className="text-xs text-gray-500 text-right sm:text-left">Letra mensual</div>
                   </div>
                 </div>
 
@@ -364,7 +394,7 @@ export default function Verification() {
                       1
                     </span>
                     <span>
-                      Extensión del plazo{' '}
+                      Nuevo plazo{' '}
                       <strong>{formatMonths(displayPlan.extension.value)}</strong>
                     </span>
                   </li>
@@ -382,7 +412,7 @@ export default function Verification() {
                       3
                     </span>
                     <span>
-                      Fecha de pago <strong>{formatDate(displayPlan.fecha.value)}</strong>
+                      Próxima fecha de pago <strong>{formatDate(displayPlan.fecha.value)}</strong>
                     </span>
                   </li>
                 </ul>
