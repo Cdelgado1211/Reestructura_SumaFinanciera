@@ -276,9 +276,6 @@ export default function IntroVerification() {
 
                 {/* Fecha de expiración (debajo de cédula) */}
                 <label className="block mt-3">
-                  <p className="text-xs text-gray-600 leading-none mb-1">
-                    Fecha de expiración de cédula
-                  </p>
                   <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
                     <CalendarIcon className="w-5 h-5 text-gray-500" />
                     <input
@@ -291,7 +288,7 @@ export default function IntroVerification() {
                       }}
                       className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
                       aria-label="Fecha de expiración del documento"
-                      placeholder="Fecha de Expiración de cédula"
+                      placeholder="Fecha de expiración de cédula"
                     />
                   </div>
                   {expectedDocDate && (
@@ -314,14 +311,15 @@ export default function IntroVerification() {
                   className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
                 />
                 <span>
-                  He leído y aceptado el tratamiento de mis datos conforme al{' '}
+                  He leído y aceptado el tratamiento de mis datos conforme al Aviso de Privacidad de
+                  Banistmo,{' '}
                   <a
                     href="https://www.banistmo.com/acerca-de/aviso-de-privacidad"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-black hover:text-gray-900 font-semibold"
                   >
-                    Aviso de Privacidad de Banistmo
+                    disponible aquí
                   </a>
                   .
                 </span>
