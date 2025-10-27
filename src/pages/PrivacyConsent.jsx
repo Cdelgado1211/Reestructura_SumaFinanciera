@@ -55,13 +55,13 @@ export default function PrivacyConsent() {
 
           {/* Header fijo dentro de la tarjeta */}
           <header className="px-6 sm:px-10 pt-6 sm:pt-10">
-            <p className="privacy-heading uppercase text-[#002f6c]">
+            <p className="privacy-heading uppercase text-black">
               Consentimiento de tratamiento de datos
             </p>
-            <h1 className="mt-3 text-xl sm:text-xl font-semibold text-gray-900">
+            <p className="mt-3 privacy-body text-black">
               Al entregar tu información, declaras que has leído, entiendes y aceptas el
               tratamiento de tus datos conforme al Aviso de Privacidad de Banistmo.
-            </h1>
+            </p>
           </header>
 
           {/* Contenido con scroll propio */}
@@ -73,7 +73,7 @@ export default function PrivacyConsent() {
           >
             <article className="space-y-6 text-gray-700">
               <div>
-                <h2 className="privacy-heading uppercase text-[#002f6c]">Aviso de privacidad</h2>
+                <h2 className="privacy-heading uppercase text-black">Aviso de privacidad</h2>
                 <p className="mt-3 privacy-body">
                   En Banistmo, S.A. reconocemos la importancia de la seguridad, la privacidad y la
                   confidencialidad de los datos de nuestros clientes, colaboradores y proveedores. Por
