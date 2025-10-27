@@ -329,99 +329,56 @@ export default function Verification() {
 
           {/* Información del préstamo */}
           <div className="mt-6">
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Información de tu préstamo actual</h2>
             <div className="rounded-2xl border border-gray-200 p-6">
-              <div className="pb-6 border-b border-gray-100">
-                <div className="text-sm text-gray-600">Saldo total actual</div>
-                <div className="mt-1 text-3xl font-extrabold text-gray-900">{generalInfo.saldo}</div>
-              </div>
+              <h2 className="text-base font-semibold text-gray-900">Información del préstamo</h2>
 
               <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <div className="text-sm text-gray-600">Producto</div>
-                  <div className="mt-1 text-base font-semibold text-gray-900">{generalInfo.producto}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600">Plazo</div>
-                  <div className="mt-1 text-base font-semibold text-gray-900">{generalInfo.plazo}</div>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600">Monto vencido</div>
+                  <div className="text-sm text-gray-600">Nuevo plazo</div>
                   <div className="mt-1 text-base font-semibold text-gray-900">
-                    {generalInfo.montoVencido}
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <div className="text-sm text-gray-600">N° de Crédito</div>
-                  <div className="mt-1 text-base font-semibold text-gray-900">
-                    {generalInfo.numeroCredito}
+                    {hasPlanSelection ? formatMonths(displayPlan.extension.value) : generalInfo.plazo || '--'}
                   </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Tasa actual</div>
-                  <div className="mt-1 text-base font-semibold text-gray-900">{generalInfo.tasaActual}</div>
+                  <div className="text-sm text-gray-600">Tasa de interés</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {hasPlanSelection ? formatPercent(displayPlan.tasa.value) : generalInfo.tasaActual || '--'}
+                  </div>
                 </div>
                 <div>
-                  <div className="text-sm text-gray-600">Letra actual</div>
-                  <div className="mt-1 text-base font-semibold text-gray-900">{generalInfo.letraActual}</div>
+                  <div className="text-sm text-gray-600">Próxima letra a pagar</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {hasPlanSelection
+                      ? formatCurrency(displayPlan.cuota.value)
+                      : generalInfo.letraActual || '--'}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* Plan seleccionado */}
+          {/* Datos del período */}
           <div className="mt-6">
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Plan seleccionado</h2>
+            <div className="rounded-2xl border border-gray-200 p-6">
+              <h2 className="text-base font-semibold text-gray-900">Datos del período</h2>
 
-            {hasPlanSelection ? (
-              <div className="rounded-2xl border-2 border-yellow-300 bg-white p-5">
-                <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-2">
-                  <div className="text-sm text-gray-600">{storedPlan.titulo}</div>
-                  <div>
-                    <div className="text-3xl font-extrabold text-gray-900">
-                      {formatCurrency(displayPlan.cuota.value)}
-                    </div>
-                    <div className="text-xs text-gray-500 text-right sm:text-left">Letra mensual</div>
+              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <div className="text-sm text-gray-600">Próxima letra a pagar</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {hasPlanSelection
+                      ? formatCurrency(displayPlan.cuota.value)
+                      : generalInfo.letraActual || '--'}
                   </div>
                 </div>
-
-                <ul className="mt-4 space-y-3 text-sm text-gray-800">
-                  <li className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
-                      1
-                    </span>
-                    <span>
-                      Nuevo plazo{' '}
-                      <strong>{formatMonths(displayPlan.extension.value)}</strong>
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
-                      2
-                    </span>
-                    <span>
-                      Tasa de interés anual{' '}
-                      <strong>{formatPercent(displayPlan.tasa.value)}</strong>
-                    </span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 text-xs font-semibold">
-                      3
-                    </span>
-                    <span>
-                      Próxima fecha de pago <strong>{formatDate(displayPlan.fecha.value)}</strong>
-                    </span>
-                  </li>
-                </ul>
+                <div>
+                  <div className="text-sm text-gray-600">Próxima fecha de pago</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {hasPlanSelection ? formatDate(displayPlan.fecha.value) : '--'}
+                  </div>
+                </div>
               </div>
-            ) : (
-              <div className="rounded-2xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
-                Selecciona un plan en el paso anterior para revisar sus detalles.
-              </div>
-            )}
+            </div>
           </div>
 
           {/* Pregunta + acciones */}
