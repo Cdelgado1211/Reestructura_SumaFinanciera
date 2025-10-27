@@ -311,15 +311,14 @@ export default function IntroVerification() {
                   className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
                 />
                 <span>
-                  He leído y aceptado el tratamiento de mis datos conforme al Aviso de Privacidad de
-                  Banistmo,{' '}
+                  He leído y aceptado el tratamiento de mis datos conforme al{' '}
                   <a
                     href="https://www.banistmo.com/acerca-de/aviso-de-privacidad"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-black hover:text-gray-900 font-semibold"
                   >
-                    disponible aquí
+                    Aviso de Privacidad de Banistmo, disponible aquí
                   </a>
                   .
                 </span>
