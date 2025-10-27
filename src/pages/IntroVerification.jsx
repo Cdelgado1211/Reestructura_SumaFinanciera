@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
+import DatePickerButton from '../components/form/DatePickerButton'
 import pantalla1 from '../assets/pantalla1.png'   // tu imagen local
 
 export default function IntroVerification() {
@@ -105,11 +106,11 @@ export default function IntroVerification() {
       newErrors.docId = 'Ingresa tu número de cédula.'
     }
 
-    const normalizedInputDate = normalizeDisplayDate(docDate)
+    const normalizedInputDate = docDate
 
     if (!docDate) {
       newErrors.docDate = 'Ingresa la fecha de expiración.'
-    } else if (!normalizedInputDate) {
+    } else if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedInputDate)) {
       newErrors.docDate = 'El formato de la fecha debe ser dd-mm-aaaa.'
     }
 
@@ -278,18 +279,17 @@ export default function IntroVerification() {
                 <label className="block mt-3">
                   <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
                     <CalendarIcon className="w-5 h-5 text-gray-500" />
-                    <input
-                      type="date"
-                      value={normalizeDisplayDate(docDate) || ''}
-                      onChange={(e) => {
-                        const isoValue = e.target.value
-                        setDocDate(isoValue ? formatDateForDisplay(isoValue) : '')
-                        setErrors((prev) => ({ ...prev, docDate: undefined, general: undefined }))
-                      }}
-                      className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
-                      aria-label="Fecha de expiración del documento"
-                      placeholder="Fecha de expiración de cédula"
-                    />
+                    <div className="flex-1">
+                      <DatePickerButton
+                        value={docDate}
+                        onChange={(nextValue) => {
+                          setDocDate(nextValue || '')
+                          setErrors((prev) => ({ ...prev, docDate: undefined, general: undefined }))
+                        }}
+                        placeholder="Fecha de expiración de cédula"
+                        ariaLabel="Fecha de expiración del documento"
+                      />
+                    </div>
                   </div>
                   {expectedDocDate && (
                     <p className="mt-2 text-xs text-gray-500">
@@ -383,17 +383,6 @@ function formatDateForDisplay(isoDate) {
 function compareDocumentId(input, expected) {
   const normalize = (value) => (value || '').replace(/[\s-]/g, '').toUpperCase()
   return normalize(input) === normalize(expected)
-}
-
-function normalizeDisplayDate(value) {
-  if (!value) return ''
-  const parts = value.split('-')
-  if (parts.length !== 3) return ''
-  const [day, month, year] = parts
-  if (day?.length !== 2 || month?.length !== 2 || year?.length !== 4) {
-    return ''
-  }
-  return `${year}-${month}-${day}`
 }
 
 function hasCommittedChoice(value) {
