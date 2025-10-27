@@ -291,6 +291,7 @@ export default function IntroVerification() {
                       }}
                       className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
                       aria-label="Fecha de expiración del documento"
+                      placeholder="Fecha de Expiración de cédula"
                     />
                   </div>
                   {expectedDocDate && (
@@ -318,7 +319,7 @@ export default function IntroVerification() {
                     href="https://www.banistmo.com/acerca-de/aviso-de-privacidad"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-yellow-500 hover:text-yellow-600 font-semibold"
+                    className="text-black hover:text-gray-900 font-semibold"
                   >
                     Aviso de Privacidad de Banistmo
                   </a>
