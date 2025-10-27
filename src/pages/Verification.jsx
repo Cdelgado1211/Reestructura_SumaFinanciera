@@ -1,9 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { isServiceErrorResponse } from '../utils/serviceResponse'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
-
-const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
 
 const parseCurrencyNumber = (value) => {
   if (value == null || value === '') return null
@@ -167,8 +164,6 @@ const resolveFieldDetails = (field, record) => {
 export default function Verification() {
   const navigate = useNavigate()
   const location = useLocation()
-  const [submitError, setSubmitError] = useState(null)
-  const [submitting, setSubmitting] = useState(false)
   const [danaParam, setDanaParam] = useState('')
 
   const storedPlan = useMemo(
@@ -222,91 +217,12 @@ export default function Verification() {
   const hasPlanSelection = Boolean(storedPlan?.id)
 
   const onCancel = () => navigate(buildPathWithDana('/plan', danaParam))
-  const onConfirm = async () => {
-    if (!hasPlanSelection || submitting || !danaParam) {
+  const onConfirm = () => {
+    if (!hasPlanSelection || !danaParam) {
       return
     }
 
-    setSubmitError(null)
-    setSubmitting(true)
-
-    const sanitizeValue = (detail, fallback) => {
-      if (detail && detail.value != null && detail.value !== '') {
-        return detail.value
-      }
-
-      if (fallback != null && fallback !== '') {
-        return fallback
-      }
-
-      return ''
-    }
-
-    try {
-      const payload = {
-        NEW_LETRA_MENSUAL: sanitizeValue(
-          displayPlan.cuota,
-          storedPlan?.fields?.cuota?.raw,
-        ),
-        NEW_EXTENSION_PLAZO: sanitizeValue(
-          displayPlan.extension,
-          storedPlan?.fields?.extension?.raw,
-        ),
-        NEW_TASA_INTERES: sanitizeValue(
-          displayPlan.tasa,
-          storedPlan?.fields?.tasa?.raw,
-        ),
-        NEW_FECHA_PAGO_FIN: sanitizeValue(
-          displayPlan.fecha,
-          storedPlan?.fields?.fecha?.raw,
-        ),
-        USER_COMMITTED_CHOICE: true,
-      }
-
-      if (storedPlan?.id || storedPlan?.titulo) {
-        payload.metadata = {}
-        if (storedPlan?.id) {
-          payload.metadata.planId = storedPlan.id
-        }
-        if (storedPlan?.titulo) {
-          payload.metadata.planTitulo = storedPlan.titulo
-        }
-      }
-
-      const response = await fetch(
-        `${LAMBDA_ENDPOINT}?dana=${encodeURIComponent(danaParam)}&s=c`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(payload),
-        },
-      )
-
-      if (!response.ok) {
-        throw new Error(`Error ${response.status}`)
-      }
-
-      let data = null
-      try {
-        data = await response.json()
-      } catch (parseError) {
-        console.warn('La respuesta del servicio no contenía JSON', parseError)
-      }
-
-      if (data && isServiceErrorResponse(data, { requireRecord: false })) {
-        navigate('/error', { replace: true })
-        return
-      }
-
-      navigate(buildPathWithDana('/contrato', danaParam))
-    } catch (error) {
-      console.error('No se pudo confirmar el plan seleccionado', error)
-      setSubmitError('No pudimos confirmar tu selección. Intenta nuevamente en unos minutos.')
-    } finally {
-      setSubmitting(false)
-    }
+    navigate(buildPathWithDana('/contrato', danaParam))
   }
 
   return (
@@ -384,12 +300,6 @@ export default function Verification() {
           {/* Pregunta + acciones */}
           <p className="mt-6 text-gray-700">¿Confirmas la reestructuración de la deuda?</p>
 
-          {submitError && (
-            <p className="mt-2 text-sm text-red-600" role="alert">
-              {submitError}
-            </p>
-          )}
-
           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
             <button
               type="button"
@@ -401,15 +311,15 @@ export default function Verification() {
             <button
               type="button"
               onClick={onConfirm}
-              disabled={!hasPlanSelection || submitting || !danaParam}
+              disabled={!hasPlanSelection || !danaParam}
               className={[
                 'px-6 py-2.5 rounded-full font-semibold transition-colors',
-                hasPlanSelection && !submitting && danaParam
+                hasPlanSelection && danaParam
                   ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
                   : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
               ].join(' ')}
             >
-              {submitting ? 'Confirmando…' : 'Confirmar'}
+              Confirmar
             </button>
           </div>
         </div>
