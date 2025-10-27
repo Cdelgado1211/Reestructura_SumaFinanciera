@@ -5,20 +5,36 @@ import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../
 
 const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
 
-const formatCurrency = (value) => {
-  if (value == null || value === '') return '—'
+const parseCurrencyNumber = (value) => {
+  if (value == null || value === '') return null
 
   const directNumber = Number(value)
   if (Number.isFinite(directNumber)) {
-    return directNumber.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+    return directNumber
   }
 
   const normalized = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
   if (Number.isFinite(normalized)) {
-    return normalized.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+    return normalized
   }
 
-  return String(value)
+  return null
+}
+
+const formatCurrency = (value) => {
+  const numeric = parseCurrencyNumber(value)
+
+  if (numeric == null) {
+    const stringValue = value != null ? String(value).trim() : ''
+    return stringValue ? stringValue : '—'
+  }
+
+  const formatted = Math.abs(numeric).toLocaleString('es-PA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+
+  return `${numeric < 0 ? '-' : ''}$${formatted}`
 }
 
 const formatPercent = (value) => {
@@ -149,19 +165,15 @@ export default function PlanSelection() {
   }, [location.search, navigate])
 
   const generalInfo = useMemo(
-    () => [
-      {
-        label: 'Saldo total actual',
-        value: formatCurrency(record?.SALDOCAPITAL),
-        highlight: true,
-      },
-      { label: 'Plazo', value: record?.PLAZO_CONTRATADO || '—' },
-      { label: 'Monto vencido', value: formatCurrency(record?.TOTALVENC_POST) },
-      { label: 'Producto', value: record?.PRODUCTO || '—' },
-      { label: 'N° de Crédito', value: record?.NUMCRED || '—' },
-      { label: 'Tasa actual', value: formatPercent(record?.TASA_COBROS) },
-      { label: 'Letra actual', value: formatCurrency(record?.LETRA_COMPLETA) },
-    ],
+    () => ({
+      saldo: formatCurrency(record?.SALDOCAPITAL),
+      producto: record?.PRODUCTO || '—',
+      plazo: record?.PLAZO_CONTRATADO || '—',
+      montoVencido: formatCurrency(record?.TOTALVENC_POST),
+      numeroCredito: record?.NUMCRED || '—',
+      tasaActual: formatPercent(record?.TASA_COBROS),
+      letraActual: formatCurrency(record?.LETRA_COMPLETA),
+    }),
     [record],
   )
 
@@ -186,7 +198,7 @@ export default function PlanSelection() {
     const planDefinitions = [
       {
         id: 'plan1',
-        titulo: 'Plan / Oferta 1',
+        titulo: 'Plan 1',
         cuotaKey: 'CUOTA_FINAL_1',
         extensionKey: 'PLAZO_OFERTA_1',
         tasaKey: 'TASA_OFERTA_1',
@@ -194,7 +206,7 @@ export default function PlanSelection() {
       },
       {
         id: 'plan2',
-        titulo: 'Plan / Oferta 2',
+        titulo: 'Plan 2',
         cuotaKey: 'CUOTA_FINAL_2',
         extensionKey: 'PLAZO_OFERTA_2',
         tasaKey: 'TASA_OFERTA_2',
@@ -202,7 +214,7 @@ export default function PlanSelection() {
       },
       {
         id: 'plan3',
-        titulo: 'Plan / Oferta 3',
+        titulo: 'Plan 3',
         cuotaKey: 'CUOTA_FINAL_3',
         extensionKey: 'PLAZO_OFERTA_3',
         tasaKey: 'TASA_OFERTA_3',
@@ -304,7 +316,7 @@ export default function PlanSelection() {
 
           {/* Título + intro */}
           <div className="mt-3">
-            <h1 className="text-lg md:text-xl font-semibold text-gray-900">Reestructuración de deuda</h1>
+            <h1 className="text-lg md:text-xl font-semibold text-gray-900">Arreglo de pagos</h1>
             <p className="text-gray-600 text-sm">
               Bienvenido, aquí podrás reestructurar tus pagos y ponerte al día con tu préstamo.
             </p>
@@ -325,20 +337,21 @@ export default function PlanSelection() {
             </h2>
 
             <div className="rounded-2xl border border-gray-200 p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10">
-                {generalInfo.map(({ label, value, highlight }) => (
-                  <div key={label}>
-                    <div className="text-sm text-gray-600">{label}</div>
-                    <div
-                      className={[
-                        'text-lg font-semibold text-gray-900',
-                        highlight ? 'text-2xl font-extrabold' : '',
-                      ].join(' ')}
-                    >
-                      {value}
-                    </div>
-                  </div>
-                ))}
+              <div>
+                <div className="text-sm text-gray-600">Saldo total actual</div>
+                <div className="text-3xl font-extrabold text-gray-900 mt-1">{generalInfo.saldo}</div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <InfoField label="Producto" value={generalInfo.producto} />
+                <InfoField label="Plazo" value={generalInfo.plazo} />
+                <InfoField label="Monto vencido" value={generalInfo.montoVencido} />
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <InfoField label="No. de crédito" value={generalInfo.numeroCredito} />
+                <InfoField label="Tasa actual" value={generalInfo.tasaActual} />
+                <InfoField label="Letra actual" value={generalInfo.letraActual} />
               </div>
             </div>
           </div>
@@ -396,6 +409,15 @@ export default function PlanSelection() {
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+function InfoField({ label, value }) {
+  return (
+    <div>
+      <div className="text-sm text-gray-600">{label}</div>
+      <div className="text-base font-semibold text-gray-900 mt-1">{value}</div>
     </div>
   )
 }
@@ -484,13 +506,13 @@ function PlanCard({ plan, checked, onSelect }) {
 
       <div className="text-xs text-gray-600">{plan.titulo}</div>
       <div className="text-2xl font-extrabold text-gray-900">{plan.cuotaLabel}</div>
-      <div className="text-xs text-gray-500">Total plan</div>
+      <div className="text-xs text-gray-500">Letra mensual</div>
 
       <ul className="mt-3 space-y-2 text-sm text-gray-800">
         <li className="flex items-center gap-2">
           <IconFeature />
           <span>
-            Extensión del plazo <strong>{plan.extLabel}</strong>
+            Nuevo plazo <strong>{plan.extLabel}</strong>
           </span>
         </li>
         <li className="flex items-center gap-2">
@@ -502,7 +524,7 @@ function PlanCard({ plan, checked, onSelect }) {
         <li className="flex items-center gap-2">
           <IconCalendar />
           <span>
-            Fecha de pago <strong>{plan.fechaLabel}</strong>
+            Próxima fecha de pago <strong>{plan.fechaLabel}</strong>
           </span>
         </li>
       </ul>
