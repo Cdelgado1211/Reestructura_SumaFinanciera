@@ -215,7 +215,7 @@ export default function Confirmation() {
   return (
     <div className="py-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Reestructuración de deuda</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Arreglo de pagos</h1>
         <p className="text-gray-600 mb-6">Confirmación</p>
 
         {/* Card central */}
@@ -225,7 +225,7 @@ export default function Confirmation() {
 
             <h2 className="mt-2 text-xl font-semibold text-gray-900">Felicidades</h2>
             <p className="mt-1 text-gray-700">
-              ¡Reestructura de deuda realizada con éxito!
+              ¡Hemos recibido tu solicitud de arreglo de pago con éxito!
             </p>
 
             {/* Información de tu préstamo */}
@@ -252,8 +252,12 @@ export default function Confirmation() {
             </section>
 
             <p className="mt-6 text-gray-700">
-              Los documentos que sustentan la Reestructuración de tu deuda y tu nuevo plan de pagos,
-              fueron enviados al correo electrónico del cliente
+              La actualización de crédito se realizará en{' '}
+              <span className="italic font-semibold">3 días hábiles</span>.
+              <br />
+              <span className="italic font-semibold">
+                El resto de las condiciones estipuladas en su contrato se mantienen igual.
+              </span>
             </p>
 
             <div className="mt-6">
@@ -282,10 +286,11 @@ function Item({ label, value, strong }) {
 }
 
 function CheckCelebration() {
-  // pequeño “check” estilizado
   return (
-    <svg width="38" height="38" viewBox="0 0 24 24" className="mx-auto text-green-500" aria-hidden="true">
-      <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
+    <img
+      src="https://imgcdn.email-platform.com/banistmo/checkcompleted.png"
+      alt="Confirmación exitosa"
+      className="mx-auto"
+    />
   )
 }

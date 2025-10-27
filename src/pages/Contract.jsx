@@ -37,7 +37,7 @@ export default function Contract() {
             <Stepper current={3} />
 
             <h1 className="mt-4 text-2xl font-semibold text-gray-900">
-              Reestructuración de deuda
+              Arreglo de pagos
             </h1>
             <p className="text-gray-600">
               Lee y acepta los términos y condiciones
@@ -124,7 +124,7 @@ export default function Contract() {
                   'px-6 py-2.5 rounded-full font-semibold transition-colors',
                   accepted
                     ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
-                    : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
+                    : 'bg-gray-200 text-gray-500 cursor-not-allowed',
                 ].join(' ')}
               >
                 Confirmar
