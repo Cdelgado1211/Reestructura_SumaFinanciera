@@ -403,7 +403,7 @@ export default function PlanSelection() {
                     : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
                 ].join(' ')}
               >
-                Confirmar
+                Continuar
               </button>
             </div>
           </div>
@@ -509,20 +509,26 @@ function PlanCard({ plan, checked, onSelect }) {
       <div className="text-xs text-gray-500">Letra mensual</div>
 
       <ul className="mt-3 space-y-2 text-sm text-gray-800">
-        <li className="flex items-center gap-2">
-          <IconFeature />
+        <li className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+            <IconAlarm />
+          </span>
           <span>
             Nuevo plazo <strong>{plan.extLabel}</strong>
           </span>
         </li>
-        <li className="flex items-center gap-2">
-          <IconPercent />
+        <li className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+            <IconPlant />
+          </span>
           <span>
             Tasa de interés anual <strong>{plan.tasaLabel}</strong>
           </span>
         </li>
-        <li className="flex items-center gap-2">
-          <IconCalendar />
+        <li className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+            <IconCalendar />
+          </span>
           <span>
             Próxima fecha de pago <strong>{plan.fechaLabel}</strong>
           </span>
@@ -540,28 +546,71 @@ function CheckIcon() {
     </svg>
   )
 }
-function IconFeature() {
+function IconAlarm() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
-      <path d="M5 4h14v12a2 2 0 0 1-2 2h-3l-2 2-2-2H7a2 2 0 0 1-2-2V4z" stroke="currentColor" />
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="text-gray-600"
+    >
+      <circle cx="12" cy="13" r="6" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 10.5V13l2 1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path
+        d="M7.2 5.1 5 3 3 5l2.2 2.2M16.8 5.1 19 3l2 2-2.2 2.2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path d="M9 19l-1.5 1.8M15 19l1.5 1.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   )
 }
-function IconPercent() {
+function IconPlant() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
-      <path d="M6 18L18 6" stroke="currentColor" />
-      <circle cx="8" cy="8" r="2" stroke="currentColor" />
-      <circle cx="16" cy="16" r="2" stroke="currentColor" />
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="text-gray-600"
+    >
+      <path
+        d="M12 20v-7.5c0-2.5 1.7-4.7 4.1-5.4 1.5-.4 3.3-.4 4.9.6-1 3-3.4 4.8-5.8 4.8h-1.2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 12.5c0-2.5-1.7-4.7-4.1-5.4-1.5-.4-3.3-.4-4.9.6 1 3 3.4 4.8 5.8 4.8H9"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M12 20c0-1.5-1-2.5-2.5-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M12 20c0-1.5 1-2.5 2.5-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   )
 }
 function IconCalendar() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
-      <rect x="3" y="4.5" width="18" height="16" rx="2.5" stroke="currentColor" />
-      <path d="M3 9h18" stroke="currentColor" />
-      <path d="M8 3v3M16 3v3" stroke="currentColor" />
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="text-gray-600"
+    >
+      <rect x="4" y="5" width="16" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M4 9.5h16" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M9 3.5v3M15 3.5v3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <rect x="9" y="12" width="2.8" height="2.8" rx="0.6" fill="currentColor" />
     </svg>
   )
 }
