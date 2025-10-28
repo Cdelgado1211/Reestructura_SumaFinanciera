@@ -232,7 +232,7 @@ export default function Contract() {
               Arreglo de pagos
             </h1>
             <p className="text-gray-600">
-              Lee y acepta los términos y condiciones
+              Lee y acepta las disposiciones legales
             </p>
           </div>
 
@@ -243,42 +243,39 @@ export default function Contract() {
                 className="rounded-xl bg-white max-h-[60vh] sm:max-h-[58vh] overflow-y-auto p-6 pr-4"
                 aria-label="Términos y condiciones (desplázate para leer)"
               >
-                <h3 className="text-center font-semibold">Términos y condiciones</h3>
-                <p className="text-center text-xs text-gray-600 mb-4">
-                  Contrato único de productos y servicios
-                </p>
+                <h3 className="text-center font-semibold text-gray-900">DISPOSICIONES LEGALES</h3>
 
-                <p className="text-sm text-gray-800 mb-3"><strong>DEFINICIONES</strong></p>
-                <p className="text-sm text-gray-800 mb-3">
-                  Para todos los efectos de este contrato los términos detallados a continuación se
-                  entenderán como siguen:
-                </p>
-                <p className="text-sm text-gray-800 mb-3">
-                  <strong>Aceptación Electrónica:</strong> se refiere al uso de los elementos de
-                  identificación y autenticación de EL CLIENTE para operar dentro de los sistemas
-                  de BANCA ELECTRÓNICA, equivalentes a la aceptación de las instrucciones dadas
-                  ayudando a establecer una relación entre las instrucciones y la identidad del CLIENTE.
-                </p>
-                <p className="text-sm text-gray-800">
-                  <strong>Banco:</strong> se entiende como BANISTMO, S.A.
-                </p>
-
-                {/* --- contenido extra de ejemplo para forzar scroll --- */}
-                <div className="prose-sm text-sm text-gray-800 mt-4 space-y-3">
-                  <p>1. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed posuere, nibh non bibendum porta, urna nisl vulputate lorem, sed aliquet ipsum augue nec turpis.</p>
-                  <p>2. Integer accumsan, augue non scelerisque feugiat, urna lacus convallis ipsum, vel sagittis nisl quam id risus. Donec id cursus orci.</p>
-                  <p>3. Suspendisse potenti. Fusce imperdiet ante sed massa molestie, vitae vestibulum nisl efficitur. Sed id sem at arcu convallis facilisis.</p>
-                  <p>4. Curabitur facilisis, sapien eu venenatis rhoncus, justo risus feugiat mi, non placerat massa lacus id nunc. Integer viverra, leo non luctus gravida, lorem sem vehicula nisl, non luctus neque lorem a lacus.</p>
-                  <p>5. Nulla facilisi. Donec nec fringilla neque. Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas.</p>
-                  <p>6. Vivamus faucibus, mauris ut tristique consectetur, nunc nisi posuere lorem, non varius augue libero sit amet odio. In interdum, nibh ac tristique tempor, erat sem fermentum urna, non pretium eros arcu nec nisi.</p>
-                  <p>7. Phasellus dictum, arcu id fermentum facilisis, lacus magna scelerisque neque, sed viverra lectus sapien at tortor. Sed a pulvinar nibh.</p>
-                  <p>8. Aliquam erat volutpat. Duis interdum varius est, non fermentum ipsum posuere ac. Nunc porttitor, magna id ultricies volutpat, arcu risus viverra risus, quis volutpat risus ipsum in neque.</p>
-                  <p>9. Donec sed ante nec nunc pellentesque ultrices. Praesent eget felis id mi euismod faucibus. Pellentesque sit amet eleifend sapien.</p>
-                  <p>10. Etiam id massa consequat, finibus lectus at, porta lorem. Donec sed mi sem. Etiam facilisis hendrerit felis vitae vehicula.</p>
+                <div className="prose-sm text-sm text-gray-800 mt-4 space-y-4">
+                  <p>
+                    En este acto, usted se ratifica de las obligaciones adquiridas con relación al crédito
+                    descrito en la presente página (en adelante, el “Crédito”), y acepta que, por este
+                    medio, se formalizan modificaciones específicas a determinados términos y condiciones
+                    del Crédito y de su respectiva documentación legal, conforme a la opción aquí
+                    seleccionada por usted. Asimismo, usted autoriza y acepta que BANISTMO, S.A. (en
+                    adelante, el “Banco”) proceda a instalar e implementar dichas modificaciones del
+                    Crédito en su sistema interno.
+                  </p>
+                  <p>
+                    Usted declara y acepta que el Crédito y su respectiva documentación legal,
+                    continuarán en pleno vigor y efecto, tal como por este medio quedan enmendados, y que,
+                    salvo por las modificaciones expresamente aquí realizadas por usted, todas las demás
+                    disposiciones, declaraciones y obligaciones de dicho Crédito y su respectiva
+                    documentación legal, permanecerán vigentes y sin alteración, y con toda su validez y
+                    fuerza legal.
+                  </p>
+                  <p>
+                    Usted igualmente declara que las declaraciones y modificaciones que usted por este
+                    medio realiza, no constituyen novación de las obligaciones contraídas frente al BANCO
+                    mediante el Crédito.
+                  </p>
+                  <p>
+                    Al seleccionar “Acepto”, usted declara que ha leído, ha comprendido y está conforme
+                    con las presentes disposiciones legales, así como con las condiciones aplicables a las
+                    modificaciones del Crédito realizadas a través de la presente plataforma. Asimismo,
+                    usted reconoce y acepta el uso de la presente herramienta digital para formalizar el
+                    proceso de modificación del Crédito.
+                  </p>
                 </div>
-
-                {/* Espaciador para que el final sea claro */}
-                <div className="h-6" />
               </div>
             </div>
           </div>
@@ -296,7 +293,7 @@ export default function Contract() {
                 className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
               />
               <span className="text-gray-800">
-                Aceptar <strong>Términos y condiciones</strong>
+                Acepto <strong>Disposiciones Legales</strong>
               </span>
             </label>
 
