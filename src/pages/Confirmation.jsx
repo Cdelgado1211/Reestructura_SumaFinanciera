@@ -7,12 +7,12 @@ const formatCurrency = (value) => {
 
   const numeric = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
   if (Number.isFinite(numeric)) {
-    return numeric.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+    return `$${numeric.toLocaleString('es-PA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
   const directNumber = Number(value)
   if (Number.isFinite(directNumber)) {
-    return directNumber.toLocaleString('es-PA', { style: 'currency', currency: 'USD' })
+    return `$${directNumber.toLocaleString('es-PA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
   }
 
   return String(value)
@@ -234,7 +234,6 @@ export default function Confirmation() {
 
               <div className="mt-3 rounded-xl border border-gray-200 p-4">
                 <Item label="Nombre del Cliente" value={loan.nombre} strong />
-                <Item label="Plan seleccionado" value={loan.planTitle} />
                 <Item label="Nuevo plazo" value={loan.extension} />
                 <Item label="Nueva letra mensual" value={loan.cuota} />
                 <Item label="Tasa de interés" value={loan.tasa} />
