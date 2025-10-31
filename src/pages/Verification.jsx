@@ -252,7 +252,7 @@ export default function Verification() {
                   <div className="mt-1 text-base font-semibold text-gray-900">
                     {hasPlanSelection ? formatMonths(displayPlan.extension.value) : generalInfo.plazo || '--'}
                   </div>
-                  <div className="text-xs text-gray-500 mt-1">(Letras por pagar + Extensión)</div>
+                  <div className="text-[11px] leading-[15px] text-gray-500 mt-1">(Letras por pagar + Extensión)</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-600">Tasa de interés</div>

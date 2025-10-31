@@ -519,7 +519,7 @@ function PlanCard({ plan, checked, onSelect }) {
           <span className="flex flex-col leading-tight text-gray-800">
             <span className="text-sm text-gray-600">Nuevo plazo</span>
             <span className="text-base font-semibold text-gray-900">{plan.extLabel}</span>
-            <span className="text-xs text-gray-500">(Letras por pagar + Extensión)</span>
+            <span className="text-[11px] leading-[15px] text-gray-500">(Letras por pagar + Extensión)</span>
           </span>
         </li>
         <li className="flex items-center gap-3">
