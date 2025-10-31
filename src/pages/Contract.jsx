@@ -292,9 +292,7 @@ export default function Contract() {
                 onChange={(e) => setAccepted(e.target.checked)}
                 className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
               />
-              <span className="text-gray-800">
-                Acepto <strong>Disposiciones Legales</strong>
-              </span>
+              <span className="text-gray-800 font-semibold">Aceptar Disposiciones Legales</span>
             </label>
 
             {submitError && (
@@ -337,7 +335,7 @@ function Stepper({ current = 1 }) {
   const steps = [
     { id: 1, label: 'Plan de pago' },
     { id: 2, label: 'Verificación' },
-    { id: 3, label: 'Contrato' },
+    { id: 3, label: 'Disposiciones legales' },
   ]
 
   const total = steps.length
