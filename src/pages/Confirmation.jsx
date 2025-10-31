@@ -234,7 +234,11 @@ export default function Confirmation() {
 
               <div className="mt-3 rounded-xl border border-gray-200 p-4">
                 <Item label="Nombre del Cliente" value={loan.nombre} strong />
-                <Item label="Nuevo plazo" value={loan.extension} />
+                <Item
+                  label="Nuevo plazo"
+                  value={loan.extension}
+                  helper="(Letras por pagar + Extensión)"
+                />
                 <Item label="Nueva letra mensual" value={loan.cuota} />
                 <Item label="Tasa de interés" value={loan.tasa} />
               </div>
@@ -275,11 +279,14 @@ export default function Confirmation() {
 }
 
 /* ------------ UI helpers ------------ */
-function Item({ label, value, strong }) {
+function Item({ label, value, strong, helper }) {
   return (
     <div className="py-1">
       <div className="text-sm text-gray-600">{label}</div>
       <div className={strong ? 'font-semibold text-gray-900' : 'text-gray-900'}>{value}</div>
+      {helper ? (
+        <div className="text-[11px] leading-[15px] text-gray-500 mt-1">{helper}</div>
+      ) : null}
     </div>
   )
 }
