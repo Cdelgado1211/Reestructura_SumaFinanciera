@@ -358,7 +358,10 @@ export default function PlanSelection() {
 
           {/* Opciones */}
           <div className="mt-5">
-            <h2 className="text-sm font-medium text-gray-900 mb-3">Opciones de reestructuración de la deuda</h2>
+            <h2 className="text-sm font-medium text-gray-900 mb-3">
+              El nuevo plazo incluye las letras que aún tienes por pagar y te ofrece un tiempo adicional.
+              Elige la opción que mejor se adapte a ti.
+            </h2>
 
             {loading && (
               <p className="text-sm text-gray-500 mb-3">Cargando opciones de reestructuración…</p>
@@ -427,7 +430,7 @@ function Stepper({ current = 1 }) {
   const steps = [
     { id: 1, label: 'Plan de pago' },
     { id: 2, label: 'Verificación' },
-    { id: 3, label: 'Contrato' },
+    { id: 3, label: 'Disposiciones legales' },
   ]
 
   const total = steps.length
@@ -513,24 +516,28 @@ function PlanCard({ plan, checked, onSelect }) {
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
             <IconAlarm />
           </span>
-          <span>
-            Nuevo plazo <strong>{plan.extLabel}</strong>
+          <span className="flex flex-col leading-tight text-gray-800">
+            <span className="text-sm text-gray-600">Nuevo plazo</span>
+            <span className="text-base font-semibold text-gray-900">{plan.extLabel}</span>
+            <span className="text-xs text-gray-500">(Letras por pagar + Extensión)</span>
           </span>
         </li>
         <li className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
             <IconPlant />
           </span>
-          <span>
-            Tasa de interés anual <strong>{plan.tasaLabel}</strong>
+          <span className="flex flex-col leading-tight text-gray-800">
+            <span className="text-sm text-gray-600">Tasa de interés anual</span>
+            <span className="text-base font-semibold text-gray-900">{plan.tasaLabel}</span>
           </span>
         </li>
         <li className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
             <IconCalendar />
           </span>
-          <span>
-            Próxima fecha de pago <strong>{plan.fechaLabel}</strong>
+          <span className="flex flex-col leading-tight text-gray-800">
+            <span className="text-sm text-gray-600">Próxima fecha de pago</span>
+            <span className="text-base font-semibold text-gray-900">{plan.fechaLabel}</span>
           </span>
         </li>
       </ul>
