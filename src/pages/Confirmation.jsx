@@ -225,7 +225,7 @@ export default function Confirmation() {
 
             <h2 className="mt-2 text-xl font-semibold text-gray-900">Felicidades</h2>
             <p className="mt-1 text-gray-700">
-              ¡Hemos recibido tu solicitud de arreglo de pago con éxito!
+              ¡Hemos recibido tu solicitud de Reestructuración de deuda con éxito!
             </p>
 
             {/* Información de tu préstamo */}
@@ -251,11 +251,11 @@ export default function Confirmation() {
             </section>
 
             <p className="mt-6 text-gray-700">
-              La actualización de crédito se realizará en{' '}
-              <span className="italic font-semibold">3 días hábiles</span>.
+              Tu crédito se actualizará en{' '}
+              <span className="font-semibold">3 días hábiles</span>.
               <br />
-              <span className="italic font-semibold">
-                El resto de las condiciones estipuladas en su contrato se mantienen igual.
+              <span className="font-semibold">
+                Las condiciones actuales de su contrato siguen vigentes.
               </span>
             </p>
 
