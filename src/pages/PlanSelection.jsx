@@ -338,20 +338,20 @@ export default function PlanSelection() {
 
             <div className="rounded-2xl border border-gray-200 p-6">
               <div>
-                <div className="text-sm text-gray-600">Saldo total actual</div>
+                <div className="text-sm text-gray-600">Saldo total actual:</div>
                 <div className="text-3xl font-extrabold text-gray-900 mt-1">{generalInfo.saldo}</div>
               </div>
 
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <InfoField label="Monto vencido" value={generalInfo.montoVencido} />
                 <InfoField label="Producto" value={generalInfo.producto} />
                 <InfoField label="Plazo" value={generalInfo.plazo} />
-                <InfoField label="Monto vencido" value={generalInfo.montoVencido} />
               </div>
 
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <InfoField label="Letra actual" value={generalInfo.letraActual} />
                 <InfoField label="No. de crédito" value={generalInfo.numeroCredito} />
                 <InfoField label="Tasa actual" value={generalInfo.tasaActual} />
-                <InfoField label="Letra actual" value={generalInfo.letraActual} />
               </div>
             </div>
           </div>
