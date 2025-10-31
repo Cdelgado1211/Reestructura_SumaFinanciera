@@ -233,9 +233,7 @@ export default function Verification() {
           <Stepper current={2} />
 
           <h1 className="mt-4 text-2xl font-semibold text-gray-900">Reestructuración de deuda</h1>
-          <p className="text-gray-600">
-            Verifica la información del nuevo plan de pagos de tu préstamo
-          </p>
+          <p className="text-gray-600">Verifica la información del nuevo plan de pagos</p>
 
           {!hasPlanSelection && (
             <div className="mt-3 text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
@@ -254,6 +252,7 @@ export default function Verification() {
                   <div className="mt-1 text-base font-semibold text-gray-900">
                     {hasPlanSelection ? formatMonths(displayPlan.extension.value) : generalInfo.plazo || '--'}
                   </div>
+                  <div className="text-xs text-gray-500 mt-1">(Letras por pagar + Extensión)</div>
                 </div>
                 <div>
                   <div className="text-sm text-gray-600">Tasa de interés</div>
@@ -333,7 +332,7 @@ function Stepper({ current = 1 }) {
   const steps = [
     { id: 1, label: 'Plan de pago' },
     { id: 2, label: 'Verificación' },
-    { id: 3, label: 'Contrato' },
+    { id: 3, label: 'Disposiciones legales' },
   ]
 
   const total = steps.length
