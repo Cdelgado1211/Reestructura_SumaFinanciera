@@ -232,7 +232,7 @@ export default function Verification() {
         <div className="bg-white rounded-2xl shadow p-5 md:p-6">
           <Stepper current={2} />
 
-          <h1 className="mt-4 text-2xl font-semibold text-gray-900">Arreglo de pagos</h1>
+          <h1 className="mt-4 text-2xl font-semibold text-gray-900">Reestructuración de deuda</h1>
           <p className="text-gray-600">
             Verifica la información del nuevo plan de pagos de tu préstamo
           </p>

@@ -229,7 +229,7 @@ export default function Contract() {
             <Stepper current={3} />
 
             <h1 className="mt-4 text-2xl font-semibold text-gray-900">
-              Arreglo de pagos
+              Reestructuración de deuda
             </h1>
             <p className="text-gray-600">
               Lee y acepta las disposiciones legales

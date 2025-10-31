@@ -88,7 +88,7 @@ function ExitConfirmationModal({ onConfirm, onCancel }) {
           Salida del portal
         </h2>
         <p className="mt-3 text-sm text-gray-600">
-          ¿Estás seguro que deseas salir de la página de Arreglo de pagos?
+          ¿Estás seguro que deseas salir de la página de Reestructuración de deuda?
         </p>
         <div className="mt-8 space-y-3">
           <button

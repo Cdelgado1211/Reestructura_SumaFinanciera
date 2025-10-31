@@ -55,7 +55,9 @@ export default function PrivacyConsent() {
 
           {/* Header fijo dentro de la tarjeta */}
           <header className="px-6 sm:px-10 pt-6 sm:pt-10">
-            <p className="privacy-heading uppercase text-black">Consentimiento expreso</p>
+            <p className="privacy-heading uppercase text-black">
+              CONSENTIMIENTO DE TRATAMIENTO DE DATOS
+            </p>
             <p className="mt-3 privacy-body text-black">
               Al entregar tu información, declaras que has leído, entiendes y aceptas el
               tratamiento de tus datos conforme al Aviso de Privacidad de Banistmo, S.A. y/o

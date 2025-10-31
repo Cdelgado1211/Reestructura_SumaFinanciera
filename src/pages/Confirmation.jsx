@@ -215,7 +215,7 @@ export default function Confirmation() {
   return (
     <div className="py-8">
       <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Arreglo de pagos</h1>
+        <h1 className="text-2xl font-semibold text-gray-900">Reestructuración de deuda</h1>
         <p className="text-gray-600 mb-6">Confirmación</p>
 
         {/* Card central */}

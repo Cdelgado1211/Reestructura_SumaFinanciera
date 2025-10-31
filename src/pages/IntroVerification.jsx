@@ -213,7 +213,7 @@ export default function IntroVerification() {
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
-              Arreglo de pagos
+              Reestructuración de deuda
             </h2>
             <p className="text-center text-gray-600 mt-3 max-w-[40ch]">
               Es tu oportunidad para tener la tranquilidad de estar al día con tus pagos
@@ -238,7 +238,7 @@ export default function IntroVerification() {
                 ¡Hola {primerNombre}!
               </h1>
               <p className="text-center text-gray-600 mt-2">
-                Accede a la página de arreglo de pagos
+                Accede a la página de Reestructuración de deuda
               </p>
 
               {/* Bloque: datos de cédula */}

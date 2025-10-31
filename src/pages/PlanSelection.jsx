@@ -316,7 +316,7 @@ export default function PlanSelection() {
 
           {/* Título + intro */}
           <div className="mt-3">
-            <h1 className="text-lg md:text-xl font-semibold text-gray-900">Arreglo de pagos</h1>
+            <h1 className="text-lg md:text-xl font-semibold text-gray-900">Reestructuración de deuda</h1>
             <p className="text-gray-600 text-sm">
               Bienvenido, aquí podrás reestructurar tus pagos y ponerte al día con tu préstamo.
             </p>
