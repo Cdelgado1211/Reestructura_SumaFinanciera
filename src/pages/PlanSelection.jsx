@@ -202,7 +202,7 @@ export default function PlanSelection() {
         cuotaKey: 'CUOTA_FINAL_1',
         extensionKey: 'PLAZO_OFERTA_1',
         tasaKey: 'TASA_OFERTA_1',
-        fechaKeys: ['FECHA_PAGO_1', 'FECHA_PAGO_3', 'FECHA_PAGO_2'],
+        fechaKey: 'FECHA_PAGO',
       },
       {
         id: 'plan2',
@@ -210,7 +210,7 @@ export default function PlanSelection() {
         cuotaKey: 'CUOTA_FINAL_2',
         extensionKey: 'PLAZO_OFERTA_2',
         tasaKey: 'TASA_OFERTA_2',
-        fechaKeys: ['FECHA_PAGO_2', 'FECHA_PAGO_1', 'FECHA_PAGO_3'],
+        fechaKey: 'FECHA_PAGO',
       },
       {
         id: 'plan3',
@@ -218,7 +218,7 @@ export default function PlanSelection() {
         cuotaKey: 'CUOTA_FINAL_3',
         extensionKey: 'PLAZO_OFERTA_3',
         tasaKey: 'TASA_OFERTA_3',
-        fechaKeys: ['FECHA_PAGO_3', 'FECHA_PAGO_2', 'FECHA_PAGO_1'],
+        fechaKey: 'FECHA_PAGO',
       },
     ]
 
@@ -227,7 +227,7 @@ export default function PlanSelection() {
         const cuota = resolveValue(definition.cuotaKey)
         const extension = resolveValue(definition.extensionKey)
         const tasa = resolveValue(definition.tasaKey)
-        const fecha = resolveValue(definition.fechaKeys)
+        const fecha = resolveValue(definition.fechaKey)
 
         const cuotaLabel = formatCurrency(cuota.value)
         const extLabel = formatMonths(extension.value)
