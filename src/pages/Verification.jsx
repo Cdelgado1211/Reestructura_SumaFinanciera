@@ -285,7 +285,7 @@ export default function Verification() {
             <div className="rounded-2xl border border-gray-200 p-6">
               <h2 className="text-base font-semibold text-gray-900">Información del préstamo actual</h2>
 
-              <div className="mt-6 space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-6">
+              <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 {[
                   { label: 'Saldo total actual:', value: generalInfo.saldo },
                   { label: 'Letra actual', value: generalInfo.letraActual },

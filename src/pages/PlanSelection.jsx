@@ -401,7 +401,7 @@ export default function PlanSelection() {
                 <InfoField label="Letra actual" value={generalInfo.letraActual} />
                 <InfoField label="Monto vencido" value={generalInfo.montoVencido} />
                 <InfoField label="Producto" value={generalInfo.producto} />
-                <InfoField label="N° de crédito" value={generalInfo.numeroCredito} />
+                <InfoField label="N° de Crédito" value={generalInfo.numeroCredito} />
                 <InfoField label="Plazo actual" value={generalInfo.plazoActual} />
                 <InfoField label="Tasa actual" value={generalInfo.tasaActual} />
               </div>
