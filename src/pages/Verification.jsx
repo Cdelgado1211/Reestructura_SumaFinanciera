@@ -37,11 +37,18 @@ const formatCurrency = (value) => {
 const formatPercent = (value) => {
   if (value == null || value === '') return '—'
   const stringValue = String(value).trim()
-  if (stringValue.includes('%')) return stringValue
+
+  if (/anual/i.test(stringValue)) {
+    return stringValue
+  }
+
+  if (stringValue.includes('%')) {
+    return `${stringValue.replace(/%+\s*$/, '').trim()}% anual`
+  }
 
   const numeric = Number(stringValue.replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
   if (Number.isFinite(numeric)) {
-    return `${numeric}%`
+    return `${numeric}% anual`
   }
 
   return stringValue
@@ -246,7 +253,7 @@ export default function Verification() {
             <div className="rounded-2xl border border-gray-200 p-6">
               <h2 className="text-base font-semibold text-gray-900">Información del préstamo</h2>
 
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="mt-6 space-y-6">
                 <div>
                   <div className="text-sm text-gray-600">Nuevo plazo</div>
                   <div className="mt-1 text-base font-semibold text-gray-900">
@@ -277,7 +284,7 @@ export default function Verification() {
             <div className="rounded-2xl border border-gray-200 p-6">
               <h2 className="text-base font-semibold text-gray-900">Datos del período</h2>
 
-              <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="mt-6 space-y-6">
                 <div>
                   <div className="text-sm text-gray-600">Próxima letra a pagar</div>
                   <div className="mt-1 text-base font-semibold text-gray-900">

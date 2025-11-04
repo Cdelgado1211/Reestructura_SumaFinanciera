@@ -40,11 +40,18 @@ const formatCurrency = (value) => {
 const formatPercent = (value) => {
   if (value == null || value === '') return '—'
   const stringValue = String(value).trim()
-  if (stringValue.includes('%')) return stringValue
+
+  if (/anual/i.test(stringValue)) {
+    return stringValue
+  }
+
+  if (stringValue.includes('%')) {
+    return `${stringValue.replace(/%+\s*$/, '').trim()}% anual`
+  }
 
   const numeric = Number(stringValue.replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
   if (Number.isFinite(numeric)) {
-    return `${numeric}%`
+    return `${numeric}% anual`
   }
 
   return stringValue
