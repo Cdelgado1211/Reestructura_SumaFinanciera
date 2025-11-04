@@ -373,7 +373,9 @@ export default function PlanSelection() {
 
             {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div
+              className="flex gap-4 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible snap-x snap-mandatory"
+            >
               {plans.map((plan) => (
                 <PlanCard
                   key={plan.id}
@@ -496,7 +498,7 @@ function PlanCard({ plan, checked, onSelect }) {
   return (
     <label
       className={[
-        'relative block rounded-2xl border-2 bg-white p-4 cursor-pointer transition-shadow',
+        'relative block rounded-2xl border-2 bg-white p-4 cursor-pointer transition-shadow flex-shrink-0 w-[85%] min-w-[260px] sm:w-[60%] md:w-full snap-center',
         checked ? 'border-yellow-400 ring-2 ring-yellow-300 shadow-md' : 'border-gray-200 hover:shadow',
       ].join(' ')}
       onClick={onSelect}
