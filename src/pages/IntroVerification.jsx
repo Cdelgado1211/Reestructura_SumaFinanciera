@@ -222,11 +222,13 @@ export default function IntroVerification() {
             <div className="mt-6 space-y-4 w-full max-w-sm">
               <Feature
                 icon={<CalendarIcon className="w-6 h-6" />}
-                title="Ajusta tu plan de pagos, rápido, sencillo y sin complicaciones."
+                boldText="Ajusta tu plan de pagos"
+                restText=", rápido, sencillo y sin complicaciones."
               />
               <Feature
                 icon={<ShieldIcon className="w-6 h-6" />}
-                title="Gana control sobre tus finanzas personales con pagos más bajos."
+                boldText="Gana control sobre tus finanzas personales"
+                restText=", con pagos más bajos."
               />
             </div>
           </section>
@@ -432,14 +434,14 @@ function IdCardIcon({ className }) {
   )
 }
 
-function Feature({ icon, title, desc }) {
+function Feature({ icon, boldText, restText }) {
   return (
     <div className="flex items-start gap-3">
       <div className="shrink-0 text-gray-700">{icon}</div>
-      <div>
-        <p className="font-medium text-gray-900">{title}</p>
-        {desc ? <p className="text-gray-600">{desc}</p> : null}
-      </div>
+      <p className="text-gray-900 leading-snug">
+        <span className="font-semibold">{boldText}</span>
+        {restText ? <span>{restText}</span> : null}
+      </p>
     </div>
   )
 }
