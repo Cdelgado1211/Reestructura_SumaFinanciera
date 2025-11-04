@@ -265,8 +265,24 @@ export default function PlanSelection() {
   }, [record])
 
   useEffect(() => {
-    if (plans.length > 0) {
-      setSelectedPlan((prev) => (prev && plans.some((plan) => plan.id === prev) ? prev : plans[0].id))
+    if (plans.length === 0) {
+      setSelectedPlan(null)
+      return
+    }
+
+    const storedSelection = localStorage.getItem('banistmo:selectedPlan')
+
+    if (!storedSelection) {
+      return
+    }
+
+    try {
+      const parsed = JSON.parse(storedSelection)
+      if (parsed?.id && plans.some((plan) => plan.id === parsed.id)) {
+        setSelectedPlan(parsed.id)
+      }
+    } catch (parseError) {
+      console.error('No se pudo leer el plan almacenado', parseError)
     }
   }, [plans])
 
