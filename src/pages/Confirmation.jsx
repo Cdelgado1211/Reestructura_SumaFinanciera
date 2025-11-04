@@ -227,17 +227,18 @@ export default function Confirmation() {
         {/* Card central */}
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-2xl shadow p-6 sm:p-8 text-center">
-            <CheckCelebration />
-
-            <h2 className="mt-2 text-xl font-semibold text-gray-900">Felicidades</h2>
-            <p className="mt-1 text-gray-700">
-              ¡Hemos recibido tu solicitud de Reestructuración de deuda con éxito!
-            </p>
-
             {/* Información de tu préstamo */}
-            <section className="mt-6 text-left">
+            <section className="text-left">
               <div className="rounded-xl border border-gray-200 p-4">
-                <h3 className="font-semibold text-gray-900">Información de tu préstamo</h3>
+                <div className="text-center">
+                  <CheckCelebration />
+                  <h2 className="mt-2 text-xl font-semibold text-gray-900">Felicidades</h2>
+                  <p className="mt-1 text-gray-700">
+                    ¡Hemos recibido tu solicitud de Reestructuración de deuda con éxito!
+                  </p>
+                </div>
+
+                <h3 className="mt-6 font-semibold text-gray-900">Información de tu préstamo</h3>
                 <div className="mt-3">
                   <Item label="Nombre del Cliente" value={loan.nombre} strong />
                   <Item
