@@ -174,12 +174,12 @@ export default function PlanSelection() {
   const generalInfo = useMemo(
     () => ({
       saldo: formatCurrency(record?.SALDOCAPITAL),
-      producto: record?.PRODUCTO || '—',
-      plazo: record?.PLAZO_CONTRATADO || '—',
-      montoVencido: formatCurrency(record?.TOTALVENC_POST),
-      numeroCredito: record?.NUMCRED || '—',
-      tasaActual: formatPercent(record?.TASA_COBROS),
       letraActual: formatCurrency(record?.LETRA_COMPLETA),
+      montoVencido: formatCurrency(record?.TOTALVENC_POST),
+      producto: record?.PRODUCTO || '—',
+      numeroCredito: record?.NUMCRED || '—',
+      plazoActual: record?.PLAZO_CONTRATADO || '—',
+      tasaActual: formatPercent(record?.TASA_COBROS),
     }),
     [record],
   )
@@ -350,14 +350,11 @@ export default function PlanSelection() {
               </div>
 
               <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <InfoField label="Letra actual" value={generalInfo.letraActual} />
                 <InfoField label="Monto vencido" value={generalInfo.montoVencido} />
                 <InfoField label="Producto" value={generalInfo.producto} />
-                <InfoField label="Plazo" value={generalInfo.plazo} />
-              </div>
-
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <InfoField label="Letra actual" value={generalInfo.letraActual} />
-                <InfoField label="No. de crédito" value={generalInfo.numeroCredito} />
+                <InfoField label="N° de crédito" value={generalInfo.numeroCredito} />
+                <InfoField label="Plazo actual" value={generalInfo.plazoActual} />
                 <InfoField label="Tasa actual" value={generalInfo.tasaActual} />
               </div>
             </div>
