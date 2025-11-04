@@ -236,27 +236,29 @@ export default function Confirmation() {
 
             {/* Información de tu préstamo */}
             <section className="mt-6 text-left">
-              <h3 className="font-semibold text-gray-900">Información de tu préstamo</h3>
-
-              <div className="mt-3 rounded-xl border border-gray-200 p-4">
-                <Item label="Nombre del Cliente" value={loan.nombre} strong />
-                <Item
-                  label="Nuevo plazo"
-                  value={loan.extension}
-                  helper="(Letras por pagar + Extensión)"
-                />
-                <Item label="Nueva letra mensual" value={loan.cuota} />
-                <Item label="Tasa de interés" value={loan.tasa} />
+              <div className="rounded-xl border border-gray-200 p-4">
+                <h3 className="font-semibold text-gray-900">Información de tu préstamo</h3>
+                <div className="mt-3">
+                  <Item label="Nombre del Cliente" value={loan.nombre} strong />
+                  <Item
+                    label="Nuevo plazo"
+                    value={loan.extension}
+                    helper="(Letras por pagar + Extensión)"
+                  />
+                  <Item label="Nueva letra mensual" value={loan.cuota} />
+                  <Item label="Tasa de interés" value={loan.tasa} />
+                </div>
               </div>
             </section>
 
             {/* Datos del período */}
             <section className="mt-4 text-left">
-              <h3 className="font-semibold text-gray-900">Datos del período</h3>
-
-              <div className="mt-3 rounded-xl border border-gray-200 p-4">
-                <Item label="Próxima letra a pagar" value={loan.cuota} />
-                <Item label="Próxima fecha de pago" value={loan.fecha} />
+              <div className="rounded-xl border border-gray-200 p-4">
+                <h3 className="font-semibold text-gray-900">Datos del período</h3>
+                <div className="mt-3">
+                  <Item label="Próxima letra a pagar" value={loan.cuota} />
+                  <Item label="Próxima fecha de pago" value={loan.fecha} />
+                </div>
               </div>
             </section>
 
