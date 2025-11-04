@@ -4,7 +4,6 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 import DatePickerButton from '../components/form/DatePickerButton'
-import PrivacyNoticeBody from '../components/privacy/PrivacyNoticeBody'
 import pantalla1 from '../assets/pantalla1.png'   // tu imagen local
 
 export default function IntroVerification() {
@@ -410,8 +409,13 @@ function PrivacyNoticeModal({ onClose }) {
             </button>
           </div>
         </header>
-        <div className="px-6 sm:px-8 py-4 flex-1 overflow-y-auto pr-2">
-          <PrivacyNoticeBody />
+        <div className="px-0 sm:px-0 flex-1 overflow-hidden">
+          <iframe
+            src="https://www.banistmo.com/acerca-de/aviso-de-privacidad"
+            title="Aviso de Privacidad de Banistmo"
+            className="h-full w-full border-0"
+            loading="lazy"
+          />
         </div>
         <div className="px-6 sm:px-8 py-4 border-t border-gray-200 flex justify-end">
           <button
