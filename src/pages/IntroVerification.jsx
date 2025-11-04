@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 import DatePickerButton from '../components/form/DatePickerButton'
+import PrivacyNoticeBody from '../components/privacy/PrivacyNoticeBody'
 import pantalla1 from '../assets/pantalla1.png'   // tu imagen local
 
 export default function IntroVerification() {
@@ -16,6 +18,7 @@ export default function IntroVerification() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
   const [acceptPrivacy, setAcceptPrivacy] = useState(false)
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false)
 
   // Recupera datos del cliente desde el endpoint usando el parámetro `danaparam`
   useEffect(() => {
@@ -314,14 +317,13 @@ export default function IntroVerification() {
                 />
                 <span>
                   He leído y aceptado el tratamiento de mis datos conforme al{' '}
-                  <a
-                    href="https://www.banistmo.com/acerca-de/aviso-de-privacidad"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-black hover:text-gray-900 font-semibold"
+                  <button
+                    type="button"
+                    onClick={() => setShowPrivacyModal(true)}
+                    className="text-left text-black hover:text-gray-900 font-semibold underline"
                   >
                     Aviso de Privacidad de Banistmo, disponible aquí
-                  </a>
+                  </button>
                   .
                 </span>
               </label>
@@ -349,7 +351,88 @@ export default function IntroVerification() {
           </section>
         </div>
       </div>
+      {showPrivacyModal && <PrivacyNoticeModal onClose={() => setShowPrivacyModal(false)} />}
     </div>
+  )
+}
+
+function PrivacyNoticeModal({ onClose }) {
+  useEffect(() => {
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        onClose()
+      }
+    }
+
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    document.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [onClose])
+
+  return createPortal(
+    <div className="fixed inset-0 z-[120] flex items-center justify-center px-4 py-6">
+      <div
+        className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm"
+        aria-hidden="true"
+        onClick={onClose}
+      />
+      <div
+        className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-2xl bg-white shadow-xl flex flex-col"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="privacy-modal-title"
+      >
+        <header className="px-6 sm:px-8 pt-6 pb-4 border-b border-gray-200">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <p id="privacy-modal-title" className="privacy-heading uppercase text-black">
+                CONSENTIMIENTO DE TRATAMIENTO DE DATOS
+              </p>
+              <p className="mt-3 privacy-body text-black">
+                Al entregar tu información, declaras que has leído, entiendes y aceptas el tratamiento
+                de tus datos conforme al Aviso de Privacidad de Banistmo, S.A. y/o subsidiarias, quienes
+                de ahora en adelante se identificarán como “Banistmo”.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-full p-2 text-gray-500 hover:text-gray-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400"
+              aria-label="Cerrar aviso de privacidad"
+            >
+              <CloseIcon className="h-5 w-5" />
+            </button>
+          </div>
+        </header>
+        <div className="px-6 sm:px-8 py-4 flex-1 overflow-y-auto pr-2">
+          <PrivacyNoticeBody />
+        </div>
+        <div className="px-6 sm:px-8 py-4 border-t border-gray-200 flex justify-end">
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-full bg-yellow-400 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400"
+          >
+            Cerrar
+          </button>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+function CloseIcon({ className = '' }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      <path d="M5 5l10 10M15 5 5 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
   )
 }
 
