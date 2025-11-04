@@ -444,23 +444,23 @@ export default function PlanSelection() {
             <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center ">
               <button
                 type="button"
-                onClick={() => navigate(buildPathWithDana('/', danaParam))}
-                className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
                 disabled={!selectedPlan}
                 onClick={onContinuar}
                 className={[
-                  'px-6 py-2.5 rounded-full font-semibold transition-colors',
+                  'px-6 py-2.5 rounded-full font-semibold transition-colors sm:order-2',
                   selectedPlan
                     ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
                     : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
                 ].join(' ')}
               >
                 Continuar
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate(buildPathWithDana('/', danaParam))}
+                className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 sm:order-1"
+              >
+                Cancelar
               </button>
             </div>
           </div>

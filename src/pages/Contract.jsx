@@ -304,23 +304,23 @@ export default function Contract() {
             <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
               <button
                 type="button"
-                onClick={onCancel}
-                className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
                 onClick={onConfirm}
                 disabled={!accepted || submitting || !danaParam || !hasPlanSelection}
                 className={[
-                  'px-6 py-2.5 rounded-full font-semibold transition-colors',
+                  'px-6 py-2.5 rounded-full font-semibold transition-colors sm:order-2',
                   accepted && !submitting && danaParam && hasPlanSelection
                     ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
                     : 'bg-gray-200 text-gray-500 cursor-not-allowed',
                 ].join(' ')}
               >
                 {submitting ? 'Confirmando…' : 'Confirmar'}
+              </button>
+              <button
+                type="button"
+                onClick={onCancel}
+                className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 sm:order-1"
+              >
+                Cancelar
               </button>
             </div>
           </div>

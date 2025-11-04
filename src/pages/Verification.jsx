@@ -234,12 +234,12 @@ export default function Verification() {
   const generalInfo = useMemo(
     () => ({
       saldo: formatCurrency(record?.SALDOCAPITAL),
-      producto: record?.PRODUCTO || '—',
-      plazo: record?.PLAZO_CONTRATADO || '—',
-      montoVencido: formatCurrency(record?.TOTALVENC_POST),
-      numeroCredito: record?.NUMCRED || '—',
-      tasaActual: formatPercent(record?.TASA_COBROS),
       letraActual: formatCurrency(record?.LETRA_COMPLETA),
+      montoVencido: formatCurrency(record?.TOTALVENC_POST),
+      producto: record?.PRODUCTO || '—',
+      numeroCredito: record?.NUMCRED || '—',
+      plazoActual: record?.PLAZO_CONTRATADO || '—',
+      tasaActual: formatPercent(record?.TASA_COBROS),
     }),
     [record],
   )
@@ -280,6 +280,30 @@ export default function Verification() {
             </div>
           )}
 
+          {/* Información del préstamo actual */}
+          <div className="mt-6">
+            <div className="rounded-2xl border border-gray-200 p-6">
+              <h2 className="text-base font-semibold text-gray-900">Información del préstamo actual</h2>
+
+              <div className="mt-6 space-y-6 md:space-y-0 md:grid md:grid-cols-2 md:gap-6">
+                {[
+                  { label: 'Saldo total actual:', value: generalInfo.saldo },
+                  { label: 'Letra actual', value: generalInfo.letraActual },
+                  { label: 'Monto vencido', value: generalInfo.montoVencido },
+                  { label: 'Producto', value: generalInfo.producto },
+                  { label: 'N° de Crédito', value: generalInfo.numeroCredito },
+                  { label: 'Plazo actual', value: generalInfo.plazoActual },
+                  { label: 'Tasa actual', value: generalInfo.tasaActual },
+                ].map((item) => (
+                  <div key={item.label}>
+                    <div className="text-sm text-gray-600">{item.label}</div>
+                    <div className="mt-1 text-base font-semibold text-gray-900">{item.value}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
           {/* Información del préstamo */}
           <div className="mt-6">
             <div className="rounded-2xl border border-gray-200 p-6">
@@ -289,7 +313,9 @@ export default function Verification() {
                 <div>
                   <div className="text-sm text-gray-600">Nuevo plazo</div>
                   <div className="mt-1 text-base font-semibold text-gray-900">
-                    {hasPlanSelection ? formatMonths(displayPlan.extension.value) : generalInfo.plazo || '--'}
+                  {hasPlanSelection
+                    ? formatMonths(displayPlan.extension.value)
+                    : generalInfo.plazoActual || '--'}
                   </div>
                   <div className="text-[11px] leading-[15px] text-gray-500 mt-1">(Letras por pagar + Extensión)</div>
                 </div>
@@ -341,23 +367,23 @@ export default function Verification() {
           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
             <button
               type="button"
-              onClick={onCancel}
-              className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
-            >
-              Cancelar
-            </button>
-            <button
-              type="button"
               onClick={onConfirm}
               disabled={!hasPlanSelection || !danaParam}
               className={[
-                'px-6 py-2.5 rounded-full font-semibold transition-colors',
+                'px-6 py-2.5 rounded-full font-semibold transition-colors sm:order-2',
                 hasPlanSelection && danaParam
                   ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
                   : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
               ].join(' ')}
             >
               Confirmar
+            </button>
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 sm:order-1"
+            >
+              Cancelar
             </button>
           </div>
         </div>
