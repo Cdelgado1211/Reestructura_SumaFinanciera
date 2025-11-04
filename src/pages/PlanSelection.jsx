@@ -57,16 +57,47 @@ const formatPercent = (value) => {
   return stringValue
 }
 
+const MONTH_NAMES = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+]
+
 const formatDate = (value) => {
   if (value == null || value === '') return '—'
 
   const trimmed = String(value).trim()
   if (!trimmed) return '—'
 
+  const buildLabel = (year, month, day) => {
+    const monthIndex = Number(month) - 1
+    const monthName = MONTH_NAMES[monthIndex]
+    const dayNumber = Number(day)
+    const yearNumber = Number(year)
+
+    if (!monthName || !Number.isFinite(dayNumber) || !Number.isFinite(yearNumber)) {
+      return null
+    }
+
+    return `${dayNumber} de ${monthName} de ${yearNumber}`
+  }
+
   const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
   if (isoMatch) {
     const [, year, month, day] = isoMatch
-    return `${day}/${month}/${year}`
+    const label = buildLabel(year, month, day)
+    if (label) {
+      return label
+    }
   }
 
   const shortMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/)
@@ -75,9 +106,10 @@ const formatDate = (value) => {
     if (year.length === 2) {
       year = `20${year}`
     }
-    day = day.padStart(2, '0')
-    month = month.padStart(2, '0')
-    return `${day}/${month}/${year}`
+    const label = buildLabel(year, month, day)
+    if (label) {
+      return label
+    }
   }
 
   return trimmed
