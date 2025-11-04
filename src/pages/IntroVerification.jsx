@@ -203,7 +203,7 @@ export default function IntroVerification() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Tarjeta izquierda */}
-          <section className="bg-white rounded-2xl shadow p-6 sm:p-8 flex flex-col items-center">
+          <section className="bg-white rounded-2xl shadow p-6 sm:p-8 flex flex-col items-center order-2 md:order-1">
             <div className="w-64 h-48 sm:w-72 sm:h-56 rounded-xl overflow-hidden mb-6 bg-gray-100">
               <img
                 src={pantalla1}
@@ -234,7 +234,7 @@ export default function IntroVerification() {
           </section>
 
           {/* Tarjeta derecha */}
-          <section className="bg-white rounded-2xl shadow p-6 sm:p-8">
+          <section className="bg-white rounded-2xl shadow p-6 sm:p-8 order-1 md:order-2">
             <form onSubmit={onSubmit} className="max-w-md mx-auto">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
                 ¡Hola {primerNombre}!
