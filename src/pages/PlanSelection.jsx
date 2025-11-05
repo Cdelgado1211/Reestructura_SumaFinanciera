@@ -203,6 +203,16 @@ export default function PlanSelection() {
     return () => controller.abort()
   }, [location.search, navigate])
 
+  const productName = useMemo(() => {
+    const rawProduct = record?.PRODUCTO
+    if (rawProduct == null) return null
+
+    const trimmed = String(rawProduct).trim()
+    return trimmed || null
+  }, [record])
+
+  const productDisplay = productName ? `tu ${productName}` : 'tu préstamo'
+
   const generalInfo = useMemo(
     () => ({
       saldo: formatCurrency(record?.SALDOCAPITAL),
@@ -373,7 +383,7 @@ export default function PlanSelection() {
           <div className="mt-3">
             <h1 className="text-lg md:text-xl font-semibold text-gray-900">Reestructuración de deuda</h1>
             <p className="text-gray-600 text-sm">
-              Bienvenido, aquí podrás reestructurar tus pagos y ponerte al día con tu préstamo.
+              Bienvenido, aquí podrás reestructurar tus pagos y ponerte al día con {productDisplay}.
             </p>
           </div>
 
@@ -388,7 +398,7 @@ export default function PlanSelection() {
           {/* Información de tu préstamo actual (una sola tarjeta, sin sub-cards) */}
           <div className="mt-6">
             <h2 className="text-sm font-medium text-gray-900 mb-3">
-              Información de tu préstamo actual
+              Información de {productDisplay}
             </h2>
 
             <div className="rounded-2xl border border-gray-200 p-6">

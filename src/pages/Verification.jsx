@@ -231,6 +231,17 @@ export default function Verification() {
     }
   }, [location.search, navigate, storedPlan])
 
+  const productName = useMemo(() => {
+    const rawProduct = record?.PRODUCTO
+    if (rawProduct == null) return null
+
+    const trimmed = String(rawProduct).trim()
+    return trimmed || null
+  }, [record])
+
+  const productDisplay = productName ? `tu ${productName}` : 'tu préstamo'
+  const productStandalone = productName || 'préstamo'
+
   const generalInfo = useMemo(
     () => ({
       saldo: formatCurrency(record?.SALDOCAPITAL),
@@ -283,7 +294,7 @@ export default function Verification() {
           {/* Información del préstamo actual */}
           <div className="mt-6">
             <div className="rounded-2xl border border-gray-200 p-6">
-              <h2 className="text-base font-semibold text-gray-900">Información del préstamo actual</h2>
+              <h2 className="text-base font-semibold text-gray-900">Información del {productStandalone} actual</h2>
 
               <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
                 {[
@@ -304,10 +315,10 @@ export default function Verification() {
             </div>
           </div>
 
-          {/* Información del préstamo */}
+          {/* Información del producto seleccionado */}
           <div className="mt-6">
             <div className="rounded-2xl border border-gray-200 p-6">
-              <h2 className="text-base font-semibold text-gray-900">Información del préstamo</h2>
+              <h2 className="text-base font-semibold text-gray-900">Información de {productDisplay}</h2>
 
               <div className="mt-6 space-y-6">
                 <div>
