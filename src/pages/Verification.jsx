@@ -291,30 +291,6 @@ export default function Verification() {
             </div>
           )}
 
-          {/* Información del préstamo actual */}
-          <div className="mt-6">
-            <div className="rounded-2xl border border-gray-200 p-6">
-              <h2 className="text-base font-semibold text-gray-900">Información del {productStandalone} actual</h2>
-
-              <div className="mt-6 grid grid-cols-1 gap-6 md:grid-cols-2">
-                {[
-                  { label: 'Saldo total actual:', value: generalInfo.saldo },
-                  { label: 'Letra actual', value: generalInfo.letraActual },
-                  { label: 'Monto vencido', value: generalInfo.montoVencido },
-                  { label: 'Producto', value: generalInfo.producto },
-                  { label: 'N° de Crédito', value: generalInfo.numeroCredito },
-                  { label: 'Plazo actual', value: generalInfo.plazoActual },
-                  { label: 'Tasa actual', value: generalInfo.tasaActual },
-                ].map((item) => (
-                  <div key={item.label}>
-                    <div className="text-sm text-gray-600">{item.label}</div>
-                    <div className="mt-1 text-base font-semibold text-gray-900">{item.value}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-
           {/* Información del producto seleccionado */}
           <div className="mt-6">
             <div className="rounded-2xl border border-gray-200 p-6">

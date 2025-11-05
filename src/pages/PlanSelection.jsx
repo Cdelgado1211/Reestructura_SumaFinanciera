@@ -407,13 +407,37 @@ export default function PlanSelection() {
                 <div className="text-3xl font-extrabold text-gray-900 mt-1">{generalInfo.saldo}</div>
               </div>
 
-              <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <InfoField label="Letra actual" value={generalInfo.letraActual} />
-                <InfoField label="Monto vencido" value={generalInfo.montoVencido} />
-                <InfoField label="Producto" value={generalInfo.producto} />
-                <InfoField label="N° de Crédito" value={generalInfo.numeroCredito} />
-                <InfoField label="Plazo actual" value={generalInfo.plazoActual} />
-                <InfoField label="Tasa actual" value={generalInfo.tasaActual} />
+              <div className="mt-6 flex flex-col gap-6 md:flex-row md:flex-wrap">
+                <InfoField
+                  label="Letra actual"
+                  value={generalInfo.letraActual}
+                  className="md:w-1/3 md:order-4"
+                />
+                <InfoField
+                  label="Monto vencido"
+                  value={generalInfo.montoVencido}
+                  className="md:w-1/3 md:order-1"
+                />
+                <InfoField
+                  label="Producto"
+                  value={generalInfo.producto}
+                  className="md:w-1/3 md:order-2"
+                />
+                <InfoField
+                  label="N° de Crédito"
+                  value={generalInfo.numeroCredito}
+                  className="md:w-1/3 md:order-5"
+                />
+                <InfoField
+                  label="Plazo actual"
+                  value={generalInfo.plazoActual}
+                  className="md:w-1/3 md:order-3"
+                />
+                <InfoField
+                  label="Tasa actual"
+                  value={generalInfo.tasaActual}
+                  className="md:w-1/3 md:order-6"
+                />
               </div>
             </div>
           </div>
@@ -480,9 +504,9 @@ export default function PlanSelection() {
   )
 }
 
-function InfoField({ label, value }) {
+function InfoField({ label, value, className = '' }) {
   return (
-    <div>
+    <div className={className}>
       <div className="text-sm text-gray-600">{label}</div>
       <div className="text-base font-semibold text-gray-900 mt-1">{value}</div>
     </div>
