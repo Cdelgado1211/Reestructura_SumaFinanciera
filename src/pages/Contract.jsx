@@ -94,6 +94,72 @@ const sanitizeValue = (detail, fallback) => {
   return ''
 }
 
+const MONTH_NAME_TO_NUMBER = {
+  enero: '01',
+  febrero: '02',
+  marzo: '03',
+  abril: '04',
+  mayo: '05',
+  junio: '06',
+  julio: '07',
+  agosto: '08',
+  septiembre: '09',
+  setiembre: '09',
+  octubre: '10',
+  noviembre: '11',
+  diciembre: '12',
+}
+
+const formatDateForSubmission = (value) => {
+  if (value == null) return ''
+
+  const trimmed = String(value).trim()
+  if (!trimmed) return ''
+
+  const pad = (segment) => segment.toString().padStart(2, '0')
+
+  const fromParts = (day, month, year) => {
+    if (!day || !month || !year) return ''
+    return `${pad(day)}-${pad(month)}-${year.toString().padStart(4, '0')}`
+  }
+
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch
+    return fromParts(day, month, year)
+  }
+
+  const shortMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/)
+  if (shortMatch) {
+    let [, day, month, year] = shortMatch
+    if (year.length === 2) {
+      year = `20${year}`
+    }
+    return fromParts(day, month, year)
+  }
+
+  const textMatch = trimmed
+    .toLowerCase()
+    .match(/^(\d{1,2})\s+de\s+([a-záéíóú]+)\s+de\s+(\d{4})$/)
+  if (textMatch) {
+    const [, day, monthName, year] = textMatch
+    const normalizedMonth = monthName
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+    const month = MONTH_NAME_TO_NUMBER[normalizedMonth] || MONTH_NAME_TO_NUMBER[monthName]
+    if (month) {
+      return fromParts(day, month, year)
+    }
+  }
+
+  const parsed = new Date(trimmed)
+  if (!Number.isNaN(parsed.getTime())) {
+    return fromParts(parsed.getUTCDate(), parsed.getUTCMonth() + 1, parsed.getUTCFullYear())
+  }
+
+  return trimmed
+}
+
 export default function Contract() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -166,9 +232,8 @@ export default function Contract() {
           displayPlan.tasa,
           storedPlan?.fields?.tasa?.raw,
         ),
-        NEW_FECHA_PAGO_FIN: sanitizeValue(
-          displayPlan.fecha,
-          storedPlan?.fields?.fecha?.raw,
+        NEW_FECHA_PAGO_FIN: formatDateForSubmission(
+          sanitizeValue(displayPlan.fecha, storedPlan?.fields?.fecha?.raw),
         ),
         USER_COMMITTED_CHOICE: true,
       }
