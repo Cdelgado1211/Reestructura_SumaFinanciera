@@ -407,36 +407,36 @@ export default function PlanSelection() {
                 <div className="text-3xl font-extrabold text-gray-900 mt-1">{generalInfo.saldo}</div>
               </div>
 
-              <div className="mt-6 flex flex-col gap-6 md:flex-row md:flex-wrap">
+              <div className="mt-6 grid gap-6 md:grid-cols-3">
                 <InfoField
                   label="Letra actual"
                   value={generalInfo.letraActual}
-                  className="md:w-1/3 md:order-4"
+                  className="md:col-start-1 md:row-start-2"
                 />
                 <InfoField
                   label="Monto vencido"
                   value={generalInfo.montoVencido}
-                  className="md:w-1/3 md:order-1"
+                  className="md:col-start-1 md:row-start-1"
                 />
                 <InfoField
                   label="Producto"
                   value={generalInfo.producto}
-                  className="md:w-1/3 md:order-2"
+                  className="md:col-start-2 md:row-start-1"
                 />
                 <InfoField
                   label="N° de Crédito"
                   value={generalInfo.numeroCredito}
-                  className="md:w-1/3 md:order-5"
+                  className="md:col-start-2 md:row-start-2"
                 />
                 <InfoField
                   label="Plazo actual"
                   value={generalInfo.plazoActual}
-                  className="md:w-1/3 md:order-3"
+                  className="md:col-start-3 md:row-start-1"
                 />
                 <InfoField
                   label="Tasa actual"
                   value={generalInfo.tasaActual}
-                  className="md:w-1/3 md:order-6"
+                  className="md:col-start-3 md:row-start-2"
                 />
               </div>
             </div>
@@ -508,7 +508,7 @@ function InfoField({ label, value, className = '' }) {
   return (
     <div className={className}>
       <div className="text-sm text-gray-600">{label}</div>
-      <div className="text-base font-semibold text-gray-900 mt-1">{value}</div>
+      <div className="text-base font-bold text-gray-900 mt-1">{value}</div>
     </div>
   )
 }
