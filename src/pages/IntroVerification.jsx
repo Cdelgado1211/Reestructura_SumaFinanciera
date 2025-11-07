@@ -292,7 +292,7 @@ export default function IntroVerification() {
                           setDocDate(nextValue || '')
                           setErrors((prev) => ({ ...prev, docDate: undefined, general: undefined }))
                         }}
-                        placeholder="dd/mm/yyyy"
+                        placeholder="dd-mm-yyyy"
                         ariaLabel="Fecha de expiración del documento"
                       />
                     </div>
