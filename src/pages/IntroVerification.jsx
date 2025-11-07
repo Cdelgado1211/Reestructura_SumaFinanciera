@@ -282,13 +282,14 @@ export default function IntroVerification() {
                   <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
                     <CalendarIcon className="w-5 h-5 text-gray-500" />
                     <div className="flex-1">
+                      <p className="text-xs text-gray-600 leading-none">Fecha de expiración de cédula</p>
                       <DatePickerButton
                         value={docDate}
                         onChange={(nextValue) => {
                           setDocDate(nextValue || '')
                           setErrors((prev) => ({ ...prev, docDate: undefined, general: undefined }))
                         }}
-                        placeholder="Fecha de expiración de cédula"
+                        placeholder="dd/mm/yyyy"
                         ariaLabel="Fecha de expiración del documento"
                       />
                     </div>
