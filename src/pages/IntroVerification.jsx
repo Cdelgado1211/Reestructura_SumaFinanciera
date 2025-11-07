@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 import DatePickerButton from '../components/form/DatePickerButton'
+import PrivacyNoticeBody from '../components/privacy/PrivacyNoticeBody'
 import pantalla1 from '../assets/pantalla1.png'   // tu imagen local
 
 export default function IntroVerification() {
@@ -16,6 +18,7 @@ export default function IntroVerification() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errors, setErrors] = useState({})
   const [acceptPrivacy, setAcceptPrivacy] = useState(false)
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false)
 
   // Recupera datos del cliente desde el endpoint usando el parámetro `danaparam`
   useEffect(() => {
@@ -315,14 +318,13 @@ export default function IntroVerification() {
                 />
                 <span>
                   He leído y aceptado el tratamiento de mis datos conforme al{' '}
-                  <a
-                    href="https://www.banistmo.com/acerca-de/aviso-de-privacidad"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    type="button"
+                    onClick={() => setShowPrivacyModal(true)}
                     className="text-left text-black hover:text-gray-900 font-semibold underline"
                   >
                     Aviso de Privacidad de Banistmo, disponible aquí
-                  </a>
+                  </button>
                   .
                 </span>
               </label>
@@ -350,6 +352,9 @@ export default function IntroVerification() {
           </section>
         </div>
       </div>
+      {showPrivacyModal && (
+        <PrivacyNoticeModal onClose={() => setShowPrivacyModal(false)} />
+      )}
     </div>
   )
 }
@@ -403,6 +408,60 @@ function hasCommittedChoice(value) {
   }
 
   return false
+}
+
+function PrivacyNoticeModal({ onClose }) {
+  const stopPropagation = useCallback((event) => {
+    event.stopPropagation()
+  }, [])
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="privacy-modal-title"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" aria-hidden="true" />
+      <div
+        className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-xl"
+        onClick={stopPropagation}
+      >
+        <header className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
+          <div>
+            <p id="privacy-modal-title" className="privacy-heading uppercase text-black">
+              CONSENTIMIENTO DE TRATAMIENTO DE DATOS
+            </p>
+            <p className="mt-2 privacy-body text-black">
+              Al entregar tu información, declaras que has leído, entiendes y aceptas el tratamiento
+              de tus datos conforme al Aviso de Privacidad de Banistmo.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-4 rounded-full p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            aria-label="Cerrar aviso de privacidad"
+          >
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </header>
+        <div className="px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh] pr-4" aria-label="Aviso de privacidad">
+          <PrivacyNoticeBody className="pb-6" />
+        </div>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+function CloseIcon({ className = '' }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      <path d="m6 6 8 8M6 14l8-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
 }
 
 function CalendarIcon({ className }) {
