@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
 const METHOD_COPY = {
   sms: {
@@ -33,6 +34,7 @@ const CORRECT_CODE = '123456'
 
 export default function VerificationCode() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [digits, setDigits] = useState(Array(CODE_LENGTH).fill(''))
   const [attempts, setAttempts] = useState(0)
   const [modalType, setModalType] = useState(null)
@@ -41,6 +43,19 @@ export default function VerificationCode() {
   const [isLocked, setIsLocked] = useState(false)
   const inputRefs = useRef([])
   const resendTimeoutRef = useRef(null)
+  const [danaParam, setDanaParam] = useState('')
+
+  useEffect(() => {
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return
+    }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+  }, [location.search, navigate])
 
   const method = useMemo(() => {
     try {
@@ -156,7 +171,7 @@ export default function VerificationCode() {
 
     const code = digits.join('')
     if (code === CORRECT_CODE) {
-      navigate('/aviso-privacidad')
+      navigate(buildPathWithDana('/aviso-privacidad', danaParam))
       return
     }
 
@@ -191,7 +206,7 @@ export default function VerificationCode() {
 
   const closeModal = () => {
     if (modalType === 'locked') {
-      navigate('/')
+      navigate(buildPathWithDana('/', danaParam))
       return
     }
 

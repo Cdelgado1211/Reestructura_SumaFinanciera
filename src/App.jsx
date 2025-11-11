@@ -1,5 +1,5 @@
-import React from 'react'
-import { Routes, Route } from 'react-router-dom'
+import React, { useEffect } from 'react'
+import { Routes, Route, useLocation } from 'react-router-dom'
 
 import Header from './components/layout/Header'
 import Footer from './components/layout/Footer'
@@ -12,8 +12,15 @@ import Verification from './pages/Verification'
 import Contract from './pages/Contract'
 import LoadingAdjust from './pages/LoadingAdjust'
 import Confirmation from './pages/Confirmation'
+import ErrorScreen from './pages/ErrorScreen'
 
 function App() {
+  const location = useLocation()
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
+  }, [location.pathname])
+
   return (
     <div className="flex flex-col min-h-screen">
       <Header />
@@ -28,6 +35,7 @@ function App() {
           <Route path="/contrato" element={<Contract />} />
           <Route path="/ajustando" element={<LoadingAdjust />} />
           <Route path="/confirmacion" element={<Confirmation />} />
+          <Route path="/error" element={<ErrorScreen />} />
         </Routes>
       </main>
       <Footer />

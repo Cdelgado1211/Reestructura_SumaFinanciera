@@ -1,31 +1,279 @@
-import React, { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
+
+const parseCurrencyNumber = (value) => {
+  if (value == null || value === '') return null
+
+  const directNumber = Number(value)
+  if (Number.isFinite(directNumber)) {
+    return directNumber
+  }
+
+  const normalized = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(normalized)) {
+    return normalized
+  }
+
+  return null
+}
+
+const formatCurrency = (value) => {
+  const numeric = parseCurrencyNumber(value)
+
+  if (numeric == null) {
+    const stringValue = value != null ? String(value).trim() : ''
+    return stringValue ? stringValue : '—'
+  }
+
+  const formatted = Math.abs(numeric).toLocaleString('es-PA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+
+  return `${numeric < 0 ? '-' : ''}$${formatted}`
+}
+
+const formatPercent = (value) => {
+  if (value == null || value === '') return '—'
+  const stringValue = String(value).trim()
+
+  if (/anual/i.test(stringValue)) {
+    return stringValue
+  }
+
+  if (stringValue.includes('%')) {
+    return `${stringValue.replace(/%+\s*$/, '').trim()}% anual`
+  }
+
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric)) {
+    return `${numeric}% anual`
+  }
+
+  return stringValue
+}
+
+const formatMonths = (value) => {
+  if (value == null || value === '') return '—'
+  const stringValue = String(value).trim()
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric) && numeric !== 0) {
+    return `${numeric} meses`
+  }
+
+  return stringValue
+}
+
+const MONTH_NAMES = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+]
+
+const formatDate = (value) => {
+  if (value == null || value === '') return '—'
+
+  const trimmed = String(value).trim()
+  if (!trimmed) return '—'
+
+  const buildLabel = (year, month, day) => {
+    const monthIndex = Number(month) - 1
+    const monthName = MONTH_NAMES[monthIndex]
+    const dayNumber = Number(day)
+    const yearNumber = Number(year)
+
+    if (!monthName || !Number.isFinite(dayNumber) || !Number.isFinite(yearNumber)) {
+      return null
+    }
+
+    return `${dayNumber} de ${monthName} de ${yearNumber}`
+  }
+
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch
+    const label = buildLabel(year, month, day)
+    if (label) {
+      return label
+    }
+  }
+
+  const shortMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/)
+  if (shortMatch) {
+    let [, day, month, year] = shortMatch
+    if (year.length === 2) {
+      year = `20${year}`
+    }
+    const label = buildLabel(year, month, day)
+    if (label) {
+      return label
+    }
+  }
+
+  return trimmed
+}
+
+const EMPTY_PLAN = {
+  id: null,
+  titulo: null,
+  fields: {
+    cuota: { raw: null, label: null, key: null },
+    extension: { raw: null, label: null, key: null },
+    tasa: { raw: null, label: null, key: null },
+    fecha: { raw: null, label: null, key: null },
+  },
+}
+
+const parseJSON = (value) => {
+  if (!value) return null
+  try {
+    return JSON.parse(value)
+  } catch (error) {
+    console.error('No se pudo interpretar un valor almacenado', error)
+    return null
+  }
+}
+
+const resolveFieldDetails = (field, record) => {
+  if (!field) {
+    return { value: undefined, key: undefined }
+  }
+
+  const deriveKey = () => {
+    if (!field.key) return undefined
+
+    if (Array.isArray(field.key)) {
+      if (record) {
+        for (const key of field.key) {
+          const candidate = record?.[key]
+          if (candidate != null && candidate !== '') {
+            if (field.raw != null && field.raw !== '' && candidate === field.raw) {
+              return key
+            }
+            if (!field.raw && field.label && field.label !== '—' && String(candidate) === field.label) {
+              return key
+            }
+          }
+        }
+      }
+
+      return field.key[0]
+    }
+
+    return field.key
+  }
+
+  const key = deriveKey()
+
+  if (field.raw != null && field.raw !== '') {
+    return { value: field.raw, key }
+  }
+
+  if (field.label && field.label !== '—') {
+    return { value: field.label, key }
+  }
+
+  if (!record || !key) {
+    return { value: undefined, key }
+  }
+
+  if (Array.isArray(field.key)) {
+    for (const candidateKey of field.key) {
+      const candidate = record?.[candidateKey]
+      if (candidate != null && candidate !== '') {
+        return { value: candidate, key: candidateKey }
+      }
+    }
+    return { value: undefined, key }
+  }
+
+  return { value: record?.[key], key }
+}
 
 export default function Verification() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [danaParam, setDanaParam] = useState('')
 
-  // Defaults por si no hay nada en localStorage
-  const defaultPlan = { id: 'p2', titulo: 'Plan 2', cuota: 184.8, ext: 24, tasa: '10%', fecha: '30 ene 2024' }
+  const storedPlan = useMemo(
+    () => parseJSON(localStorage.getItem('banistmo:selectedPlan')) || EMPTY_PLAN,
+    [],
+  )
+  const record = useMemo(
+    () => parseJSON(localStorage.getItem('banistmo:clienteData')),
+    [],
+  )
 
-  const plan = useMemo(() => {
-    try { return JSON.parse(localStorage.getItem('banistmo:selectedPlan')) || defaultPlan }
-    catch { return defaultPlan }
-  }, [])
+  useEffect(() => {
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return
+    }
 
-  const formatCurrency = (n) =>
-    new Intl.NumberFormat('es-PA', { style: 'currency', currency: 'USD' }).format(Number(n || 0))
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
 
-  const expandEsMonth = (txt) => {
-    // convierte "30 ene 2024" -> "30 enero 2024" si viene abreviado
-    const map = { ene: 'enero', feb: 'febrero', mar: 'marzo', abr: 'abril', may: 'mayo', jun: 'junio',
-                  jul: 'julio', ago: 'agosto', sep: 'septiembre', oct: 'octubre', nov: 'noviembre', dic: 'diciembre' }
-    const m = String(txt).match(/^(\d{1,2})\s+([a-zñ]{3})\s+(\d{4})$/i)
-    if (!m) return txt
-    return `${m[1]} ${map[m[2].toLowerCase()] || m[2]} ${m[3]}`
+    if (!storedPlan?.id) {
+      navigate(buildPathWithDana('/plan', danaValue), { replace: true })
+      return
+    }
+  }, [location.search, navigate, storedPlan])
+
+  const productName = useMemo(() => {
+    const rawProduct = record?.PRODUCTO
+    if (rawProduct == null) return null
+
+    const trimmed = String(rawProduct).trim()
+    return trimmed || null
+  }, [record])
+
+  const productDisplay = productName ? `tu ${productName}` : 'tu préstamo'
+  const productStandalone = productName || 'préstamo'
+
+  const generalInfo = useMemo(
+    () => ({
+      saldo: formatCurrency(record?.SALDOCAPITAL),
+      letraActual: formatCurrency(record?.LETRA_COMPLETA),
+      montoVencido: formatCurrency(record?.TOTALVENC_POST),
+      producto: record?.PRODUCTO || '—',
+      numeroCredito: record?.NUMCRED || '—',
+      plazoActual: record?.PLAZO_CONTRATADO || '—',
+      tasaActual: formatPercent(record?.TASA_COBROS),
+    }),
+    [record],
+  )
+
+  const displayPlan = useMemo(() => {
+    const extension = resolveFieldDetails(storedPlan.fields?.extension, record)
+    const tasa = resolveFieldDetails(storedPlan.fields?.tasa, record)
+    const cuota = resolveFieldDetails(storedPlan.fields?.cuota, record)
+    const fecha = resolveFieldDetails(storedPlan.fields?.fecha, record)
+
+    return { extension, tasa, cuota, fecha }
+  }, [record, storedPlan])
+
+  const hasPlanSelection = Boolean(storedPlan?.id)
+
+  const onCancel = () => navigate(buildPathWithDana('/plan', danaParam))
+  const onConfirm = () => {
+    if (!hasPlanSelection || !danaParam) {
+      return
+    }
+
+    navigate(buildPathWithDana('/contrato', danaParam))
   }
-
-  const onCancel = () => navigate('/plan')
-  const onConfirm = () => navigate('/contrato')
 
   return (
     <div className="py-6">
@@ -35,36 +283,67 @@ export default function Verification() {
           <Stepper current={2} />
 
           <h1 className="mt-4 text-2xl font-semibold text-gray-900">Reestructuración de deuda</h1>
-          <p className="text-gray-600">
-            Verifica la información del nuevo plan de pagos de tu préstamo
-          </p>
+          <p className="text-gray-600">Verifica la información del nuevo plan de pagos</p>
 
-          {/* Sub-tarjeta: Información del préstamo */}
-          <div className="mt-6 rounded-2xl border border-gray-200 p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Información del préstamo</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <div className="text-sm text-gray-600">Extensión del plazo</div>
-                <div className="text-lg font-bold text-gray-900">{plan.ext} meses</div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Tasa de interés</div>
-                <div className="text-lg font-bold text-gray-900">{plan.tasa}</div>
+          {!hasPlanSelection && (
+            <div className="mt-3 text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
+              Selecciona un plan para continuar con la verificación.
+            </div>
+          )}
+
+          {/* Información del producto seleccionado */}
+          <div className="mt-6">
+            <div className="rounded-2xl border border-gray-200 p-6">
+              <h2 className="text-base font-semibold text-gray-900">Información de {productDisplay}</h2>
+
+              <div className="mt-6 space-y-6">
+                <div>
+                  <div className="text-sm text-gray-600">Nuevo plazo</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                  {hasPlanSelection
+                    ? formatMonths(displayPlan.extension.value)
+                    : generalInfo.plazoActual || '--'}
+                  </div>
+                  <div className="text-[11px] leading-[15px] text-gray-500 mt-1">(Letras por pagar + Extensión)</div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Tasa de interés</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {hasPlanSelection ? formatPercent(displayPlan.tasa.value) : generalInfo.tasaActual || '--'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Próxima letra a pagar</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {hasPlanSelection
+                      ? formatCurrency(displayPlan.cuota.value)
+                      : generalInfo.letraActual || '--'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Sub-tarjeta: Datos del período */}
-          <div className="mt-4 rounded-2xl border border-gray-200 p-5">
-            <h2 className="text-base font-semibold text-gray-900 mb-3">Datos del período</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div>
-                <div className="text-sm text-gray-600">Próxima letra a pagar</div>
-                <div className="text-lg font-bold text-gray-900">{formatCurrency(plan.cuota)}</div>
-              </div>
-              <div>
-                <div className="text-sm text-gray-600">Próxima fecha de pago</div>
-                <div className="text-lg font-bold text-gray-900">{expandEsMonth(plan.fecha)}</div>
+          {/* Datos del período */}
+          <div className="mt-6">
+            <div className="rounded-2xl border border-gray-200 p-6">
+              <h2 className="text-base font-semibold text-gray-900">Datos del período</h2>
+
+              <div className="mt-6 space-y-6">
+                <div>
+                  <div className="text-sm text-gray-600">Próxima letra a pagar</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {hasPlanSelection
+                      ? formatCurrency(displayPlan.cuota.value)
+                      : generalInfo.letraActual || '--'}
+                  </div>
+                </div>
+                <div>
+                  <div className="text-sm text-gray-600">Próxima fecha de pago</div>
+                  <div className="mt-1 text-base font-semibold text-gray-900">
+                    {hasPlanSelection ? formatDate(displayPlan.fecha.value) : '--'}
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -75,17 +354,23 @@ export default function Verification() {
           <div className="mt-4 flex flex-col sm:flex-row gap-3 justify-center">
             <button
               type="button"
-              onClick={onCancel}
-              className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
+              onClick={onConfirm}
+              disabled={!hasPlanSelection || !danaParam}
+              className={[
+                'px-6 py-2.5 rounded-full font-semibold transition-colors sm:order-2',
+                hasPlanSelection && danaParam
+                  ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
+                  : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
+              ].join(' ')}
             >
-              Cancelar
+              Confirmar
             </button>
             <button
               type="button"
-              onClick={onConfirm}
-              className="px-6 py-2.5 rounded-full font-semibold bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-colors"
+              onClick={onCancel}
+              className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 sm:order-1"
             >
-              Confirmar
+              Cancelar
             </button>
           </div>
         </div>
@@ -99,7 +384,7 @@ function Stepper({ current = 1 }) {
   const steps = [
     { id: 1, label: 'Plan de pago' },
     { id: 2, label: 'Verificación' },
-    { id: 3, label: 'Contrato' },
+    { id: 3, label: 'Disposiciones legales' },
   ]
 
   const total = steps.length

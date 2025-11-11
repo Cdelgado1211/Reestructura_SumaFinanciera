@@ -1,36 +1,254 @@
-import React, { useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
+
+const formatCurrency = (value) => {
+  if (value == null || value === '') return '—'
+
+  const numeric = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric)) {
+    return `$${numeric.toLocaleString('es-PA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  }
+
+  const directNumber = Number(value)
+  if (Number.isFinite(directNumber)) {
+    return `$${directNumber.toLocaleString('es-PA', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+  }
+
+  return String(value)
+}
+
+const formatPercent = (value) => {
+  if (value == null || value === '') return '—'
+
+  const stringValue = String(value).trim()
+  if (/anual/i.test(stringValue)) {
+    return stringValue
+  }
+
+  if (stringValue.includes('%')) {
+    return `${stringValue.replace(/%+\s*$/, '').trim()}% anual`
+  }
+
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric)) {
+    return `${numeric}% anual`
+  }
+
+  return stringValue
+}
+
+const formatMonths = (value) => {
+  if (value == null || value === '') return '—'
+
+  const stringValue = String(value).trim()
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric) && numeric !== 0) {
+    return `${numeric} meses`
+  }
+
+  return stringValue
+}
+
+const MONTH_NAMES = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+]
+
+const formatDate = (value) => {
+  if (value == null || value === '') return '—'
+
+  const trimmed = String(value).trim()
+  if (!trimmed) return '—'
+
+  const buildLabel = (year, month, day) => {
+    const monthIndex = Number(month) - 1
+    const monthName = MONTH_NAMES[monthIndex]
+    const dayNumber = Number(day)
+    const yearNumber = Number(year)
+
+    if (!monthName || !Number.isFinite(dayNumber) || !Number.isFinite(yearNumber)) {
+      return null
+    }
+
+    return `${dayNumber} de ${monthName} de ${yearNumber}`
+  }
+
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch
+    const label = buildLabel(year, month, day)
+    if (label) {
+      return label
+    }
+  }
+
+  const shortMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/)
+  if (shortMatch) {
+    let [, day, month, year] = shortMatch
+    if (year.length === 2) {
+      year = `20${year}`
+    }
+    const label = buildLabel(year, month, day)
+    if (label) {
+      return label
+    }
+  }
+
+  return trimmed
+}
+
+const EMPTY_PLAN = {
+  id: null,
+  titulo: null,
+  fields: {
+    cuota: { raw: null, label: null, key: null },
+    extension: { raw: null, label: null, key: null },
+    tasa: { raw: null, label: null, key: null },
+    fecha: { raw: null, label: null, key: null },
+  },
+}
+
+const parseJSON = (value) => {
+  if (!value) return null
+  try {
+    return JSON.parse(value)
+  } catch (error) {
+    console.error('No se pudo interpretar un valor almacenado', error)
+    return null
+  }
+}
+
+const resolveFieldDetails = (field, record) => {
+  if (!field) {
+    return { value: undefined }
+  }
+
+  const deriveKey = () => {
+    if (!field.key) return undefined
+
+    if (Array.isArray(field.key)) {
+      if (record) {
+        for (const key of field.key) {
+          const candidate = record?.[key]
+          if (candidate != null && candidate !== '') {
+            if (field.raw != null && field.raw !== '' && candidate === field.raw) {
+              return key
+            }
+            if (!field.raw && field.label && field.label !== '—' && String(candidate) === field.label) {
+              return key
+            }
+          }
+        }
+      }
+
+      return field.key[0]
+    }
+
+    return field.key
+  }
+
+  const key = deriveKey()
+
+  if (field.raw != null && field.raw !== '') {
+    return { value: field.raw, key }
+  }
+
+  if (field.label && field.label !== '—') {
+    return { value: field.label, key }
+  }
+
+  if (!record || !key) {
+    return { value: undefined, key }
+  }
+
+  if (Array.isArray(field.key)) {
+    for (const candidateKey of field.key) {
+      const candidate = record?.[candidateKey]
+      if (candidate != null && candidate !== '') {
+        return { value: candidate, key: candidateKey }
+      }
+    }
+    return { value: undefined, key }
+  }
+
+  return { value: record?.[key], key }
+}
 
 export default function Confirmation() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [danaParam, setDanaParam] = useState('')
+  const storedPlan = useMemo(
+    () => parseJSON(localStorage.getItem('banistmo:selectedPlan')) || EMPTY_PLAN,
+    [],
+  )
+  const record = useMemo(() => parseJSON(localStorage.getItem('banistmo:clienteData')), [])
 
-  // Recupera lo elegido (o usa defaults si no hay storage)
-  const defaultLoan = {
-    nombre: 'Daniel Fernando Rojas López',
-    plazoMeses: 24,
-    nuevaLetra: 184.8,
-    tasa: '10%',
+  useEffect(() => {
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return
+    }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+  }, [location.search, navigate])
+
+  const displayPlan = useMemo(() => {
+    const extension = resolveFieldDetails(storedPlan?.fields?.extension, record)
+    const tasa = resolveFieldDetails(storedPlan?.fields?.tasa, record)
+    const cuota = resolveFieldDetails(storedPlan?.fields?.cuota, record)
+    const fecha = resolveFieldDetails(storedPlan?.fields?.fecha, record)
+
+    return { extension, tasa, cuota, fecha }
+  }, [record, storedPlan])
+
+  const resolveValue = (detail, fallbackField) => {
+    if (detail?.value != null && detail.value !== '') {
+      return detail.value
+    }
+
+    if (fallbackField?.raw != null && fallbackField.raw !== '') {
+      return fallbackField.raw
+    }
+
+    if (fallbackField?.label && fallbackField.label !== '—') {
+      return fallbackField.label
+    }
+
+    return undefined
   }
-  const defaultPlan = { cuota: 184.8, fecha: '30 mar 2024', ext: 24, tasa: '10%' }
 
   const loan = useMemo(() => {
-    try {
-      const l = JSON.parse(localStorage.getItem('banistmo:loan')) || {}
-      const p = JSON.parse(localStorage.getItem('banistmo:selectedPlan')) || defaultPlan
-      return {
-        nombre: l?.nombre || defaultLoan.nombre,
-        plazoMeses: p?.ext ?? defaultLoan.plazoMeses,
-        nuevaLetra: p?.cuota ?? defaultLoan.nuevaLetra,
-        tasa: p?.tasa || defaultLoan.tasa,
-        proxFecha: p?.fecha || defaultPlan.fecha,
-      }
-    } catch {
-      return { ...defaultLoan, proxFecha: defaultPlan.fecha }
-    }
-  }, [])
+    const nombre = record?.nombre || '—'
+    const planTitle = storedPlan?.titulo || '—'
+    const extension = resolveValue(displayPlan.extension, storedPlan?.fields?.extension)
+    const tasa = resolveValue(displayPlan.tasa, storedPlan?.fields?.tasa)
+    const cuota = resolveValue(displayPlan.cuota, storedPlan?.fields?.cuota)
+    const fecha = resolveValue(displayPlan.fecha, storedPlan?.fields?.fecha)
 
-  const money = (n) =>
-    new Intl.NumberFormat('es-PA', { style: 'currency', currency: 'USD' }).format(Number(n || 0))
+    return {
+      nombre,
+      planTitle,
+      extension: formatMonths(extension),
+      tasa: formatPercent(tasa),
+      cuota: formatCurrency(cuota),
+      fecha: formatDate(fecha),
+    }
+  }, [displayPlan, record, storedPlan])
 
   return (
     <div className="py-8">
@@ -41,48 +259,58 @@ export default function Confirmation() {
         {/* Card central */}
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-2xl shadow p-6 sm:p-8 text-center">
-            <CheckCelebration />
-
-            <h2 className="mt-2 text-xl font-semibold text-gray-900">Felicidades</h2>
-            <p className="mt-1 text-gray-700">
-              ¡Reestructura de deuda realizada con éxito!
-            </p>
-
             {/* Información de tu préstamo */}
-            <section className="mt-6 text-left">
-              <h3 className="font-semibold text-gray-900">Información de tu préstamo</h3>
+            <section className="text-left">
+              <div className="rounded-xl border border-gray-200 p-4">
+                <div className="text-center">
+                  <CheckCelebration />
+                  <h2 className="mt-2 text-xl font-semibold text-gray-900">Felicidades</h2>
+                  <p className="mt-1 text-gray-700">
+                    ¡Hemos recibido tu solicitud de Reestructuración de deuda con éxito!
+                  </p>
+                </div>
 
-              <div className="mt-3 rounded-xl border border-gray-200 p-4">
-                <Item label="Nombre del Cliente" value={loan.nombre} strong />
-                <Item label="Nuevo plazo" value={`${loan.plazoMeses} meses`} />
-                <Item label="Nueva letra mensual" value={money(loan.nuevaLetra)} />
-                <Item label="Tasa de interés" value={loan.tasa} />
+                <h3 className="mt-6 font-semibold text-gray-900">Información de tu préstamo</h3>
+                <div className="mt-3">
+                  <Item label="Nombre del Cliente" value={loan.nombre} />
+                  <Item
+                    label="Nuevo plazo"
+                    value={loan.extension}
+                    helper="(Letras por pagar + Extensión)"
+                  />
+                  <Item label="Nueva letra mensual" value={loan.cuota} />
+                  <Item label="Tasa de interés" value={loan.tasa} />
+                </div>
               </div>
             </section>
 
             {/* Datos del período */}
             <section className="mt-4 text-left">
-              <h3 className="font-semibold text-gray-900">Datos del período</h3>
-
-              <div className="mt-3 rounded-xl border border-gray-200 p-4">
-                <Item label="Próxima letra a pagar" value={money(loan.nuevaLetra)} />
-                <Item label="Próxima fecha de pago" value={loan.proxFecha} />
+              <div className="rounded-xl border border-gray-200 p-4">
+                <h3 className="font-semibold text-gray-900">Datos del período</h3>
+                <div className="mt-3">
+                  <Item label="Próxima letra a pagar" value={loan.cuota} />
+                  <Item label="Próxima fecha de pago" value={loan.fecha} />
+                </div>
               </div>
             </section>
 
             <p className="mt-6 text-gray-700">
-              Los documentos que sustentan la Reestructuración de tu deuda y tu nuevo plan de pagos,
-              fueron enviados al correo electrónico del cliente
+              Tu crédito se actualizará en{' '}
+              <span className="font-semibold">3 días hábiles</span>.
+              <br />
+              <span className="font-semibold">
+                Las condiciones actuales de su contrato siguen vigentes.
+              </span>
             </p>
 
             <div className="mt-6">
-              <button
-                type="button"
-                onClick={() => navigate('/')}
-                className="px-8 py-3 rounded-full font-semibold bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-colors"
+              <a
+                href="https://www.banistmo.com/"
+                className="inline-block px-8 py-3 rounded-full font-semibold bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-colors"
               >
                 Terminar
-              </button>
+              </a>
             </div>
           </div>
         </div>
@@ -92,20 +320,24 @@ export default function Confirmation() {
 }
 
 /* ------------ UI helpers ------------ */
-function Item({ label, value, strong }) {
+function Item({ label, value, helper }) {
   return (
     <div className="py-1">
       <div className="text-sm text-gray-600">{label}</div>
-      <div className={strong ? 'font-semibold text-gray-900' : 'text-gray-900'}>{value}</div>
+      <div className="font-semibold text-gray-900">{value}</div>
+      {helper ? (
+        <div className="text-[11px] leading-[15px] text-gray-500 mt-1">{helper}</div>
+      ) : null}
     </div>
   )
 }
 
 function CheckCelebration() {
-  // pequeño “check” estilizado
   return (
-    <svg width="38" height="38" viewBox="0 0 24 24" className="mx-auto text-green-500" aria-hidden="true">
-      <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
+    <img
+      src="https://imgcdn.email-platform.com/banistmo/checkcompleted.png"
+      alt="Confirmación exitosa"
+      className="mx-auto"
+    />
   )
 }

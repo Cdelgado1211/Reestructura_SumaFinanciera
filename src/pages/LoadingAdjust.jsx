@@ -1,14 +1,33 @@
-import React, { useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 import clock from '../assets/clock.png' // ⬅️ asegúrate de tener src/assets/clock.png
 
 export default function LoadingAdjust() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const [danaParam, setDanaParam] = useState('')
 
   useEffect(() => {
-    const t = setTimeout(() => navigate('/confirmacion'), 2200)
+    const danaValue = getDanaParamFromSearch(location.search)
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return
+    }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+  }, [location.search, navigate])
+
+  useEffect(() => {
+    if (!danaParam) {
+      return undefined
+    }
+
+    const t = setTimeout(() => navigate(buildPathWithDana('/confirmacion', danaParam)), 2200)
     return () => clearTimeout(t)
-  }, [navigate])
+  }, [danaParam, navigate])
 
   return (
     <div className="py-10">
@@ -16,11 +35,7 @@ export default function LoadingAdjust() {
         {/* Tarjeta maestro */}
         <div className="bg-white rounded-2xl shadow p-10 flex flex-col items-center text-center">
           {/* Imagen del reloj */}
-          <img
-            src={clock}
-            alt="Reloj"
-            className="w-20 h-20 sm:w-6 sm:h-20 mb-20 object-contain"
-          />
+          <img src={clock} alt="Reloj" className="mb-20 object-contain" />
 
           <h1 className="text-2xl font-semibold text-gray-900">Un momento</h1>
           <p className="mt-2 text-gray-600">

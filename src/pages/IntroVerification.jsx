@@ -1,28 +1,204 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
+import { isServiceErrorResponse } from '../utils/serviceResponse'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
+import DatePickerButton from '../components/form/DatePickerButton'
+import PrivacyNoticeBody from '../components/privacy/PrivacyNoticeBody'
 import pantalla1 from '../assets/pantalla1.png'   // tu imagen local
 
 export default function IntroVerification() {
   const navigate = useNavigate()
+  const location = useLocation()
   const [docId, setDocId] = useState('')       // ← nuevo: número de cédula
   const [docDate, setDocDate] = useState('')
-  const [accepted, setAccepted] = useState(false)
+  const [clientName, setClientName] = useState('')
+  const [expectedDocDate, setExpectedDocDate] = useState('')
+  const [danaParam, setDanaParam] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [errors, setErrors] = useState({})
+  const [acceptPrivacy, setAcceptPrivacy] = useState(false)
+  const [showPrivacyModal, setShowPrivacyModal] = useState(false)
 
-  // Puede continuar si hay cédula, fecha y aceptó
-  const canContinue = Boolean(docId && docDate && accepted)
-
-  // 🔹 Nombre hardcodeado en variable (puedes cambiar este string)
-  const NOMBRE_CLIENTE = 'Daniel Fernando Rojas López'
-  const primerNombre = NOMBRE_CLIENTE.trim().split(/\s+/)[0] || NOMBRE_CLIENTE
-
-  // (opcional) lo guardamos para pantallas siguientes
+  // Recupera datos del cliente desde el endpoint usando el parámetro `danaparam`
   useEffect(() => {
-    try { localStorage.setItem('banistmo:clienteNombre', NOMBRE_CLIENTE) } catch {}
-  }, [])
+    const controller = new AbortController()
+    const danaParamValue = getDanaParamFromSearch(location.search)
 
-  const onSubmit = (e) => {
+    if (!danaParamValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return () => controller.abort()
+    }
+
+    setDanaParam(danaParamValue)
+    persistDanaParam(danaParamValue)
+
+    const fetchClientData = async () => {
+      try {
+        const response = await fetch(
+          `https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
+            danaParamValue,
+          )}&s=n`,
+          { signal: controller.signal },
+        )
+
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        if (isServiceErrorResponse(data)) {
+          navigate('/error', { replace: true })
+          return
+        }
+        const record = data?.record
+        const nombre = record?.nombre
+
+        if (record && hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
+          navigate('/error', { replace: true, state: { messageKey: 'alreadyCommitted' } })
+          return
+        }
+
+        if (record) {
+          setExpectedDocDate(normalizeRecordDate(record.P_FECHA_EXP))
+        }
+
+        if (nombre) {
+          setClientName(nombre)
+          try {
+            localStorage.setItem('banistmo:clienteNombre', nombre)
+            localStorage.setItem('banistmo:clienteData', JSON.stringify(record))
+          } catch (error) {
+            console.error('No se pudo guardar la información del cliente', error)
+          }
+        }
+      } catch (error) {
+        if (error.name !== 'AbortError') {
+          console.error('No se pudo obtener la información del cliente', error)
+          navigate('/error', { replace: true })
+        }
+      }
+    }
+
+    fetchClientData()
+
+    return () => controller.abort()
+  }, [location.search, navigate])
+
+  // Puede continuar si los datos están completos y contamos con la data del servicio
+  const canContinue = Boolean(docId && docDate.length === 10 && danaParam && acceptPrivacy)
+
+  // Usa el primer nombre disponible (o "Cliente" si aún no se conoce)
+  const primerNombre = (clientName || 'Cliente').trim().split(/\s+/)[0] || 'Cliente'
+
+  const onSubmit = async (e) => {
     e.preventDefault()
-    if (canContinue) navigate('/aviso-privacidad')
+    if (isSubmitting) {
+      return
+    }
+
+    const newErrors = {}
+
+    if (!danaParam) {
+      newErrors.general = 'No pudimos validar tus datos. Intenta nuevamente más tarde.'
+    }
+
+    if (!docId.trim()) {
+      newErrors.docId = 'Ingresa tu número de cédula.'
+    }
+
+    const normalizedInputDate = docDate
+
+    if (!docDate) {
+      newErrors.docDate = 'Ingresa la fecha de expiración.'
+    } else if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedInputDate)) {
+      newErrors.docDate = 'El formato de la fecha debe ser dd-mm-aaaa.'
+    }
+
+    if (!acceptPrivacy) {
+      newErrors.privacy = 'Debes aceptar el Aviso de Privacidad para continuar.'
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors)
+      return
+    }
+
+    setErrors({})
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch(
+        `https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
+          danaParam,
+        )}&s=v`,
+      )
+
+      if (!response.ok) {
+        throw new Error(`Error ${response.status}`)
+      }
+
+      const data = await response.json()
+      if (isServiceErrorResponse(data)) {
+        navigate('/error', { replace: true })
+        return
+      }
+      const record = data?.record
+
+      if (!record) {
+        throw new Error('Sin datos para validar')
+      }
+
+      if (hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
+        navigate('/error', { replace: true, state: { messageKey: 'alreadyCommitted' } })
+        return
+      }
+
+      if (record.nombre) {
+        setClientName(record.nombre)
+      }
+
+      const matchesDocId = compareDocumentId(docId, record.EN_CED_RUC)
+      const normalizedRecordDate = normalizeRecordDate(record.P_FECHA_EXP)
+      const matchesDate = normalizedRecordDate && normalizedInputDate === normalizedRecordDate
+
+      if (normalizedRecordDate) {
+        setExpectedDocDate(normalizedRecordDate)
+      }
+
+      const validationErrors = {}
+
+      if (!matchesDocId) {
+        validationErrors.docId = 'El número de cédula no coincide con nuestros registros.'
+      }
+
+      if (!matchesDate) {
+        validationErrors.docDate = 'La fecha de expiración no coincide con nuestros registros.'
+      }
+
+      if (Object.keys(validationErrors).length > 0) {
+        setErrors(validationErrors)
+        return
+      }
+
+      try {
+        localStorage.setItem('banistmo:clienteDataValidada', JSON.stringify(record))
+      } catch (error) {
+        console.error('No se pudo guardar la validación del cliente', error)
+      }
+
+      setErrors({})
+      navigate(buildPathWithDana('/aviso-privacidad', danaParam))
+    } catch (error) {
+      console.error('No se pudo validar la información del cliente', error)
+      if (error.name !== 'AbortError') {
+        navigate('/error', { replace: true })
+      }
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -30,7 +206,7 @@ export default function IntroVerification() {
       <div className="mx-auto max-w-6xl px-4 sm:px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Tarjeta izquierda */}
-          <section className="bg-white rounded-2xl shadow p-6 sm:p-8 flex flex-col items-center">
+          <section className="bg-white rounded-2xl shadow p-6 sm:p-8 flex flex-col items-center order-2 md:order-1">
             <div className="w-64 h-48 sm:w-72 sm:h-56 rounded-xl overflow-hidden mb-6 bg-gray-100">
               <img
                 src={pantalla1}
@@ -40,7 +216,7 @@ export default function IntroVerification() {
             </div>
 
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
-              Reestructura tu deuda
+              Reestructuración de deuda
             </h2>
             <p className="text-center text-gray-600 mt-3 max-w-[40ch]">
               Es tu oportunidad para tener la tranquilidad de estar al día con tus pagos
@@ -49,25 +225,25 @@ export default function IntroVerification() {
             <div className="mt-6 space-y-4 w-full max-w-sm">
               <Feature
                 icon={<CalendarIcon className="w-6 h-6" />}
-                title="Ajusta tu plan de pagos"
-                desc="rápido, sencillo y sin complicaciones."
+                boldText="Ajusta tu plan de pagos"
+                restText=", rápido, sencillo y sin complicaciones."
               />
               <Feature
                 icon={<ShieldIcon className="w-6 h-6" />}
-                title="Gana control sobre tus finanzas personales"
-                desc="con pagos más bajos."
+                boldText="Gana control sobre tus finanzas personales"
+                restText=", con pagos más bajos."
               />
             </div>
           </section>
 
           {/* Tarjeta derecha */}
-          <section className="bg-white rounded-2xl shadow p-6 sm:p-8">
+          <section className="bg-white rounded-2xl shadow p-6 sm:p-8 order-1 md:order-2">
             <form onSubmit={onSubmit} className="max-w-md mx-auto">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
                 ¡Hola {primerNombre}!
               </h1>
               <p className="text-center text-gray-600 mt-2">
-                Bienvenido al portal de Reestructuración de deuda
+                Accede a la página de Reestructuración de deuda
               </p>
 
               {/* Bloque: datos de cédula */}
@@ -88,9 +264,12 @@ export default function IntroVerification() {
                         <input
                           type="text"
                           inputMode="text"
-                          placeholder="Ej. 8-123-456"
+                          placeholder="Ej. 123-456-789"
                           value={docId}
-                          onChange={(e) => setDocId(e.target.value)}
+                          onChange={(e) => {
+                            setDocId(e.target.value)
+                            setErrors((prev) => ({ ...prev, docId: undefined, general: undefined }))
+                          }}
                           className="mt-1 w-full bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
                           aria-label="Número de cédula"
                         />
@@ -98,66 +277,193 @@ export default function IntroVerification() {
                     </div>
                   </div>
                   <p className="mt-2 text-xs text-gray-500">Incluye los guiones</p>
+                  {errors.docId && <p className="mt-1 text-xs text-red-600">{errors.docId}</p>}
                 </label>
 
                 {/* Fecha de expiración (debajo de cédula) */}
-                
-
                 <label className="block mt-3">
                   <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
                     <CalendarIcon className="w-5 h-5 text-gray-500" />
-                    <input
-                      type="text"
-                      placeholder="Fecha de expiración"
-                      value={docDate}
-                      onChange={(e) => setDocDate(e.target.value)}
-                      className="flex-1 bg-transparent outline-none text-gray-900 placeholder:text-gray-400"
-                      aria-label="Fecha de expiración del documento"
-                    />
+                    <div className="flex-1">
+                      <p className="text-xs text-gray-600 leading-none">Fecha de expiración de cédula</p>
+                      <DatePickerButton
+                        value={docDate}
+                        onChange={(nextValue) => {
+                          setDocDate(nextValue || '')
+                          setErrors((prev) => ({ ...prev, docDate: undefined, general: undefined }))
+                        }}
+                        placeholder="dd-mm-yyyy"
+                        ariaLabel="Fecha de expiración del documento"
+                      />
+                    </div>
                   </div>
+                  {expectedDocDate && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Fecha registrada: {formatDateForDisplay(expectedDocDate)}
+                    </p>
+                  )}
+                  {errors.docDate && <p className="mt-1 text-xs text-red-600">{errors.docDate}</p>}
                 </label>
               </div>
 
-              {/* Consentimiento */}
-              <label className="flex items-start gap-3 mt-6 text-sm leading-5">
+              <label className="mt-6 flex items-start gap-3 text-sm text-gray-600">
                 <input
                   type="checkbox"
-                  checked={accepted}
-                  onChange={(e) => setAccepted(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
+                  checked={acceptPrivacy}
+                  onChange={(event) => {
+                    setAcceptPrivacy(event.target.checked)
+                    setErrors((prev) => ({ ...prev, privacy: undefined, general: undefined }))
+                  }}
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
                 />
-                <span className="text-gray-700">
+                <span>
                   He leído y aceptado el tratamiento de mis datos conforme al{' '}
-                  <a href="#" className="font-semibold underline">
+                  <button
+                    type="button"
+                    onClick={() => setShowPrivacyModal(true)}
+                    className="text-left text-black hover:text-gray-900 font-semibold underline"
+                  >
                     Aviso de Privacidad de Banistmo, disponible aquí
-                  </a>
+                  </button>
+                  .
                 </span>
               </label>
+              {errors.privacy && <p className="mt-2 text-xs text-red-600">{errors.privacy}</p>}
 
               {/* Botón */}
               <div className="mt-8 flex justify-center">
+                {errors.general && (
+                  <p className="mr-4 text-sm text-red-600 self-center">{errors.general}</p>
+                )}
                 <button
                   type="submit"
-                  disabled={!canContinue}
+                  disabled={!canContinue || isSubmitting}
                   className={[
                     'px-6 py-3 rounded-full font-semibold transition-colors',
                     canContinue
                       ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
-                      : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
+                      : 'bg-gray-300 text-gray-500 cursor-not-allowed',
                   ].join(' ')}
                 >
-                  Ingresar
+                  {isSubmitting ? 'Validando…' : 'Ingresar'}
                 </button>
               </div>
             </form>
           </section>
         </div>
       </div>
+      {showPrivacyModal && (
+        <PrivacyNoticeModal onClose={() => setShowPrivacyModal(false)} />
+      )}
     </div>
   )
 }
 
 /* --- helpers --- */
+function normalizeRecordDate(value) {
+  if (!value) return ''
+
+  const parts = value.split(/[/-]/).map((part) => part.trim())
+  if (parts.length !== 3) return ''
+
+  let [day, month, year] = parts
+  const pad = (segment, target = 2) => segment.padStart(target, '0')
+
+  if (year.length === 2) {
+    // Suponemos fechas futuras => pertenecen a 2000+
+    year = Number(year) >= 50 ? `19${year}` : `20${year}`
+  }
+
+  if (!day || !month || !year) {
+    return ''
+  }
+
+  return `${pad(year, 4)}-${pad(month)}-${pad(day)}`
+}
+
+function formatDateForDisplay(isoDate) {
+  if (!isoDate) return ''
+  const [year, month, day] = isoDate.split('-')
+  if (!year || !month || !day) return ''
+  return `${day}-${month}-${year}`
+}
+
+function compareDocumentId(input, expected) {
+  const normalize = (value) => (value || '').replace(/[\s-]/g, '').toUpperCase()
+  return normalize(input) === normalize(expected)
+}
+
+function hasCommittedChoice(value) {
+  if (typeof value === 'boolean') {
+    return value
+  }
+
+  if (typeof value === 'number') {
+    return value === 1
+  }
+
+  if (typeof value === 'string') {
+    const normalized = value.trim().toLowerCase()
+    return normalized === 'true' || normalized === '1' || normalized === 'si'
+  }
+
+  return false
+}
+
+function PrivacyNoticeModal({ onClose }) {
+  const stopPropagation = useCallback((event) => {
+    event.stopPropagation()
+  }, [])
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center px-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="privacy-modal-title"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" aria-hidden="true" />
+      <div
+        className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-xl"
+        onClick={stopPropagation}
+      >
+        <header className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
+          <div>
+            <p id="privacy-modal-title" className="privacy-heading uppercase text-black">
+              CONSENTIMIENTO DE TRATAMIENTO DE DATOS
+            </p>
+            <p className="mt-2 privacy-body text-black">
+              Al entregar tu información, declaras que has leído, entiendes y aceptas el tratamiento
+              de tus datos conforme al Aviso de Privacidad de Banistmo.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="ml-4 rounded-full p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100"
+            aria-label="Cerrar aviso de privacidad"
+          >
+            <CloseIcon className="h-5 w-5" />
+          </button>
+        </header>
+        <div className="px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh] pr-4" aria-label="Aviso de privacidad">
+          <PrivacyNoticeBody className="pb-6" />
+        </div>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+function CloseIcon({ className = '' }) {
+  return (
+    <svg viewBox="0 0 20 20" fill="none" className={className} aria-hidden="true">
+      <path d="m6 6 8 8M6 14l8-8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function CalendarIcon({ className }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -188,14 +494,14 @@ function IdCardIcon({ className }) {
   )
 }
 
-function Feature({ icon, title, desc }) {
+function Feature({ icon, boldText, restText }) {
   return (
     <div className="flex items-start gap-3">
       <div className="shrink-0 text-gray-700">{icon}</div>
-      <div>
-        <p className="font-medium text-gray-900">{title}</p>
-        <p className="text-gray-600">{desc}</p>
-      </div>
+      <p className="text-gray-900 leading-snug">
+        <span className="font-semibold">{boldText}</span>
+        {restText ? <span>{restText}</span> : null}
+      </p>
     </div>
   )
 }

@@ -1,28 +1,375 @@
-import React, { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useEffect, useMemo, useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
+import { isServiceErrorResponse } from '../utils/serviceResponse'
+import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
+
+const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
+
+const parseCurrencyNumber = (value) => {
+  if (value == null || value === '') return null
+
+  const directNumber = Number(value)
+  if (Number.isFinite(directNumber)) {
+    return directNumber
+  }
+
+  const normalized = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(normalized)) {
+    return normalized
+  }
+
+  return null
+}
+
+const formatCurrency = (value) => {
+  const numeric = parseCurrencyNumber(value)
+
+  if (numeric == null) {
+    const stringValue = value != null ? String(value).trim() : ''
+    return stringValue ? stringValue : '—'
+  }
+
+  const formatted = Math.abs(numeric).toLocaleString('es-PA', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })
+
+  return `${numeric < 0 ? '-' : ''}$${formatted}`
+}
+
+const formatPercent = (value) => {
+  if (value == null || value === '') return '—'
+  const stringValue = String(value).trim()
+
+  if (/anual/i.test(stringValue)) {
+    return stringValue
+  }
+
+  if (stringValue.includes('%')) {
+    return `${stringValue.replace(/%+\s*$/, '').trim()}% anual`
+  }
+
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric)) {
+    return `${numeric}% anual`
+  }
+
+  return stringValue
+}
+
+const MONTH_NAMES = [
+  'enero',
+  'febrero',
+  'marzo',
+  'abril',
+  'mayo',
+  'junio',
+  'julio',
+  'agosto',
+  'septiembre',
+  'octubre',
+  'noviembre',
+  'diciembre',
+]
+
+const formatDate = (value) => {
+  if (value == null || value === '') return '—'
+
+  const trimmed = String(value).trim()
+  if (!trimmed) return '—'
+
+  const buildLabel = (year, month, day) => {
+    const monthIndex = Number(month) - 1
+    const monthName = MONTH_NAMES[monthIndex]
+    const dayNumber = Number(day)
+    const yearNumber = Number(year)
+
+    if (!monthName || !Number.isFinite(dayNumber) || !Number.isFinite(yearNumber)) {
+      return null
+    }
+
+    return `${dayNumber} de ${monthName} de ${yearNumber}`
+  }
+
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch
+    const label = buildLabel(year, month, day)
+    if (label) {
+      return label
+    }
+  }
+
+  const shortMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/)
+  if (shortMatch) {
+    let [, day, month, year] = shortMatch
+    if (year.length === 2) {
+      year = `20${year}`
+    }
+    const label = buildLabel(year, month, day)
+    if (label) {
+      return label
+    }
+  }
+
+  return trimmed
+}
+
+const formatMonths = (value) => {
+  if (value == null || value === '') return '—'
+  const stringValue = String(value).trim()
+  const numeric = Number(stringValue.replace(/\s+/g, '').replace(/[^0-9.-]/g, ''))
+  if (Number.isFinite(numeric) && numeric !== 0) {
+    return `${numeric} meses`
+  }
+
+  return stringValue
+}
 
 export default function PlanSelection() {
   const navigate = useNavigate()
-  const [selected, setSelected] = useState('p2') // por defecto Plan 2
+  const location = useLocation()
+  const [selectedPlan, setSelectedPlan] = useState(null)
+  const [record, setRecord] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState(null)
+  const [danaParam, setDanaParam] = useState('')
 
-  const loan = useMemo(() => ({
-    nombre: 'Daniel Rojas López',
-    saldoTotal: 10000.00,
-    producto: 'Préstamo Personal',
-    plazoMeses: 18,
-    montoVencido: 346,
-    numCredito: '12345',
-    tasaActual: '12% anual',
-    letraActual: 200.00,
-  }), [])
+  useEffect(() => {
+    const storedData = localStorage.getItem('banistmo:clienteData')
+    if (storedData) {
+      try {
+        setRecord(JSON.parse(storedData))
+      } catch (parseError) {
+        console.error('No se pudo leer la información guardada del cliente', parseError)
+      }
+    }
+  }, [])
 
-  const planes = useMemo(() => ([
-    { id:'p1', titulo:'Plan 1', cuota:234.80, ext:12, tasa:'10%', fecha:'30 ene 2024' },
-    { id:'p2', titulo:'Plan 2', cuota:184.80, ext:24, tasa:'10%', fecha:'30 ene 2024', recomendado:true },
-    { id:'p3', titulo:'Plan 3', cuota:134.80, ext:36, tasa:'8%',  fecha:'30 ene 2024'  },
-  ]), [])
+  useEffect(() => {
+    const controller = new AbortController()
+    const danaValue = getDanaParamFromSearch(location.search)
 
-  const onContinuar = () => { if (selected) navigate('/verificacion') }
+    if (!danaValue) {
+      setDanaParam('')
+      navigate('/error', { replace: true })
+      return () => controller.abort()
+    }
+
+    setDanaParam(danaValue)
+    persistDanaParam(danaValue)
+
+    const fetchPlanData = async () => {
+      setLoading(true)
+      setError(null)
+      try {
+        const response = await fetch(
+          `${LAMBDA_ENDPOINT}?dana=${encodeURIComponent(danaValue)}&s=a`,
+          { signal: controller.signal },
+        )
+
+        if (!response.ok) {
+          throw new Error(`Error ${response.status}`)
+        }
+
+        const data = await response.json()
+
+        if (isServiceErrorResponse(data)) {
+          navigate('/error', { replace: true })
+          return
+        }
+
+        if (data?.record) {
+          setRecord(data.record)
+          try {
+            localStorage.setItem('banistmo:clienteData', JSON.stringify(data.record))
+          } catch (storageError) {
+            console.error('No se pudo guardar la información del cliente', storageError)
+          }
+        }
+      } catch (fetchError) {
+        if (fetchError.name !== 'AbortError') {
+          console.error('No se pudo obtener la información del plan', fetchError)
+          setError('No se pudo obtener la información más reciente. Intenta nuevamente en unos minutos.')
+          navigate('/error', { replace: true })
+        }
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchPlanData()
+
+    return () => controller.abort()
+  }, [location.search, navigate])
+
+  const productName = useMemo(() => {
+    const rawProduct = record?.PRODUCTO
+    if (rawProduct == null) return null
+
+    const trimmed = String(rawProduct).trim()
+    return trimmed || null
+  }, [record])
+
+  const productDisplay = productName ? `tu ${productName}` : 'tu préstamo'
+
+  const generalInfo = useMemo(
+    () => ({
+      saldo: formatCurrency(record?.SALDOCAPITAL),
+      letraActual: formatCurrency(record?.LETRA_COMPLETA),
+      montoVencido: formatCurrency(record?.TOTALVENC_POST),
+      producto: record?.PRODUCTO || '—',
+      numeroCredito: record?.NUMCRED || '—',
+      plazoActual: record?.PLAZO_CONTRATADO || '—',
+      tasaActual: formatPercent(record?.TASA_COBROS),
+    }),
+    [record],
+  )
+
+  const plans = useMemo(() => {
+    if (!record) return []
+
+    const resolveValue = (keys) => {
+      if (Array.isArray(keys)) {
+        for (const key of keys) {
+          const value = record?.[key]
+          if (value != null && value !== '') {
+            return { value, key }
+          }
+        }
+
+        return { value: undefined, key: keys[0] }
+      }
+
+      return { value: record?.[keys], key: keys }
+    }
+
+    const planDefinitions = [
+      {
+        id: 'plan1',
+        titulo: 'Plan 1',
+        cuotaKey: 'CUOTA_FINAL_1',
+        extensionKey: 'PLAZO_OFERTA_1',
+        tasaKey: 'TASA_OFERTA_1',
+        fechaKey: 'FECHA_PAGO',
+      },
+      {
+        id: 'plan2',
+        titulo: 'Plan 2',
+        cuotaKey: 'CUOTA_FINAL_2',
+        extensionKey: 'PLAZO_OFERTA_2',
+        tasaKey: 'TASA_OFERTA_2',
+        fechaKey: 'FECHA_PAGO',
+      },
+      {
+        id: 'plan3',
+        titulo: 'Plan 3',
+        cuotaKey: 'CUOTA_FINAL_3',
+        extensionKey: 'PLAZO_OFERTA_3',
+        tasaKey: 'TASA_OFERTA_3',
+        fechaKey: 'FECHA_PAGO',
+      },
+    ]
+
+    return planDefinitions
+      .map((definition) => {
+        const cuota = resolveValue(definition.cuotaKey)
+        const extension = resolveValue(definition.extensionKey)
+        const tasa = resolveValue(definition.tasaKey)
+        const fecha = resolveValue(definition.fechaKey)
+
+        const cuotaLabel = formatCurrency(cuota.value)
+        const extLabel = formatMonths(extension.value)
+        const tasaLabel = formatPercent(tasa.value)
+        const fechaLabel = formatDate(fecha.value)
+
+        if (cuotaLabel === '—' && extLabel === '—' && tasaLabel === '—' && fechaLabel === '—') {
+          return null
+        }
+
+        return {
+          ...definition,
+          cuotaRaw: cuota.value,
+          cuotaKey: cuota.key,
+          extensionRaw: extension.value,
+          extensionKeyUsed: extension.key,
+          tasaRaw: tasa.value,
+          tasaKey: tasa.key,
+          fechaRaw: fecha.value,
+          fechaKey: fecha.key,
+          cuotaLabel,
+          extLabel,
+          tasaLabel,
+          fechaLabel,
+        }
+      })
+      .filter(Boolean)
+  }, [record])
+
+  useEffect(() => {
+    if (plans.length === 0) {
+      setSelectedPlan(null)
+      return
+    }
+
+    const storedSelection = localStorage.getItem('banistmo:selectedPlan')
+
+    if (!storedSelection) {
+      return
+    }
+
+    try {
+      const parsed = JSON.parse(storedSelection)
+      if (parsed?.id && plans.some((plan) => plan.id === parsed.id)) {
+        setSelectedPlan(parsed.id)
+      }
+    } catch (parseError) {
+      console.error('No se pudo leer el plan almacenado', parseError)
+    }
+  }, [plans])
+
+  const onContinuar = () => {
+    if (!selectedPlan) return
+
+    const plan = plans.find((item) => item.id === selectedPlan)
+
+    if (plan) {
+      const payload = {
+        id: plan.id,
+        titulo: plan.titulo,
+        fields: {
+          cuota: {
+            raw: plan.cuotaRaw,
+            label: plan.cuotaLabel,
+            key: plan.cuotaKey,
+          },
+          extension: {
+            raw: plan.extensionRaw,
+            label: plan.extLabel,
+            key: plan.extensionKeyUsed,
+          },
+          tasa: {
+            raw: plan.tasaRaw,
+            label: plan.tasaLabel,
+            key: plan.tasaKey,
+          },
+          fecha: {
+            raw: plan.fechaRaw,
+            label: plan.fechaLabel,
+            key: plan.fechaKey,
+          },
+        },
+      }
+
+      try {
+        localStorage.setItem('banistmo:selectedPlan', JSON.stringify(payload))
+      } catch (storageError) {
+        console.error('No se pudo guardar el plan seleccionado', storageError)
+      }
+    }
+
+    navigate(buildPathWithDana('/verificacion', danaParam))
+  }
 
   return (
     <div className="py-6">
@@ -36,7 +383,7 @@ export default function PlanSelection() {
           <div className="mt-3">
             <h1 className="text-lg md:text-xl font-semibold text-gray-900">Reestructuración de deuda</h1>
             <p className="text-gray-600 text-sm">
-              Bienvenido, aquí podrás reestructurar tus pagos y ponerte al día con tu préstamo.
+              Bienvenido, aquí podrás reestructurar tus pagos y ponerte al día con {productDisplay}.
             </p>
           </div>
 
@@ -44,90 +391,110 @@ export default function PlanSelection() {
           <div className="mt-4">
             <div className="rounded-xl border border-gray-200 px-4 py-3 bg-white">
               <label className="block text-sm text-gray-700 mb-1">Nombre</label>
-              {loan.nombre}
+              {record?.nombre || '—'}
             </div>
           </div>
 
           {/* Información de tu préstamo actual (una sola tarjeta, sin sub-cards) */}
           <div className="mt-6">
             <h2 className="text-sm font-medium text-gray-900 mb-3">
-              Información de tu préstamo actual
+              Información de {productDisplay}
             </h2>
 
             <div className="rounded-2xl border border-gray-200 p-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-y-6 gap-x-10">
-                {/* Saldo total (destacado) */}
-                <div>
-                  <div className="text-sm text-gray-600">Saldo total actual:</div>
-                  <div className="text-2xl font-extrabold text-gray-900">
-                    ${loan.saldoTotal.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </div>
-                </div>
+              <div>
+                <div className="text-sm text-gray-600">Saldo total actual:</div>
+                <div className="text-3xl font-extrabold text-gray-900 mt-1">{generalInfo.saldo}</div>
+              </div>
 
-                <div>
-                  <div className="text-sm text-gray-600">Plazo</div>
-                  <div className="text-lg font-semibold text-gray-900">{loan.plazoMeses}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">Monto vencido</div>
-                  <div className="text-lg font-semibold text-gray-900">{loan.montoVencido}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">Producto</div>
-                  <div className="text-lg font-semibold text-gray-900">{loan.producto}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">N° de Crédito</div>
-                  <div className="text-lg font-semibold text-gray-900">{loan.numCredito}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">Tasa actual</div>
-                  <div className="text-lg font-extrabold text-gray-900">{loan.tasaActual}</div>
-                </div>
-
-                <div>
-                  <div className="text-sm text-gray-600">Letra actual</div>
-                  <div className="text-lg font-semibold text-gray-900">
-                    ${loan.letraActual.toFixed(2)}
-                  </div>
-                </div>
+              <div className="mt-6 grid gap-6 md:grid-cols-3">
+                <InfoField
+                  label="Letra actual"
+                  value={generalInfo.letraActual}
+                  className="md:col-start-1 md:row-start-2"
+                />
+                <InfoField
+                  label="Monto vencido"
+                  value={generalInfo.montoVencido}
+                  className="md:col-start-1 md:row-start-1"
+                />
+                <InfoField
+                  label="Producto"
+                  value={generalInfo.producto}
+                  className="md:col-start-2 md:row-start-1"
+                />
+                <InfoField
+                  label="N° de Crédito"
+                  value={generalInfo.numeroCredito}
+                  className="md:col-start-2 md:row-start-2"
+                />
+                <InfoField
+                  label="Plazo actual"
+                  value={generalInfo.plazoActual}
+                  className="md:col-start-3 md:row-start-1"
+                />
+                <InfoField
+                  label="Tasa actual"
+                  value={generalInfo.tasaActual}
+                  className="md:col-start-3 md:row-start-2"
+                />
               </div>
             </div>
           </div>
 
           {/* Opciones */}
           <div className="mt-5">
-            <h2 className="text-sm font-medium text-gray-900 mb-3">Opciones de reestructuración de la deuda</h2>
+            <h2 className="text-sm font-medium text-gray-900 mb-3">
+              El nuevo plazo incluye las letras que aún tienes por pagar y te ofrece un tiempo adicional.
+              Elige la opción que mejor se adapte a ti.
+            </h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {planes.map(p => (
-                <PlanCard key={p.id} plan={p} checked={selected === p.id} onSelect={() => setSelected(p.id)} />
+            {loading && (
+              <p className="text-sm text-gray-500 mb-3">Cargando opciones de reestructuración…</p>
+            )}
+
+            {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
+
+            <div
+              className="flex gap-4 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible snap-x snap-mandatory"
+            >
+              {plans.map((plan) => (
+                <PlanCard
+                  key={plan.id}
+                  plan={plan}
+                  checked={selectedPlan === plan.id}
+                  onSelect={() => setSelectedPlan(plan.id)}
+                />
               ))}
             </div>
+
+            {!loading && !error && plans.length === 0 && (
+              <p className="text-sm text-gray-600 mt-3">
+                No hay planes disponibles en este momento. Intenta nuevamente más tarde.
+              </p>
+            )}
 
             {/* Botones */}
             <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center ">
               <button
                 type="button"
-                onClick={() => navigate('/')}
-                className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50"
+                disabled={!selectedPlan}
+                onClick={onContinuar}
+                className={[
+                  'px-6 py-2.5 rounded-full font-semibold transition-colors sm:order-2',
+                  selectedPlan
+                    ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
+                    : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
+                ].join(' ')}
               >
-                Cancelar
+                Continuar
               </button>
               <button
                 type="button"
-                disabled={!selected}
-                onClick={onContinuar}
-                className={[
-                  'px-6 py-2.5 rounded-full font-semibold transition-colors',
-                  selected ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900' : 'bg-yellow-200 text-gray-500 cursor-not-allowed'
-                ].join(' ')}
+                onClick={() => navigate(buildPathWithDana('/', danaParam))}
+                className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 sm:order-1"
               >
-                Confirmar
+                Cancelar
               </button>
             </div>
           </div>
@@ -137,12 +504,21 @@ export default function PlanSelection() {
   )
 }
 
+function InfoField({ label, value, className = '' }) {
+  return (
+    <div className={className}>
+      <div className="text-sm text-gray-600">{label}</div>
+      <div className="text-base font-bold text-gray-900 mt-1">{value}</div>
+    </div>
+  )
+}
+
 /* ------------ Stepper nuevo (estilo igual al screenshot) ------------ */
 function Stepper({ current = 1 }) {
   const steps = [
     { id: 1, label: 'Plan de pago' },
     { id: 2, label: 'Verificación' },
-    { id: 3, label: 'Contrato' },
+    { id: 3, label: 'Disposiciones legales' },
   ]
 
   const total = steps.length
@@ -162,7 +538,7 @@ function Stepper({ current = 1 }) {
         />
         {/* Puntos */}
         {steps.map((s, i) => {
-          const left = (i / (total - 1)) * 100
+          const left = total > 1 ? (i / (total - 1)) * 100 : 0
           const isActive = s.id === idx
           const isDone = s.id < idx
 
@@ -179,7 +555,7 @@ function Stepper({ current = 1 }) {
                     ? 'bg-emerald-500 text-white border-emerald-500'
                     : isDone
                       ? 'bg-emerald-100 text-emerald-700 border-emerald-500'
-                      : 'bg-gray-100 text-gray-600 border-gray-300'
+                      : 'bg-gray-100 text-gray-600 border-gray-300',
                 ].join(' ')}
               >
                 {s.id}
@@ -204,27 +580,54 @@ function PlanCard({ plan, checked, onSelect }) {
   return (
     <label
       className={[
-        'relative block rounded-2xl border-2 bg-white p-4 cursor-pointer transition-shadow',
-        checked ? 'border-yellow-400 ring-2 ring-yellow-300 shadow-md' : 'border-gray-200 hover:shadow'
+        'relative block rounded-2xl border-2 bg-white p-4 cursor-pointer transition-shadow flex-shrink-0 w-[85%] min-w-[260px] sm:w-[60%] md:w-full snap-center',
+        checked ? 'border-yellow-400 ring-2 ring-yellow-300 shadow-md' : 'border-gray-200 hover:shadow',
       ].join(' ')}
       onClick={onSelect}
     >
       {/* círculo/check en esquina derecha */}
-      <span className={[
-        'absolute top-3 right-3 w-5 h-5 rounded-full border flex items-center justify-center',
-        checked ? 'bg-yellow-400 border-yellow-400' : 'border-gray-300 bg-white'
-      ].join(' ')}>
+      <span
+        className={[
+          'absolute top-3 right-3 w-5 h-5 rounded-full border flex items-center justify-center',
+          checked ? 'bg-yellow-400 border-yellow-400' : 'border-gray-300 bg-white',
+        ].join(' ')}
+      >
         {checked ? <CheckIcon /> : null}
       </span>
 
       <div className="text-xs text-gray-600">{plan.titulo}</div>
-      <div className="text-2xl font-extrabold text-gray-900">${plan.cuota.toFixed(2)}</div>
+      <div className="text-2xl font-extrabold text-gray-900">{plan.cuotaLabel}</div>
       <div className="text-xs text-gray-500">Letra mensual</div>
 
       <ul className="mt-3 space-y-2 text-sm text-gray-800">
-        <li className="flex items-center gap-2"><IconFeature /> <span>Extensión del plazo <strong>{plan.ext} meses</strong></span></li>
-        <li className="flex items-center gap-2"><IconPercent /> <span>Tasa de interés anual <strong>{plan.tasa}</strong></span></li>
-        <li className="flex items-center gap-2"><IconCalendar /> <span>Fecha de pago <strong>{plan.fecha}</strong></span></li>
+        <li className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+            <IconAlarm />
+          </span>
+          <span className="flex flex-col leading-tight text-gray-800">
+            <span className="text-sm text-gray-600">Nuevo plazo</span>
+            <span className="text-base font-semibold text-gray-900">{plan.extLabel}</span>
+            <span className="text-[11px] leading-[15px] text-gray-500">(Letras por pagar + Extensión)</span>
+          </span>
+        </li>
+        <li className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+            <IconPlant />
+          </span>
+          <span className="flex flex-col leading-tight text-gray-800">
+            <span className="text-sm text-gray-600">Tasa de interés anual</span>
+            <span className="text-base font-semibold text-gray-900">{plan.tasaLabel}</span>
+          </span>
+        </li>
+        <li className="flex items-center gap-3">
+          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
+            <IconCalendar />
+          </span>
+          <span className="flex flex-col leading-tight text-gray-800">
+            <span className="text-sm text-gray-600">Próxima fecha de pago</span>
+            <span className="text-base font-semibold text-gray-900">{plan.fechaLabel}</span>
+          </span>
+        </li>
       </ul>
     </label>
   )
@@ -238,28 +641,71 @@ function CheckIcon() {
     </svg>
   )
 }
-function IconFeature() {
+function IconAlarm() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
-      <path d="M5 4h14v12a2 2 0 0 1-2 2h-3l-2 2-2-2H7a2 2 0 0 1-2-2V4z" stroke="currentColor"/>
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="text-gray-600"
+    >
+      <circle cx="12" cy="13" r="6" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M12 10.5V13l2 1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path
+        d="M7.2 5.1 5 3 3 5l2.2 2.2M16.8 5.1 19 3l2 2-2.2 2.2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+      />
+      <path d="M9 19l-1.5 1.8M15 19l1.5 1.8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   )
 }
-function IconPercent() {
+function IconPlant() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
-      <path d="M6 18L18 6" stroke="currentColor" />
-      <circle cx="8" cy="8" r="2" stroke="currentColor" />
-      <circle cx="16" cy="16" r="2" stroke="currentColor" />
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="text-gray-600"
+    >
+      <path
+        d="M12 20v-7.5c0-2.5 1.7-4.7 4.1-5.4 1.5-.4 3.3-.4 4.9.6-1 3-3.4 4.8-5.8 4.8h-1.2"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M12 12.5c0-2.5-1.7-4.7-4.1-5.4-1.5-.4-3.3-.4-4.9.6 1 3 3.4 4.8 5.8 4.8H9"
+        stroke="currentColor"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M12 20c0-1.5-1-2.5-2.5-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <path d="M12 20c0-1.5 1-2.5 2.5-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   )
 }
 function IconCalendar() {
   return (
-    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
-      <rect x="3" y="4.5" width="18" height="16" rx="2.5" stroke="currentColor" />
-      <path d="M3 9h18" stroke="currentColor" />
-      <path d="M8 3v3M16 3v3" stroke="currentColor" />
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden="true"
+      className="text-gray-600"
+    >
+      <rect x="4" y="5" width="16" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M4 9.5h16" stroke="currentColor" strokeWidth="1.6" />
+      <path d="M9 3.5v3M15 3.5v3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <rect x="9" y="12" width="2.8" height="2.8" rx="0.6" fill="currentColor" />
     </svg>
   )
 }
