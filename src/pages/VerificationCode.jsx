@@ -171,7 +171,7 @@ export default function VerificationCode() {
 
     const code = digits.join('')
     if (code === CORRECT_CODE) {
-      navigate(buildPathWithDana('/aviso-privacidad', danaParam))
+      navigate(buildPathWithDana('/plan', danaParam))
       return
     }
 

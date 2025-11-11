@@ -8,10 +8,7 @@ export default function Header() {
   const [showExitConfirm, setShowExitConfirm] = useState(false)
 
   // Mostrar el icono de salir solo después de la primera pantalla
-  const showExit =
-    location.pathname !== '/' &&
-    location.pathname !== '/error' &&
-    location.pathname !== '/aviso-privacidad'
+  const showExit = location.pathname !== '/' && location.pathname !== '/error'
 
   const onExit = () => {
     try {

@@ -190,7 +190,7 @@ export default function IntroVerification() {
       }
 
       setErrors({})
-      navigate(buildPathWithDana('/aviso-privacidad', danaParam))
+      navigate(buildPathWithDana('/plan', danaParam))
     } catch (error) {
       console.error('No se pudo validar la información del cliente', error)
       if (error.name !== 'AbortError') {
@@ -292,7 +292,7 @@ export default function IntroVerification() {
                           setDocDate(nextValue || '')
                           setErrors((prev) => ({ ...prev, docDate: undefined, general: undefined }))
                         }}
-                        placeholder="dd-mm-yyyy"
+                        placeholder="DD/MM/YYYY"
                         ariaLabel="Fecha de expiración del documento"
                       />
                     </div>
@@ -425,7 +425,7 @@ function PrivacyNoticeModal({ onClose }) {
     >
       <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" aria-hidden="true" />
       <div
-        className="relative z-10 w-full max-w-3xl max-h-[90vh] overflow-hidden rounded-3xl bg-white shadow-xl"
+        className="relative z-10 flex w-full max-w-3xl max-h-[90vh] flex-col overflow-hidden rounded-3xl bg-white shadow-xl"
         onClick={stopPropagation}
       >
         <header className="flex items-start justify-between px-6 py-5 border-b border-gray-100">
@@ -447,8 +447,17 @@ function PrivacyNoticeModal({ onClose }) {
             <CloseIcon className="h-5 w-5" />
           </button>
         </header>
-        <div className="px-6 pb-6 pt-4 overflow-y-auto max-h-[70vh] pr-4" aria-label="Aviso de privacidad">
+        <div className="flex-1 overflow-y-auto px-6 pb-6 pt-4 pr-4" aria-label="Aviso de privacidad">
           <PrivacyNoticeBody className="pb-6" />
+        </div>
+        <div className="border-t border-gray-100 px-6 py-5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="w-full rounded-full bg-yellow-400 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
+          >
+            Entendido
+          </button>
         </div>
       </div>
     </div>,
