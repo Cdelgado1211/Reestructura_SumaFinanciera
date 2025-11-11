@@ -57,7 +57,12 @@ export default function IntroVerification() {
         const nombre = record?.nombre
 
         if (record && hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
-          navigate('/error', { replace: true, state: { messageKey: 'alreadyCommitted' } })
+          const restructureStatus = getRestructureStatus(record)
+          const messageState = restructureStatus
+            ? { messageKey: 'alreadyCommittedWithStatus', restructureStatus }
+            : { messageKey: 'alreadyCommitted' }
+
+          navigate('/error', { replace: true, state: messageState })
           return
         }
 
@@ -152,7 +157,12 @@ export default function IntroVerification() {
       }
 
       if (hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
-        navigate('/error', { replace: true, state: { messageKey: 'alreadyCommitted' } })
+        const restructureStatus = getRestructureStatus(record)
+        const messageState = restructureStatus
+          ? { messageKey: 'alreadyCommittedWithStatus', restructureStatus }
+          : { messageKey: 'alreadyCommitted' }
+
+        navigate('/error', { replace: true, state: messageState })
         return
       }
 
@@ -397,6 +407,14 @@ function formatDateForDisplay(isoDate) {
 function compareDocumentId(input, expected) {
   const normalize = (value) => (value || '').replace(/[\s-]/g, '').toUpperCase()
   return normalize(input) === normalize(expected)
+}
+
+function getRestructureStatus(record) {
+  if (!record || typeof record.EDOREESTRUCTCONTROL !== 'string') {
+    return ''
+  }
+
+  return record.EDOREESTRUCTCONTROL.trim()
 }
 
 function hasCommittedChoice(value) {
