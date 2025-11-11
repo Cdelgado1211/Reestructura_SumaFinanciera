@@ -353,7 +353,13 @@ export default function IntroVerification() {
         </div>
       </div>
       {showPrivacyModal && (
-        <PrivacyNoticeModal onClose={() => setShowPrivacyModal(false)} />
+        <PrivacyNoticeModal
+          onClose={() => setShowPrivacyModal(false)}
+          onAccept={() => {
+            setAcceptPrivacy(true)
+            setErrors((prev) => ({ ...prev, privacy: undefined, general: undefined }))
+          }}
+        />
       )}
     </div>
   )
@@ -410,7 +416,7 @@ function hasCommittedChoice(value) {
   return false
 }
 
-function PrivacyNoticeModal({ onClose }) {
+function PrivacyNoticeModal({ onClose, onAccept }) {
   const stopPropagation = useCallback((event) => {
     event.stopPropagation()
   }, [])
@@ -450,11 +456,16 @@ function PrivacyNoticeModal({ onClose }) {
         <div className="flex-1 overflow-y-auto px-6 pb-6 pt-4 pr-4" aria-label="Aviso de privacidad">
           <PrivacyNoticeBody className="pb-6" />
         </div>
-        <div className="border-t border-gray-100 px-6 py-5">
+        <div className="flex justify-end border-t border-gray-100 px-6 py-5">
           <button
             type="button"
-            onClick={onClose}
-            className="w-full rounded-full bg-yellow-400 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
+            onClick={() => {
+              if (onAccept) {
+                onAccept()
+              }
+              onClose()
+            }}
+            className="inline-flex items-center justify-center rounded-full bg-yellow-400 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
           >
             Entendido
           </button>
