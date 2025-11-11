@@ -190,7 +190,7 @@ export default function IntroVerification() {
       }
 
       setErrors({})
-      navigate(buildPathWithDana('/aviso-privacidad', danaParam))
+      navigate(buildPathWithDana('/plan', danaParam))
     } catch (error) {
       console.error('No se pudo validar la información del cliente', error)
       if (error.name !== 'AbortError') {
