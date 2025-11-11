@@ -431,10 +431,6 @@ function getErrorNavigationState(record) {
     return null
   }
 
-  if (hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
-    return { messageKey: 'committedChoice' }
-  }
-
   const restructureStatus = getRestructureStatus(record)
   if (restructureStatus) {
     const normalizedStatus = restructureStatus.toLowerCase()
@@ -446,6 +442,10 @@ function getErrorNavigationState(record) {
     if (normalizedStatus === 'cancelado') {
       return { messageKey: 'statusCancelled' }
     }
+  }
+
+  if (hasCommittedChoice(record.USER_COMMITTED_CHOICE) && !restructureStatus) {
+    return { messageKey: 'committedChoice' }
   }
 
   return null
