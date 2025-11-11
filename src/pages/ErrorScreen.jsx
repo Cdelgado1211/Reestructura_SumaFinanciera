@@ -24,7 +24,10 @@ export default function ErrorScreen() {
   let title
   let description
 
-  if (messageKey === 'alreadyCommittedWithStatus' && restructureStatus) {
+  if (messageKey === 'restructureStatusNotice' && restructureStatus) {
+    title = `El estatus de tu reestructuración es ${restructureStatus}`
+    description = ''
+  } else if (messageKey === 'alreadyCommittedWithStatus' && restructureStatus) {
     title = `Tu reestructuración ha sido ${restructureStatus}`
     description = ''
   } else {
