@@ -17,7 +17,21 @@ const errorMessages = {
 export default function ErrorScreen() {
   const location = useLocation()
   const messageKey = location.state?.messageKey
-  const { title, description } = errorMessages[messageKey] || errorMessages.default
+  const restructureStatus = typeof location.state?.restructureStatus === 'string'
+    ? location.state.restructureStatus.trim()
+    : ''
+
+  let title
+  let description
+
+  if (messageKey === 'alreadyCommittedWithStatus' && restructureStatus) {
+    title = `Tu reestructuración ha sido ${restructureStatus}`
+    description = ''
+  } else {
+    const message = errorMessages[messageKey] || errorMessages.default
+    title = message.title
+    description = message.description
+  }
 
   return (
     <div className="py-8">
