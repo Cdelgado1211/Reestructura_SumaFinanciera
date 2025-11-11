@@ -7,34 +7,28 @@ const errorMessages = {
     description:
       'Por favor regresa al correo con tu oferta y vuelve a hacer clic en el enlace para intentarlo nuevamente. Si el problema persiste, contáctanos para ayudarte.',
   },
-  alreadyCommitted: {
+  committedChoice: {
     title: 'Tu reestructuración ya fue procesada',
     description:
       'Ya registramos tu selección previamente. Si necesitas hacer algún ajuste adicional, comunícate con nosotros para revisar nuevas alternativas.',
+  },
+  statusExpired: {
+    title: 'Tu reestructuración tiene estatus de Expirada',
+    description:
+      'Si tienes dudas sobre esto, comunícate con nosotros para revisar nuevas alternativas.',
+  },
+  statusCancelled: {
+    title: 'Tu reestructuración tiene estatus de Cancelada',
+    description:
+      'Si tienes dudas sobre esto, comunícate con nosotros para revisar nuevas alternativas.',
   },
 }
 
 export default function ErrorScreen() {
   const location = useLocation()
   const messageKey = location.state?.messageKey
-  const restructureStatus = typeof location.state?.restructureStatus === 'string'
-    ? location.state.restructureStatus.trim()
-    : ''
-
-  let title
-  let description
-
-  if (messageKey === 'restructureStatusNotice' && restructureStatus) {
-    title = `El estatus de tu reestructuración es ${restructureStatus}`
-    description = ''
-  } else if (messageKey === 'alreadyCommittedWithStatus' && restructureStatus) {
-    title = `Tu reestructuración ha sido ${restructureStatus}`
-    description = ''
-  } else {
-    const message = errorMessages[messageKey] || errorMessages.default
-    title = message.title
-    description = message.description
-  }
+  const message = errorMessages[messageKey] || errorMessages.default
+  const { title, description } = message
 
   return (
     <div className="py-8">

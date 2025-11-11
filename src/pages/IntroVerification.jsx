@@ -56,29 +56,9 @@ export default function IntroVerification() {
         const record = data?.record
         const nombre = record?.nombre
 
-        if (record) {
-          const restructureStatus = getRestructureStatus(record)
-          const normalizedStatus = restructureStatus.trim().toLowerCase()
-
-          if (normalizedStatus === 'expirado' || normalizedStatus === 'cancelado') {
-            navigate('/error', {
-              replace: true,
-              state: {
-                messageKey: 'restructureStatusNotice',
-                restructureStatus,
-              },
-            })
-            return
-          }
-        }
-
-        if (record && hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
-          const restructureStatus = getRestructureStatus(record)
-          const messageState = restructureStatus
-            ? { messageKey: 'alreadyCommittedWithStatus', restructureStatus }
-            : { messageKey: 'alreadyCommitted' }
-
-          navigate('/error', { replace: true, state: messageState })
+        const errorState = getErrorNavigationState(record)
+        if (errorState) {
+          navigate('/error', { replace: true, state: errorState })
           return
         }
 
@@ -172,13 +152,9 @@ export default function IntroVerification() {
         throw new Error('Sin datos para validar')
       }
 
-      if (hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
-        const restructureStatus = getRestructureStatus(record)
-        const messageState = restructureStatus
-          ? { messageKey: 'alreadyCommittedWithStatus', restructureStatus }
-          : { messageKey: 'alreadyCommitted' }
-
-        navigate('/error', { replace: true, state: messageState })
+      const errorState = getErrorNavigationState(record)
+      if (errorState) {
+        navigate('/error', { replace: true, state: errorState })
         return
       }
 
@@ -448,6 +424,31 @@ function hasCommittedChoice(value) {
   }
 
   return false
+}
+
+function getErrorNavigationState(record) {
+  if (!record) {
+    return null
+  }
+
+  if (hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
+    return { messageKey: 'committedChoice' }
+  }
+
+  const restructureStatus = getRestructureStatus(record)
+  if (restructureStatus) {
+    const normalizedStatus = restructureStatus.toLowerCase()
+
+    if (normalizedStatus === 'expirado') {
+      return { messageKey: 'statusExpired' }
+    }
+
+    if (normalizedStatus === 'cancelado') {
+      return { messageKey: 'statusCancelled' }
+    }
+  }
+
+  return null
 }
 
 function PrivacyNoticeModal({ onClose, onAccept }) {
