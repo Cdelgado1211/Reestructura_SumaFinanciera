@@ -56,6 +56,22 @@ export default function IntroVerification() {
         const record = data?.record
         const nombre = record?.nombre
 
+        if (record) {
+          const restructureStatus = getRestructureStatus(record)
+          const normalizedStatus = restructureStatus.trim().toLowerCase()
+
+          if (normalizedStatus === 'expirado' || normalizedStatus === 'cancelado') {
+            navigate('/error', {
+              replace: true,
+              state: {
+                messageKey: 'restructureStatusNotice',
+                restructureStatus,
+              },
+            })
+            return
+          }
+        }
+
         if (record && hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
           const restructureStatus = getRestructureStatus(record)
           const messageState = restructureStatus
