@@ -456,7 +456,7 @@ function PrivacyNoticeModal({ onClose, onAccept }) {
         <div className="flex-1 overflow-y-auto px-6 pb-6 pt-4 pr-4" aria-label="Aviso de privacidad">
           <PrivacyNoticeBody className="pb-6" />
         </div>
-        <div className="flex justify-end border-t border-gray-100 px-6 py-5">
+        <div className="flex justify-center border-t border-gray-100 px-6 py-5">
           <button
             type="button"
             onClick={() => {
