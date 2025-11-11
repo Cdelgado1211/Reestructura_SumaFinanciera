@@ -6,7 +6,6 @@ import Footer from './components/layout/Footer'
 import IntroVerification from './pages/IntroVerification'
 import VerificationMethod from './pages/VerificationMethod'
 import VerificationCode from './pages/VerificationCode'
-import PrivacyConsent from './pages/PrivacyConsent'
 import PlanSelection from './pages/PlanSelection'
 import Verification from './pages/Verification'
 import Contract from './pages/Contract'
@@ -29,7 +28,6 @@ function App() {
           <Route path="/" element={<IntroVerification />} />
           <Route path="/metodo-verificacion" element={<VerificationMethod />} />
           <Route path="/codigo-verificacion" element={<VerificationCode />} />
-          <Route path="/aviso-privacidad" element={<PrivacyConsent />} />
           <Route path="/plan" element={<PlanSelection />} />
           <Route path="/verificacion" element={<Verification />} />
           <Route path="/contrato" element={<Contract />} />

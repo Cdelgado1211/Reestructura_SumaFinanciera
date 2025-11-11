@@ -190,7 +190,7 @@ export default function IntroVerification() {
       }
 
       setErrors({})
-      navigate(buildPathWithDana('/aviso-privacidad', danaParam))
+      navigate(buildPathWithDana('/plan', danaParam))
     } catch (error) {
       console.error('No se pudo validar la información del cliente', error)
       if (error.name !== 'AbortError') {
@@ -292,7 +292,7 @@ export default function IntroVerification() {
                           setDocDate(nextValue || '')
                           setErrors((prev) => ({ ...prev, docDate: undefined, general: undefined }))
                         }}
-                        placeholder="dd-mm-yyyy"
+                        placeholder="DD/MM/YYYY"
                         ariaLabel="Fecha de expiración del documento"
                       />
                     </div>
