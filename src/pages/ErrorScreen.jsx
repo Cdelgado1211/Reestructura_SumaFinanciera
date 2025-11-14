@@ -1,11 +1,11 @@
 import React from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 const errorMessages = {
   default: {
-    title: 'No pudimos cargar tu información',
+    title: 'Tu sesión ha expirado',
     description:
-      'Por favor regresa al correo con tu oferta y vuelve a hacer clic en el enlace para intentarlo nuevamente. Si el problema persiste, contáctanos para ayudarte.',
+      'Por seguridad, tu sesión se cerró automáticamente después de un tiempo sin actividad. Vuelve a iniciar para continuar.',
   },
   committedChoice: {
     title: 'Tu reestructuración ya fue procesada',
@@ -26,7 +26,6 @@ const errorMessages = {
 
 export default function ErrorScreen() {
   const location = useLocation()
-  const navigate = useNavigate()
   const messageKey = location.state?.messageKey
   const message = errorMessages[messageKey] || errorMessages.default
   const { title, description } = message
@@ -45,13 +44,12 @@ export default function ErrorScreen() {
               <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
               <p className="text-gray-600">{description}</p>
             </div>
-            <button
-              type="button"
-              onClick={() => navigate('/')}
+            <a
+              href="https://www.banistmo.com/"
               className="inline-flex items-center justify-center rounded-full bg-yellow-400 px-6 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2"
             >
               Entendido
-            </button>
+            </a>
           </div>
         </div>
       </div>
@@ -60,15 +58,23 @@ export default function ErrorScreen() {
 
   return (
     <div className="py-8">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6">
-        <div className="bg-white rounded-2xl shadow p-8 text-center space-y-4">
-          <div className="mx-auto w-16 h-16 rounded-full bg-red-100 flex items-center justify-center">
-            <span className="text-red-500 text-3xl" aria-hidden="true">
-              !
+      <div className="max-w-md mx-auto px-4 sm:px-6">
+        <div className="bg-white rounded-3xl shadow-lg p-8 text-center space-y-6">
+          <div className="mx-auto w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
+            <span className="text-yellow-500 text-3xl" aria-hidden="true">
+              ✋
             </span>
           </div>
-          <h1 className="text-2xl font-semibold text-gray-900">{title}</h1>
-          <p className="text-gray-600">{description}</p>
+          <div className="space-y-2">
+            <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
+            <p className="text-gray-600">{description}</p>
+          </div>
+          <a
+            href="https://www.banistmo.com/"
+            className="inline-flex items-center justify-center rounded-full bg-yellow-400 px-6 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2"
+          >
+            Entendido
+          </a>
         </div>
       </div>
     </div>
