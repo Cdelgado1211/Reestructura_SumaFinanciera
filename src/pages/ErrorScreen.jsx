@@ -18,9 +18,9 @@ const errorMessages = {
       'Esta oferta ya no está activa, si deseas puedes ponerte en contacto con nuestra Sucursal Telefónica al (507) 306-4700.',
   },
   statusCancelled: {
-    title: 'Tu reestructuración tiene estatus de Cancelada',
+    title: 'Tu reestructuración fue cancelada',
     description:
-      'Si tienes dudas sobre esto, comunícate con nosotros para revisar nuevas alternativas.',
+      'Te informamos que tu selección solicitud de Reestructuración de deuda fue cancelada. Si tienes alguna duda, ponte en contacto con nuestra Sucursal Telefónica al (507) 306-4700.',
   },
 }
 
