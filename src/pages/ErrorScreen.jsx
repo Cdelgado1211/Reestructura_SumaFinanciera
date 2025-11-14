@@ -36,9 +36,11 @@ export default function ErrorScreen() {
         <div className="max-w-md mx-auto px-4 sm:px-6">
           <div className="bg-white rounded-3xl shadow-lg p-8 text-center space-y-6">
             <div className="mx-auto w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
-              <span className="text-yellow-500 text-3xl" aria-hidden="true">
-                ✋
-              </span>
+              <img
+                src="https://imgcdn.email-platform.com/banistmo/icohalt.png"
+                alt="Alerta"
+                className="w-10 h-10"
+              />
             </div>
             <div className="space-y-2">
               <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
@@ -61,9 +63,11 @@ export default function ErrorScreen() {
       <div className="max-w-md mx-auto px-4 sm:px-6">
         <div className="bg-white rounded-3xl shadow-lg p-8 text-center space-y-6">
           <div className="mx-auto w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
-            <span className="text-yellow-500 text-3xl" aria-hidden="true">
-              ✋
-            </span>
+            <img
+              src="https://imgcdn.email-platform.com/banistmo/icohalt.png"
+              alt="Alerta"
+              className="w-10 h-10"
+            />
           </div>
           <div className="space-y-2">
             <h1 className="text-xl font-semibold text-gray-900">{title}</h1>
