@@ -28,7 +28,7 @@ function Footer() {
               d='M2.25 6.75c0 8.284 6.716 15 15 15h0a1.5 1.5 0 0 0 1.5-1.5v-2.25a1.5 1.5 0 0 0-1.28-1.48l-3.013-.502a1.5 1.5 0 0 0-1.338.432l-.665.665a11.25 11.25 0 0 1-5.313-5.313l.665-.665a1.5 1.5 0 0 0 .432-1.338l-.502-3.013A1.5 1.5 0 0 0 8.25 4.5H6a1.5 1.5 0 0 0-1.5 1.5v.75Z'
             />
           </svg>
-          Sucursal Telefónica (507) 306-4700
+          Conciliación con los clientes (507) 233-8510 / 8520
         </span>
         <span className='text-center md:text-left'>Copyright © 2025 Banistmo</span>
       </div>

@@ -10,17 +10,17 @@ const errorMessages = {
   committedChoice: {
     title: 'Tu reestructuración ya está en marcha',
     description:
-      'Nos alegra informarte que ya registramos tu selección previamente. Si necesitas ajustar algo o resolver una duda, ponte en contacto con nuestra Sucursal Telefónica al (507) 306-4700.',
+      'Nos alegra informarte que ya registramos tu selección previamente. Si necesitas ajustar algo o resolver una duda, ponte en contacto con Conciliación con los clientes al (507) 233-8510 / 8520.',
   },
   statusExpired: {
     title: 'Esta oferta de Reestructuración ya no está disponible',
     description:
-      'Esta oferta ya no está activa, si deseas puedes ponerte en contacto con nuestra Sucursal Telefónica al (507) 306-4700.',
+      'Esta oferta ya no está activa, si deseas puedes ponerte en contacto con Conciliación con los clientes al (507) 233-8510 / 8520.',
   },
   statusCancelled: {
     title: 'Tu reestructuración fue cancelada',
     description:
-      'Te informamos que tu selección solicitud de Reestructuración de deuda fue cancelada. Si tienes alguna duda, ponte en contacto con nuestra Sucursal Telefónica al (507) 306-4700.',
+      'Te informamos que tu selección solicitud de Reestructuración de deuda fue cancelada. Si tienes alguna duda, ponte en contacto con Conciliación con los clientes al (507) 233-8510 / 8520.',
   },
 }
 
@@ -51,7 +51,7 @@ export default function ErrorScreen() {
                   Nos alegra informarte que ya registramos tu selección previamente.
                 </p>
                 <p className="text-base text-gray-600 leading-relaxed">
-                  Si necesitas ajustar algo o resolver una duda, ponte en contacto con nuestra Sucursal Telefónica al (507) 306-4700.
+                  Si necesitas ajustar algo o resolver una duda, ponte en contacto con Conciliación con los clientes al (507) 233-8510 / 8520.
                 </p>
               </div>
               <a
