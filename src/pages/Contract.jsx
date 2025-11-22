@@ -188,6 +188,19 @@ export default function Contract() {
 
   const hasPlanSelection = Boolean(storedPlan?.id)
 
+  const selectedPlanChoice = useMemo(() => {
+    if (!storedPlan?.id) return null
+
+    const normalizedId = String(storedPlan.id).toLowerCase()
+    const planMatch = normalizedId.match(/plan(\d+)/)
+    if (planMatch?.[1]) {
+      return planMatch[1]
+    }
+
+    const genericMatch = normalizedId.match(/(\d+)/)
+    return genericMatch?.[1] || null
+  }, [storedPlan])
+
   useEffect(() => {
     const danaValue = getDanaParamFromSearch(location.search)
     if (!danaValue) {
@@ -236,6 +249,7 @@ export default function Contract() {
           sanitizeValue(displayPlan.fecha, storedPlan?.fields?.fecha?.raw),
         ),
         USER_COMMITTED_CHOICE: true,
+        USER_PLAN_CHOICE: selectedPlanChoice,
       }
 
       if (storedPlan?.id || storedPlan?.titulo) {
