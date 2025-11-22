@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+
+# Block access to source maps and build metadata
+Disallow: /*.map$
+Disallow: /manifest.webmanifest
