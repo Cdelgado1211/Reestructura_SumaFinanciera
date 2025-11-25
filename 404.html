@@ -67,23 +67,9 @@
         letter-spacing: 0.5px;
       }
 
-      a {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        text-decoration: none;
-        font-weight: 600;
-        color: #ffffff;
-        background: #005b8f;
-        border-radius: 12px;
-        padding: 12px 16px;
-        transition: background 0.2s ease;
-      }
-
-      a:hover,
-      a:focus-visible {
-        background: #00426a;
+      .hint {
+        font-size: 14px;
+        color: #6b7280;
       }
     </style>
   </head>
@@ -92,10 +78,11 @@
       <div class="status">404</div>
       <h1>La página que buscas no está disponible</h1>
       <p>
-        Lo sentimos, la ruta solicitada no existe o ha dejado de estar disponible. Intenta
-        volver al inicio para continuar con el flujo de reestructuración.
+        Lo sentimos, la ruta solicitada no existe o ha dejado de estar disponible. Si
+        llegaste aquí a través de un enlace, comprueba que la dirección esté escrita
+        correctamente.
       </p>
-      <a href="/" aria-label="Volver al inicio">Volver al inicio</a>
+      <p class="hint">Este mensaje se sirve de forma estática y no carga la aplicación.</p>
     </main>
   </body>
 </html>

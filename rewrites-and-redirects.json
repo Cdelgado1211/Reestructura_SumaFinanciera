@@ -2,25 +2,79 @@
   {
     "source": "/api/<*>",
     "target": "/api/<*>",
-    "status": 200,
+    "status": "200",
     "condition": null
   },
   {
     "source": "/robots.txt",
     "target": "/robots.txt",
-    "status": 200,
+    "status": "200",
     "condition": null
   },
   {
     "source": "/assets/<*>",
     "target": "/404.html",
-    "status": 404,
+    "status": "404",
+    "condition": null
+  },
+  {
+    "source": "/",
+    "target": "/index.html",
+    "status": "200",
+    "condition": null
+  },
+  {
+    "source": "/metodo-verificacion",
+    "target": "/index.html",
+    "status": "200",
+    "condition": null
+  },
+  {
+    "source": "/codigo-verificacion",
+    "target": "/index.html",
+    "status": "200",
+    "condition": null
+  },
+  {
+    "source": "/plan",
+    "target": "/index.html",
+    "status": "200",
+    "condition": null
+  },
+  {
+    "source": "/verificacion",
+    "target": "/index.html",
+    "status": "200",
+    "condition": null
+  },
+  {
+    "source": "/contrato",
+    "target": "/index.html",
+    "status": "200",
+    "condition": null
+  },
+  {
+    "source": "/ajustando",
+    "target": "/index.html",
+    "status": "200",
+    "condition": null
+  },
+  {
+    "source": "/confirmacion",
+    "target": "/index.html",
+    "status": "200",
+    "condition": null
+  },
+  {
+    "source": "/error",
+    "target": "/index.html",
+    "status": "200",
     "condition": null
   },
   {
     "source": "/<*>",
     "target": "/404.html",
-    "status": 404,
+    "status": "404",
     "condition": null
   }
 ]
