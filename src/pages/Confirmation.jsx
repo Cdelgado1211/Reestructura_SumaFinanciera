@@ -335,7 +335,7 @@ function Item({ label, value, helper }) {
 function CheckCelebration() {
   return (
     <img
-      src="https://imgcdn.email-platform.com/banistmo/checkcompleted.png"
+      src="src/assets/checkcompleted.png"
       alt="Confirmación exitosa"
       className="mx-auto"
     />
