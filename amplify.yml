@@ -14,3 +14,79 @@ frontend:
   cache:
     paths:
       - node_modules/**/*
+  customHeaders:
+    # === CSP GLOBAL PARA TODO EL SITIO ===
+    - pattern: "/*"
+      headers:
+        - key: Content-Security-Policy
+          value: >
+            default-src 'self';
+            base-uri 'self';
+            object-src 'none';
+            frame-ancestors 'none';
+            connect-src 'self'
+              https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws
+              https://appserv.danaconnect.com;
+            img-src 'self' data: blob:
+              https://images.email-platform.com
+              https://imgcdn.email-platform.com
+              https:;
+            script-src 'self';
+            style-src 'self';
+            font-src 'self' data:;
+            worker-src 'self' blob:;
+            manifest-src 'self';
+            form-action 'self';
+            media-src 'self' https:;
+            upgrade-insecure-requests;
+
+        - key: Strict-Transport-Security
+          value: max-age=31536000; includeSubDomains
+        - key: X-Frame-Options
+          value: DENY
+        - key: X-Content-Type-Options
+          value: nosniff
+        - key: Referrer-Policy
+          value: strict-origin-when-cross-origin
+        - key: Permissions-Policy
+          value: >
+            camera=(), microphone=(), geolocation=(), payment=(), usb=(),
+            accelerometer=(), gyroscope=(), magnetometer=(), fullscreen=(self)
+
+    # === NADA DE ESTO NECESITA CSP PERSONALIZADA ===
+    - pattern: /index.html
+      headers:
+        - key: Cache-Control
+          value: no-store, no-cache, must-revalidate, max-age=0
+
+    - pattern: /favicon.ico
+      headers:
+        - key: X-Content-Type-Options
+          value: nosniff
+
+    - pattern: /robots.txt
+      headers:
+        - key: X-Content-Type-Options
+          value: nosniff
+
+    - pattern: /sitemap.xml
+      headers:
+        - key: X-Content-Type-Options
+          value: nosniff
+
+    - pattern: /manifest.webmanifest
+      headers:
+        - key: X-Content-Type-Options
+          value: nosniff
+
+    - pattern: /assets/*.map
+      headers:
+        - key: X-Content-Type-Options
+          value: nosniff
+
+    - pattern: /assets/*
+      headers:
+        - key: Strict-Transport-Security
+          value: max-age=31536000; includeSubDomains
+        - key: X-Content-Type-Options
+          value: nosniff
