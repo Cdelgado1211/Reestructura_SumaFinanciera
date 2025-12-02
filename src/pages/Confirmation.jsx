@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
+import checkCompleted from '../assets/checkcompleted.png'
 
 const formatCurrency = (value) => {
   if (value == null || value === '') return '—'
@@ -335,7 +336,7 @@ function Item({ label, value, helper }) {
 function CheckCelebration() {
   return (
     <img
-      src="src/assets/checkcompleted.png"
+      src={checkCompleted}
       alt="Confirmación exitosa"
       className="mx-auto"
     />

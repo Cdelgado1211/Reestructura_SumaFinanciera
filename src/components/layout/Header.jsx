@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
+import logoBanistmo from '../../assets/logobanistmo.png'
 
 export default function Header() {
   const location = useLocation()
@@ -28,7 +29,7 @@ export default function Header() {
         {/* Logo centrado */}
         <div className="justify-self-center">
           <img
-            src="/src/assets/logobanistmo.png"
+            src={logoBanistmo}
             alt="Banistmo"
             className="w-[200px] h-auto cursor-pointer"
             onClick={() => navigate('/')}
