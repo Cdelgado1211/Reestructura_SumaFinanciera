@@ -10,7 +10,10 @@ customHeaders:
           connect-src 'self'
             https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws
             https://appserv.danaconnect.com;
-          img-src 'self' data: blob: https:;
+          img-src 'self' data: blob:
+            https://images.email-platform.com
+            https://imgcdn.email-platform.com
+            https:;
           script-src 'self';
           style-src 'self';
           font-src 'self' data:;
