@@ -29,15 +29,16 @@ frontend:
               https://appserv.danaconnect.com;
             img-src 'self' data: blob:
               https://images.email-platform.com
-              https://imgcdn.email-platform.com
-              https:;
+              https://imgcdn.email-platform.com;
             script-src 'self';
             style-src 'self';
             font-src 'self' data:;
             worker-src 'self' blob:;
             manifest-src 'self';
             form-action 'self';
-            media-src 'self' https:;
+            media-src 'self'
+              https://images.email-platform.com
+              https://imgcdn.email-platform.com;
             upgrade-insecure-requests;
 
         - key: Strict-Transport-Security
