@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
-const LAMBDA_ENDPOINT = 'https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/'
+const LAMBDA_ENDPOINT = 'https://3q7hiz2xg7uumknw52olgmks7y0qbowz.lambda-url.us-east-1.on.aws/'
 
 const parseCurrencyNumber = (value) => {
   if (value == null || value === '') return null

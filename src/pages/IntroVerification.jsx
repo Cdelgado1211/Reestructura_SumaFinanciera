@@ -37,7 +37,7 @@ export default function IntroVerification() {
     const fetchClientData = async () => {
       try {
         const response = await fetch(
-          `https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
+          `https://3q7hiz2xg7uumknw52olgmks7y0qbowz.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
             danaParamValue,
           )}&s=n`,
           { signal: controller.signal },
@@ -132,7 +132,7 @@ export default function IntroVerification() {
 
     try {
       const response = await fetch(
-        `https://3nift3okknzemzfp7y4u57q6ne0lwfnj.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
+        `https://3q7hiz2xg7uumknw52olgmks7y0qbowz.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
           danaParam,
         )}&s=v`,
       )
