@@ -44,12 +44,17 @@ export default function IntroVerification() {
         )
 
         if (!response.ok) {
+          console.error('[IntroVerification] Error HTTP en s=n', {
+            status: response.status,
+            statusText: response.statusText,
+          })
           throw new Error(`Error ${response.status}`)
         }
 
         const data = await response.json()
 
         if (isServiceErrorResponse(data)) {
+          console.warn('[IntroVerification] isServiceErrorResponse=true en s=n', { data })
           navigate('/error', { replace: true })
           return
         }
@@ -58,6 +63,10 @@ export default function IntroVerification() {
 
         const errorState = getErrorNavigationState(record)
         if (errorState) {
+          console.warn('[IntroVerification] getErrorNavigationState devolvió errorState en s=n', {
+            errorState,
+            record,
+          })
           navigate('/error', { replace: true, state: errorState })
           return
         }
@@ -77,7 +86,10 @@ export default function IntroVerification() {
         }
       } catch (error) {
         if (error.name !== 'AbortError') {
-          console.error('No se pudo obtener la información del cliente', error)
+          console.error('[IntroVerification] Excepción al obtener información del cliente s=n', {
+            name: error.name,
+            message: error.message,
+          })
           navigate('/error', { replace: true })
         }
       }
@@ -138,11 +150,16 @@ export default function IntroVerification() {
       )
 
       if (!response.ok) {
+        console.error('[IntroVerification] Error HTTP en s=v', {
+          status: response.status,
+          statusText: response.statusText,
+        })
         throw new Error(`Error ${response.status}`)
       }
 
       const data = await response.json()
       if (isServiceErrorResponse(data)) {
+        console.warn('[IntroVerification] isServiceErrorResponse=true en s=v', { data })
         navigate('/error', { replace: true })
         return
       }
@@ -154,6 +171,10 @@ export default function IntroVerification() {
 
       const errorState = getErrorNavigationState(record)
       if (errorState) {
+        console.warn('[IntroVerification] getErrorNavigationState devolvió errorState en s=v', {
+          errorState,
+          record,
+        })
         navigate('/error', { replace: true, state: errorState })
         return
       }
@@ -194,7 +215,10 @@ export default function IntroVerification() {
       setErrors({})
       navigate(buildPathWithDana('/plan', danaParam))
     } catch (error) {
-      console.error('No se pudo validar la información del cliente', error)
+      console.error('[IntroVerification] Excepción al validar información del cliente s=v', {
+        name: error.name,
+        message: error.message,
+      })
       if (error.name !== 'AbortError') {
         navigate('/error', { replace: true })
       }

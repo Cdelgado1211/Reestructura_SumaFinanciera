@@ -28,6 +28,7 @@ const errorMessages = {
 export default function ErrorScreen() {
   const location = useLocation()
   const messageKey = location.state?.messageKey
+  console.log('[ErrorScreen] location.state recibido', location.state)
   const message = errorMessages[messageKey] || errorMessages.default
   const { title, description } = message
 
