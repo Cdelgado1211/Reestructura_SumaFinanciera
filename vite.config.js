@@ -1,7 +1,7 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const lambdaUrl = 'https://3q7hiz2xg7uumknw52olgmks7y0qbowz.lambda-url.us-east-1.on.aws'
+const lambdaUrl = 'https://lp5h7egegt2wlrfpur4egp6jge0hwvmy.lambda-url.us-east-1.on.aws'
 
 const securityHeaders = {
   'Content-Security-Policy': "default-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' " + lambdaUrl,

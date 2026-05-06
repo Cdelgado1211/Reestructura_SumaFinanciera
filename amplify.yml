@@ -25,7 +25,7 @@ frontend:
             object-src 'none';
             frame-ancestors 'none';
             connect-src 'self'
-              https://3q7hiz2xg7uumknw52olgmks7y0qbowz.lambda-url.us-east-1.on.aws
+              https://lp5h7egegt2wlrfpur4egp6jge0hwvmy.lambda-url.us-east-1.on.aws
               https://appserv.danaconnect.com;
             img-src 'self' data: blob:
               https://images.email-platform.com

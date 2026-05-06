@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
 
-const LAMBDA_ENDPOINT = 'https://3q7hiz2xg7uumknw52olgmks7y0qbowz.lambda-url.us-east-1.on.aws/'
+const LAMBDA_ENDPOINT = 'https://lp5h7egegt2wlrfpur4egp6jge0hwvmy.lambda-url.us-east-1.on.aws/'
 
 const EMPTY_PLAN = {
   id: null,

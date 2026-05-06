@@ -234,7 +234,7 @@ export default function Confirmation() {
   }
 
   const loan = useMemo(() => {
-    const nombre = record?.nombre || '—'
+    const nombre = record?.NOMBRE || record?.nombre || '—'
     const planTitle = storedPlan?.titulo || '—'
     const extension = resolveValue(displayPlan.extension, storedPlan?.fields?.extension)
     const tasa = resolveValue(displayPlan.tasa, storedPlan?.fields?.tasa)

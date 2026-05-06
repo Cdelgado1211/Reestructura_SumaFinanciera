@@ -37,7 +37,7 @@ export default function IntroVerification() {
     const fetchClientData = async () => {
       try {
         const response = await fetch(
-          `https://3q7hiz2xg7uumknw52olgmks7y0qbowz.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
+          `https://lp5h7egegt2wlrfpur4egp6jge0hwvmy.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
             danaParamValue,
           )}&s=n`,
           { signal: controller.signal },
@@ -59,7 +59,7 @@ export default function IntroVerification() {
           return
         }
         const record = data?.record
-        const nombre = record?.nombre
+        const nombre = getRecordName(record)
 
         const errorState = getErrorNavigationState(record)
         if (errorState) {
@@ -72,7 +72,7 @@ export default function IntroVerification() {
         }
 
         if (record) {
-          setExpectedDocDate(normalizeRecordDate(record.P_FECHA_EXP))
+          setExpectedDocDate(normalizeRecordDate(record.FECHANACIMIENTO))
         }
 
         if (nombre) {
@@ -125,7 +125,7 @@ export default function IntroVerification() {
     const normalizedInputDate = docDate
 
     if (!docDate) {
-      newErrors.docDate = 'Ingresa la fecha de expiración.'
+      newErrors.docDate = 'Ingresa la fecha de nacimiento.'
     } else if (!/^\d{4}-\d{2}-\d{2}$/.test(normalizedInputDate)) {
       newErrors.docDate = 'El formato de la fecha debe ser dd-mm-aaaa.'
     }
@@ -144,7 +144,7 @@ export default function IntroVerification() {
 
     try {
       const response = await fetch(
-        `https://3q7hiz2xg7uumknw52olgmks7y0qbowz.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
+        `https://lp5h7egegt2wlrfpur4egp6jge0hwvmy.lambda-url.us-east-1.on.aws/?dana=${encodeURIComponent(
           danaParam,
         )}&s=v`,
       )
@@ -179,12 +179,13 @@ export default function IntroVerification() {
         return
       }
 
-      if (record.nombre) {
-        setClientName(record.nombre)
+      const validatedName = getRecordName(record)
+      if (validatedName) {
+        setClientName(validatedName)
       }
 
-      const matchesDocId = compareDocumentId(docId, record.EN_CED_RUC)
-      const normalizedRecordDate = normalizeRecordDate(record.P_FECHA_EXP)
+      const matchesDocId = compareDocumentId(docId, record.CEDULA)
+      const normalizedRecordDate = normalizeRecordDate(record.FECHANACIMIENTO)
       const matchesDate = normalizedRecordDate && normalizedInputDate === normalizedRecordDate
 
       if (normalizedRecordDate) {
@@ -198,7 +199,7 @@ export default function IntroVerification() {
       }
 
       if (!matchesDate) {
-        validationErrors.docDate = 'La fecha de expiración no coincide con nuestros registros.'
+        validationErrors.docDate = 'La fecha de nacimiento no coincide con nuestros registros.'
       }
 
       if (Object.keys(validationErrors).length > 0) {
@@ -306,12 +307,12 @@ export default function IntroVerification() {
                   {errors.docId && <p className="mt-1 text-xs text-red-600">{errors.docId}</p>}
                 </label>
 
-                {/* Fecha de expiración (debajo de cédula) */}
+                {/* Fecha de nacimiento (debajo de cédula) */}
                 <label className="block mt-3">
                   <div className="flex items-center gap-3 border rounded-lg px-3 py-3">
                     <CalendarIcon className="w-5 h-5 text-gray-500" />
                     <div className="flex-1">
-                      <p className="text-xs text-gray-600 leading-none">Fecha de expiración de cédula</p>
+                      <p className="text-xs text-gray-600 leading-none">Fecha de nacimiento</p>
                       <DatePickerButton
                         value={docDate}
                         onChange={(nextValue) => {
@@ -319,13 +320,13 @@ export default function IntroVerification() {
                           setErrors((prev) => ({ ...prev, docDate: undefined, general: undefined }))
                         }}
                         placeholder="DD/MM/YYYY"
-                        ariaLabel="Fecha de expiración del documento"
+                        ariaLabel="Fecha de nacimiento"
                       />
                     </div>
                   </div>
                   {expectedDocDate && (
                     <p className="mt-2 text-xs text-gray-500">
-                      Fecha registrada: {formatDateForDisplay(expectedDocDate)}
+                      Fecha de nacimiento registrada: {formatDateForDisplay(expectedDocDate)}
                     </p>
                   )}
                   {errors.docDate && <p className="mt-1 text-xs text-red-600">{errors.docDate}</p>}
@@ -425,12 +426,20 @@ function compareDocumentId(input, expected) {
   return normalize(input) === normalize(expected)
 }
 
-function getRestructureStatus(record) {
-  if (!record || typeof record.EDOREESTRUCTCONTROL !== 'string') {
+function getRecordName(record) {
+  if (!record || typeof record !== 'object') {
     return ''
   }
 
-  return record.EDOREESTRUCTCONTROL.trim()
+  if (typeof record.NOMBRE === 'string' && record.NOMBRE.trim()) {
+    return record.NOMBRE.trim()
+  }
+
+  if (typeof record.nombre === 'string' && record.nombre.trim()) {
+    return record.nombre.trim()
+  }
+
+  return ''
 }
 
 function hasCommittedChoice(value) {
@@ -455,20 +464,7 @@ function getErrorNavigationState(record) {
     return null
   }
 
-  const restructureStatus = getRestructureStatus(record)
-  if (restructureStatus) {
-    const normalizedStatus = restructureStatus.toLowerCase()
-
-    if (normalizedStatus === 'expirado') {
-      return { messageKey: 'statusExpired' }
-    }
-
-    if (normalizedStatus === 'cancelado') {
-      return { messageKey: 'statusCancelled' }
-    }
-  }
-
-  if (hasCommittedChoice(record.USER_COMMITTED_CHOICE) && !restructureStatus) {
+  if (hasCommittedChoice(record.USER_COMMITTED_CHOICE)) {
     return { messageKey: 'committedChoice' }
   }
 

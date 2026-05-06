@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 
-const LAMBDA_ENDPOINT = 'https://3q7hiz2xg7uumknw52olgmks7y0qbowz.lambda-url.us-east-1.on.aws/'
+const LAMBDA_ENDPOINT = 'https://lp5h7egegt2wlrfpur4egp6jge0hwvmy.lambda-url.us-east-1.on.aws/'
 
 const parseCurrencyNumber = (value) => {
   if (value == null || value === '') return null
@@ -391,7 +391,7 @@ export default function PlanSelection() {
           <div className="mt-4">
             <div className="rounded-xl border border-gray-200 px-4 py-3 bg-white">
               <label className="block text-sm text-gray-700 mb-1">Nombre</label>
-              {record?.nombre || '—'}
+              {record?.NOMBRE || record?.nombre || '—'}
             </div>
           </div>
 
