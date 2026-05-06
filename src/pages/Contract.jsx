@@ -82,18 +82,6 @@ const resolveFieldDetails = (field, record) => {
   return { value: record?.[key], key }
 }
 
-const sanitizeValue = (detail, fallback) => {
-  if (detail && detail.value != null && detail.value !== '') {
-    return detail.value
-  }
-
-  if (fallback != null && fallback !== '') {
-    return fallback
-  }
-
-  return ''
-}
-
 const MONTH_NAME_TO_NUMBER = {
   enero: '01',
   febrero: '02',
@@ -169,11 +157,11 @@ export default function Contract() {
   const [submitting, setSubmitting] = useState(false)
 
   const storedPlan = useMemo(
-    () => parseJSON(localStorage.getItem('banistmo:selectedPlan')) || EMPTY_PLAN,
+    () => parseJSON(localStorage.getItem('suma-financiera:selectedPlan')) || EMPTY_PLAN,
     [],
   )
   const record = useMemo(
-    () => parseJSON(localStorage.getItem('banistmo:clienteData')),
+    () => parseJSON(localStorage.getItem('suma-financiera:clienteData')),
     [],
   )
 
@@ -232,21 +220,33 @@ export default function Contract() {
     setSubmitting(true)
 
     try {
+      const selectedValue = (detail, fallbackRaw) => {
+        if (detail && detail.value != null && detail.value !== '') {
+          return detail.value
+        }
+
+        if (fallbackRaw != null && fallbackRaw !== '') {
+          return fallbackRaw
+        }
+
+        return ''
+      }
+
       const payload = {
-        NEW_LETRA_MENSUAL: sanitizeValue(
+        MONTOPAGAR: selectedValue(
           displayPlan.cuota,
           storedPlan?.fields?.cuota?.raw,
         ),
-        NEW_EXTENSION_PLAZO: sanitizeValue(
+        FRECUENCIAPAGO: selectedValue(
           displayPlan.extension,
           storedPlan?.fields?.extension?.raw,
         ),
-        NEW_TASA_INTERES: sanitizeValue(
+        NEW_TASA_INTERES: selectedValue(
           displayPlan.tasa,
           storedPlan?.fields?.tasa?.raw,
         ),
-        NEW_FECHA_PAGO_FIN: formatDateForSubmission(
-          sanitizeValue(displayPlan.fecha, storedPlan?.fields?.fecha?.raw),
+        FECHAINICIOPAGO: formatDateForSubmission(
+          selectedValue(displayPlan.fecha, storedPlan?.fields?.fecha?.raw),
         ),
         USER_COMMITTED_CHOICE: true,
         USER_PLAN_CHOICE: selectedPlanChoice,
@@ -330,7 +330,7 @@ export default function Contract() {
                     descrito en la presente página (en adelante, el “Crédito”), y acepta que, por este
                     medio, se formalizan modificaciones específicas a determinados términos y condiciones
                     del Crédito y de su respectiva documentación legal, conforme a la opción aquí
-                    seleccionada por usted. Asimismo, usted autoriza y acepta que BANISTMO, S.A. (en
+                    seleccionada por usted. Asimismo, usted autoriza y acepta que SUMA FINANCIERA, S.A. (en
                     adelante, el “Banco”) proceda a instalar e implementar dichas modificaciones del
                     Crédito en su sistema interno.
                   </p>
@@ -369,7 +369,7 @@ export default function Contract() {
                 type="checkbox"
                 checked={accepted}
                 onChange={(e) => setAccepted(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-500 focus:ring-yellow-500"
+                className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
               />
               <span className="text-gray-800 font-semibold">Aceptar Disposiciones Legales</span>
             </label>
@@ -388,7 +388,7 @@ export default function Contract() {
                 className={[
                   'px-6 py-2.5 rounded-full font-semibold transition-colors sm:order-2',
                   accepted && !submitting && danaParam && hasPlanSelection
-                    ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
+                    ? 'bg-brand-500 hover:bg-brand-500 text-gray-900'
                     : 'bg-gray-200 text-gray-500 cursor-not-allowed',
                 ].join(' ')}
               >
@@ -429,7 +429,7 @@ function Stepper({ current = 1 }) {
         <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[3px] bg-gray-200 rounded" />
         {/* Línea verde de progreso */}
         <div
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-emerald-500 rounded transition-all"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-brand-500 rounded transition-all"
           style={{ width: `${progressPercent}%` }}
         />
         {/* Puntos */}
@@ -448,9 +448,9 @@ function Stepper({ current = 1 }) {
                 className={[
                   'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-colors',
                   isActive
-                    ? 'bg-emerald-500 text-white border-emerald-500'
+                    ? 'bg-brand-500 text-white border-brand-500'
                     : isDone
-                      ? 'bg-emerald-100 text-emerald-700 border-emerald-500'
+                      ? 'bg-brand-100 text-brand-700 border-brand-500'
                       : 'bg-gray-100 text-gray-600 border-gray-300'
                 ].join(' ')}
               >

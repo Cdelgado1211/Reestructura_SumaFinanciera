@@ -191,10 +191,10 @@ export default function Confirmation() {
   const location = useLocation()
   const [danaParam, setDanaParam] = useState('')
   const storedPlan = useMemo(
-    () => parseJSON(localStorage.getItem('banistmo:selectedPlan')) || EMPTY_PLAN,
+    () => parseJSON(localStorage.getItem('suma-financiera:selectedPlan')) || EMPTY_PLAN,
     [],
   )
-  const record = useMemo(() => parseJSON(localStorage.getItem('banistmo:clienteData')), [])
+  const record = useMemo(() => parseJSON(localStorage.getItem('suma-financiera:clienteData')), [])
 
   useEffect(() => {
     const danaValue = getDanaParamFromSearch(location.search)
@@ -307,8 +307,8 @@ export default function Confirmation() {
 
             <div className="mt-6">
               <a
-                href="https://www.banistmo.com/"
-                className="inline-block px-8 py-3 rounded-full font-semibold bg-yellow-400 hover:bg-yellow-500 text-gray-900 transition-colors"
+                href="https://www.sumafinanciera.com/"
+                className="inline-block px-8 py-3 rounded-full font-semibold bg-brand-500 hover:bg-brand-500 text-gray-900 transition-colors"
               >
                 Terminar
               </a>

@@ -34,13 +34,13 @@ export default function ErrorScreen() {
 
   if (messageKey === 'committedChoice') {
     return (
-      <div className="py-10 bg-gradient-to-b from-yellow-50 via-white to-white">
+      <div className="py-10 bg-gradient-to-b from-brand-50 via-white to-white">
         <div className="max-w-xl mx-auto px-4 sm:px-6">
-          <div className="relative overflow-hidden rounded-3xl border border-yellow-100 bg-white shadow-xl">
-            <div className="absolute -top-20 -right-16 h-48 w-48 rounded-full bg-yellow-100/40 blur-3xl" aria-hidden="true" />
-            <div className="absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-yellow-200/30 blur-3xl" aria-hidden="true" />
+          <div className="relative overflow-hidden rounded-3xl border border-brand-100 bg-white shadow-xl">
+            <div className="absolute -top-20 -right-16 h-48 w-48 rounded-full bg-brand-100/40 blur-3xl" aria-hidden="true" />
+            <div className="absolute -bottom-24 -left-10 h-56 w-56 rounded-full bg-brand-200/30 blur-3xl" aria-hidden="true" />
               <div className="relative p-10 text-center space-y-6">
-                <div className="mx-auto w-20 h-20 rounded-full bg-yellow-100 flex items-center justify-center shadow-inner">
+                <div className="mx-auto w-20 h-20 rounded-full bg-brand-100 flex items-center justify-center shadow-inner">
                   <img src={alertIcon} alt="Alerta" className="w-12 h-12" />
                 </div>
               <div className="space-y-3">
@@ -53,8 +53,8 @@ export default function ErrorScreen() {
                 </p>
               </div>
               <a
-                href="https://www.banistmo.com/"
-                className="inline-flex items-center justify-center rounded-full bg-yellow-400 px-8 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2"
+                href="https://www.sumafinanciera.com/"
+                className="inline-flex items-center justify-center rounded-full bg-brand-500 px-8 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
               >
                 Entendido
               </a>
@@ -70,7 +70,7 @@ export default function ErrorScreen() {
       <div className="py-8">
         <div className="max-w-md mx-auto px-4 sm:px-6">
           <div className="bg-white rounded-3xl shadow-lg p-8 text-center space-y-6">
-            <div className="mx-auto w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
+            <div className="mx-auto w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center">
               <img src={alertIcon} alt="Alerta" className="w-10 h-10" />
             </div>
             <div className="space-y-2">
@@ -78,8 +78,8 @@ export default function ErrorScreen() {
               <p className="text-gray-600">{description}</p>
             </div>
             <a
-              href="https://www.banistmo.com/"
-              className="inline-flex items-center justify-center rounded-full bg-yellow-400 px-6 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2"
+              href="https://www.sumafinanciera.com/"
+              className="inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
             >
               Entendido
             </a>
@@ -93,7 +93,7 @@ export default function ErrorScreen() {
     <div className="py-8">
       <div className="max-w-md mx-auto px-4 sm:px-6">
         <div className="bg-white rounded-3xl shadow-lg p-8 text-center space-y-6">
-          <div className="mx-auto w-16 h-16 rounded-full bg-yellow-100 flex items-center justify-center">
+          <div className="mx-auto w-16 h-16 rounded-full bg-brand-100 flex items-center justify-center">
             <img src={alertIcon} alt="Alerta" className="w-10 h-10" />
           </div>
           <div className="space-y-2">
@@ -101,8 +101,8 @@ export default function ErrorScreen() {
             <p className="text-gray-600">{description}</p>
           </div>
           <a
-            href="https://www.banistmo.com/"
-            className="inline-flex items-center justify-center rounded-full bg-yellow-400 px-6 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-2"
+            href="https://www.sumafinanciera.com/"
+            className="inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
           >
             Entendido
           </a>

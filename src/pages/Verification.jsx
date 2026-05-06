@@ -206,11 +206,11 @@ export default function Verification() {
   const [danaParam, setDanaParam] = useState('')
 
   const storedPlan = useMemo(
-    () => parseJSON(localStorage.getItem('banistmo:selectedPlan')) || EMPTY_PLAN,
+    () => parseJSON(localStorage.getItem('suma-financiera:selectedPlan')) || EMPTY_PLAN,
     [],
   )
   const record = useMemo(
-    () => parseJSON(localStorage.getItem('banistmo:clienteData')),
+    () => parseJSON(localStorage.getItem('suma-financiera:clienteData')),
     [],
   )
 
@@ -286,7 +286,7 @@ export default function Verification() {
           <p className="text-gray-600">Verifica la información del nuevo plan de pagos</p>
 
           {!hasPlanSelection && (
-            <div className="mt-3 text-sm text-yellow-700 bg-yellow-50 border border-yellow-200 rounded-xl px-4 py-3">
+            <div className="mt-3 text-sm text-brand-700 bg-brand-50 border border-brand-200 rounded-xl px-4 py-3">
               Selecciona un plan para continuar con la verificación.
             </div>
           )}
@@ -359,8 +359,8 @@ export default function Verification() {
               className={[
                 'px-6 py-2.5 rounded-full font-semibold transition-colors sm:order-2',
                 hasPlanSelection && danaParam
-                  ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
-                  : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
+                  ? 'bg-brand-500 hover:bg-brand-500 text-gray-900'
+                  : 'bg-brand-200 text-gray-500 cursor-not-allowed',
               ].join(' ')}
             >
               Confirmar
@@ -399,7 +399,7 @@ function Stepper({ current = 1 }) {
         <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[3px] bg-gray-200 rounded" />
         {/* Línea verde de progreso */}
         <div
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-emerald-500 rounded transition-all"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-brand-500 rounded transition-all"
           style={{ width: `${progressPercent}%` }}
         />
         {/* Puntos */}
@@ -418,9 +418,9 @@ function Stepper({ current = 1 }) {
                 className={[
                   'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-colors',
                   isActive
-                    ? 'bg-emerald-500 text-white border-emerald-500'
+                    ? 'bg-brand-500 text-white border-brand-500'
                     : isDone
-                      ? 'bg-emerald-100 text-emerald-700 border-emerald-500'
+                      ? 'bg-brand-100 text-brand-700 border-brand-500'
                       : 'bg-gray-100 text-gray-600 border-gray-300'
                 ].join(' ')}
               >

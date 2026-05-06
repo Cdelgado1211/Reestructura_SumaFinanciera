@@ -126,6 +126,135 @@ const formatMonths = (value) => {
   return stringValue
 }
 
+const parseInteger = (value) => {
+  if (value == null || value === '') return null
+  const numeric = Number(String(value).replace(/\s+/g, '').replace(/[^0-9.-]/g, ''))
+  if (!Number.isFinite(numeric)) {
+    return null
+  }
+
+  const rounded = Math.round(numeric)
+  return rounded > 0 ? rounded : null
+}
+
+const parsePercentNumber = (value) => {
+  if (value == null || value === '') return null
+  const numeric = Number(String(value).replace(/\s+/g, '').replace(/,/g, '.').replace(/[^0-9.-]/g, ''))
+  if (!Number.isFinite(numeric)) {
+    return null
+  }
+
+  return numeric
+}
+
+const parseDateToUtc = (value) => {
+  if (value == null || value === '') return null
+  const trimmed = String(value).trim()
+  if (!trimmed) return null
+
+  const isoMatch = trimmed.match(/^(\d{4})-(\d{2})-(\d{2})$/)
+  if (isoMatch) {
+    const [, year, month, day] = isoMatch
+    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)))
+    return Number.isNaN(date.getTime()) ? null : date
+  }
+
+  const shortMatch = trimmed.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{2,4})$/)
+  if (shortMatch) {
+    let [, day, month, year] = shortMatch
+    if (year.length === 2) {
+      year = Number(year) >= 50 ? `19${year}` : `20${year}`
+    }
+    const date = new Date(Date.UTC(Number(year), Number(month) - 1, Number(day)))
+    return Number.isNaN(date.getTime()) ? null : date
+  }
+
+  return null
+}
+
+const toIsoDate = (date) => {
+  if (!(date instanceof Date) || Number.isNaN(date.getTime())) return ''
+  const year = date.getUTCFullYear()
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0')
+  const day = String(date.getUTCDate()).padStart(2, '0')
+  return `${year}-${month}-${day}`
+}
+
+const addDaysUtc = (date, days) => {
+  const next = new Date(date.getTime())
+  next.setUTCDate(next.getUTCDate() + days)
+  return next
+}
+
+const estimateInstallment = ({ debt, installments, annualRate, fallback }) => {
+  if (!Number.isFinite(debt) || debt <= 0 || !Number.isFinite(installments) || installments <= 0) {
+    return fallback
+  }
+
+  const effectiveRate = Number.isFinite(annualRate) ? annualRate : 0
+  const interestFactor = 1 + (effectiveRate / 100) * 0.25
+  return (debt * interestFactor) / installments
+}
+
+const buildDemoPlansFromRecord = (record) => {
+  if (!record || typeof record !== 'object') {
+    return []
+  }
+
+  const debt = parseCurrencyNumber(record.MONTOADEUDADO ?? record.SALDOCAPITAL ?? record.MONTOPAGAR)
+  const baseInstallments = parseInteger(record.PLAZOACTUAL ?? record.CUOTAS) ?? 24
+  const baseRate = parsePercentNumber(record.TASAACTUAL ?? record.TASA_COBROS) ?? 12
+  const fallbackInstallment = parseCurrencyNumber(record.MONTOPAGAR ?? record.LETRA_COMPLETA) ?? 150
+
+  const frequency = String(record.FRECUENCIAPAGO || '').trim().toUpperCase()
+  const frequencyStepInDays = frequency.includes('SEMANAL')
+    ? 7
+    : frequency.includes('QUINCENAL')
+      ? 15
+      : 30
+
+  const baseDate =
+    parseDateToUtc(record.FECHA_PAGO) ||
+    parseDateToUtc(record.FECHAINICIOPAGO) ||
+    addDaysUtc(new Date(), frequencyStepInDays)
+
+  const options = [
+    { id: 'plan1', title: 'Plan 1', installmentFactor: 0.85, rateDelta: -1, dateStep: 1 },
+    { id: 'plan2', title: 'Plan 2', installmentFactor: 1, rateDelta: 0, dateStep: 2 },
+    { id: 'plan3', title: 'Plan 3', installmentFactor: 1.2, rateDelta: 1.5, dateStep: 3 },
+  ]
+
+  return options.map((option, index) => {
+    const offeredInstallments = Math.max(6, Math.round(baseInstallments * option.installmentFactor))
+    const offeredRate = Math.max(0, Number((baseRate + option.rateDelta).toFixed(2)))
+    const cuota = estimateInstallment({
+      debt,
+      installments: offeredInstallments,
+      annualRate: offeredRate,
+      fallback: fallbackInstallment,
+    })
+    const paymentDate = addDaysUtc(baseDate, frequencyStepInDays * option.dateStep)
+    const rawDate = toIsoDate(paymentDate)
+
+    return {
+      id: option.id,
+      titulo: option.title,
+      cuotaRaw: cuota,
+      cuotaKey: `DEMO_CUOTA_FINAL_${index + 1}`,
+      extensionRaw: offeredInstallments,
+      extensionKeyUsed: `DEMO_PLAZO_OFERTA_${index + 1}`,
+      tasaRaw: offeredRate,
+      tasaKey: `DEMO_TASA_OFERTA_${index + 1}`,
+      fechaRaw: rawDate,
+      fechaKey: `DEMO_FECHA_PAGO_${index + 1}`,
+      cuotaLabel: formatCurrency(cuota),
+      extLabel: formatMonths(offeredInstallments),
+      tasaLabel: formatPercent(offeredRate),
+      fechaLabel: formatDate(rawDate),
+    }
+  })
+}
+
 export default function PlanSelection() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -136,7 +265,7 @@ export default function PlanSelection() {
   const [danaParam, setDanaParam] = useState('')
 
   useEffect(() => {
-    const storedData = localStorage.getItem('banistmo:clienteData')
+    const storedData = localStorage.getItem('suma-financiera:clienteData')
     if (storedData) {
       try {
         setRecord(JSON.parse(storedData))
@@ -182,7 +311,7 @@ export default function PlanSelection() {
         if (data?.record) {
           setRecord(data.record)
           try {
-            localStorage.setItem('banistmo:clienteData', JSON.stringify(data.record))
+            localStorage.setItem('suma-financiera:clienteData', JSON.stringify(data.record))
           } catch (storageError) {
             console.error('No se pudo guardar la información del cliente', storageError)
           }
@@ -215,13 +344,11 @@ export default function PlanSelection() {
 
   const generalInfo = useMemo(
     () => ({
-      saldo: formatCurrency(record?.SALDOCAPITAL),
-      letraActual: formatCurrency(record?.LETRA_COMPLETA),
-      montoVencido: formatCurrency(record?.TOTALVENC_POST),
+      saldo: formatCurrency(record?.MONTOADEUDADO ?? record?.SALDOCAPITAL),
       producto: record?.PRODUCTO || '—',
-      numeroCredito: record?.NUMCRED || '—',
-      plazoActual: record?.PLAZO_CONTRATADO || '—',
-      tasaActual: formatPercent(record?.TASA_COBROS),
+      numeroCredito: record?.NUMEROPRESTAMO ?? record?.NUMCRED ?? '—',
+      plazoActual: formatMonths(record?.PLAZOACTUAL ?? record?.PLAZO_CONTRATADO),
+      tasaActual: formatPercent(record?.TASAACTUAL ?? record?.TASA_COBROS),
     }),
     [record],
   )
@@ -271,7 +398,7 @@ export default function PlanSelection() {
       },
     ]
 
-    return planDefinitions
+    const resolvedPlans = planDefinitions
       .map((definition) => {
         const cuota = resolveValue(definition.cuotaKey)
         const extension = resolveValue(definition.extensionKey)
@@ -304,6 +431,25 @@ export default function PlanSelection() {
         }
       })
       .filter(Boolean)
+
+    const demoPlans = buildDemoPlansFromRecord(record)
+
+    if (resolvedPlans.length === planDefinitions.length) {
+      return resolvedPlans
+    }
+
+    const mergedPlans = planDefinitions
+      .map((definition) => {
+        const backendPlan = resolvedPlans.find((plan) => plan.id === definition.id)
+        if (backendPlan) {
+          return backendPlan
+        }
+
+        return demoPlans.find((plan) => plan.id === definition.id) || null
+      })
+      .filter(Boolean)
+
+    return mergedPlans
   }, [record])
 
   useEffect(() => {
@@ -312,7 +458,7 @@ export default function PlanSelection() {
       return
     }
 
-    const storedSelection = localStorage.getItem('banistmo:selectedPlan')
+    const storedSelection = localStorage.getItem('suma-financiera:selectedPlan')
 
     if (!storedSelection) {
       return
@@ -362,7 +508,7 @@ export default function PlanSelection() {
       }
 
       try {
-        localStorage.setItem('banistmo:selectedPlan', JSON.stringify(payload))
+        localStorage.setItem('suma-financiera:selectedPlan', JSON.stringify(payload))
       } catch (storageError) {
         console.error('No se pudo guardar el plan seleccionado', storageError)
       }
@@ -409,34 +555,24 @@ export default function PlanSelection() {
 
               <div className="mt-6 grid gap-6 md:grid-cols-3">
                 <InfoField
-                  label="Letra actual"
-                  value={generalInfo.letraActual}
-                  className="md:col-start-1 md:row-start-2"
-                />
-                <InfoField
-                  label="Monto vencido"
-                  value={generalInfo.montoVencido}
-                  className="md:col-start-1 md:row-start-1"
-                />
-                <InfoField
                   label="Producto"
                   value={generalInfo.producto}
-                  className="md:col-start-2 md:row-start-1"
+                  className="md:col-start-1 md:row-start-1"
                 />
                 <InfoField
                   label="N° de Crédito"
                   value={generalInfo.numeroCredito}
-                  className="md:col-start-2 md:row-start-2"
+                  className="md:col-start-1 md:row-start-2"
                 />
                 <InfoField
                   label="Plazo actual"
                   value={generalInfo.plazoActual}
-                  className="md:col-start-3 md:row-start-1"
+                  className="md:col-start-2 md:row-start-1"
                 />
                 <InfoField
                   label="Tasa actual"
                   value={generalInfo.tasaActual}
-                  className="md:col-start-3 md:row-start-2"
+                  className="md:col-start-2 md:row-start-2"
                 />
               </div>
             </div>
@@ -455,9 +591,7 @@ export default function PlanSelection() {
 
             {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
 
-            <div
-              className="flex gap-4 overflow-x-auto scrollbar-hide -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible snap-x snap-mandatory"
-            >
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
               {plans.map((plan) => (
                 <PlanCard
                   key={plan.id}
@@ -483,8 +617,8 @@ export default function PlanSelection() {
                 className={[
                   'px-6 py-2.5 rounded-full font-semibold transition-colors sm:order-2',
                   selectedPlan
-                    ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
-                    : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
+                    ? 'bg-brand-500 hover:bg-brand-500 text-gray-900'
+                    : 'bg-brand-200 text-gray-500 cursor-not-allowed',
                 ].join(' ')}
               >
                 Continuar
@@ -533,7 +667,7 @@ function Stepper({ current = 1 }) {
         <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[3px] bg-gray-200 rounded" />
         {/* Línea verde de progreso */}
         <div
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-emerald-500 rounded transition-all"
+          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-brand-500 rounded transition-all"
           style={{ width: `${progressPercent}%` }}
         />
         {/* Puntos */}
@@ -552,9 +686,9 @@ function Stepper({ current = 1 }) {
                 className={[
                   'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-colors',
                   isActive
-                    ? 'bg-emerald-500 text-white border-emerald-500'
+                    ? 'bg-brand-500 text-white border-brand-500'
                     : isDone
-                      ? 'bg-emerald-100 text-emerald-700 border-emerald-500'
+                      ? 'bg-brand-100 text-brand-700 border-brand-500'
                       : 'bg-gray-100 text-gray-600 border-gray-300',
                 ].join(' ')}
               >
@@ -580,8 +714,8 @@ function PlanCard({ plan, checked, onSelect }) {
   return (
     <label
       className={[
-        'relative block rounded-2xl border-2 bg-white p-4 cursor-pointer transition-shadow flex-shrink-0 w-[85%] min-w-[260px] sm:w-[60%] md:w-full snap-center',
-        checked ? 'border-yellow-400 ring-2 ring-yellow-300 shadow-md' : 'border-gray-200 hover:shadow',
+        'relative block h-full w-full rounded-2xl border-2 bg-white p-4 cursor-pointer transition-shadow',
+        checked ? 'border-brand-500 ring-2 ring-brand-300 shadow-md' : 'border-gray-200 hover:shadow',
       ].join(' ')}
       onClick={onSelect}
     >
@@ -589,14 +723,14 @@ function PlanCard({ plan, checked, onSelect }) {
       <span
         className={[
           'absolute top-3 right-3 w-5 h-5 rounded-full border flex items-center justify-center',
-          checked ? 'bg-yellow-400 border-yellow-400' : 'border-gray-300 bg-white',
+          checked ? 'bg-brand-500 border-brand-500' : 'border-gray-300 bg-white',
         ].join(' ')}
       >
         {checked ? <CheckIcon /> : null}
       </span>
 
       <div className="text-xs text-gray-600">{plan.titulo}</div>
-      <div className="text-2xl font-extrabold text-gray-900">{plan.cuotaLabel}</div>
+      <div className="text-xl sm:text-2xl font-extrabold text-gray-900">{plan.cuotaLabel}</div>
       <div className="text-xs text-gray-500">Letra mensual</div>
 
       <ul className="mt-3 space-y-2 text-sm text-gray-800">
@@ -604,28 +738,28 @@ function PlanCard({ plan, checked, onSelect }) {
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
             <IconAlarm />
           </span>
-          <span className="flex flex-col leading-tight text-gray-800">
+          <span className="min-w-0 flex flex-col leading-tight text-gray-800">
             <span className="text-sm text-gray-600">Nuevo plazo</span>
-            <span className="text-base font-semibold text-gray-900">{plan.extLabel}</span>
-            <span className="text-[11px] leading-[15px] text-gray-500">(Letras por pagar + Extensión)</span>
+            <span className="text-base font-semibold text-gray-900 break-words">{plan.extLabel}</span>
+            <span className="text-[11px] leading-[15px] text-gray-500 break-words">(Letras por pagar + Extensión)</span>
           </span>
         </li>
         <li className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
             <IconPlant />
           </span>
-          <span className="flex flex-col leading-tight text-gray-800">
+          <span className="min-w-0 flex flex-col leading-tight text-gray-800">
             <span className="text-sm text-gray-600">Tasa de interés anual</span>
-            <span className="text-base font-semibold text-gray-900">{plan.tasaLabel}</span>
+            <span className="text-base font-semibold text-gray-900 break-words">{plan.tasaLabel}</span>
           </span>
         </li>
         <li className="flex items-center gap-3">
           <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
             <IconCalendar />
           </span>
-          <span className="flex flex-col leading-tight text-gray-800">
+          <span className="min-w-0 flex flex-col leading-tight text-gray-800">
             <span className="text-sm text-gray-600">Próxima fecha de pago</span>
-            <span className="text-base font-semibold text-gray-900">{plan.fechaLabel}</span>
+            <span className="text-base font-semibold text-gray-900 break-words">{plan.fechaLabel}</span>
           </span>
         </li>
       </ul>

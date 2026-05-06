@@ -1,4 +1,4 @@
-export const DANA_STORAGE_KEY = 'banistmo:danaParam'
+export const DANA_STORAGE_KEY = 'suma-financiera:danaParam'
 
 export function persistDanaParam(value) {
   if (!value) {

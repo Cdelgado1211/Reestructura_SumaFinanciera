@@ -1,4 +1,4 @@
-# Banistmo – Reestructuración de Deuda (Frontend)
+# Suma Financiera – Reestructuración de Deuda (Frontend)
 
 Frontend responsive de un flujo de **reestructuración de deuda** hecho con **Vite + React + Tailwind CSS**.  
 Incluye 6 pantallas: bienvenida/validación, selección de plan, verificación, contrato (T&C), espera y confirmación.
@@ -32,7 +32,7 @@ npm run preview
 ## Estructura del proyecto
 
 ```
-banistmo-restructuracion-frontend/
+suma-financiera-restructuracion-frontend/
 ├─ public/
 ├─ src/
 │  ├─ assets/
@@ -78,15 +78,15 @@ banistmo-restructuracion-frontend/
 
 Se usan claves en `localStorage` para pasar datos entre pantallas:
 
-- `banistmo:clienteNombre` – nombre del cliente (se setea en `IntroVerification.jsx`)
-- `banistmo:selectedPlan` – plan seleccionado (se setea en `PlanSelection.jsx`)
-- `banistmo:loan` – snapshot de datos del préstamo usado en vistas siguientes
+- `suma-financiera:clienteNombre` – nombre del cliente (se setea en `IntroVerification.jsx`)
+- `suma-financiera:selectedPlan` – plan seleccionado (se setea en `PlanSelection.jsx`)
+- `suma-financiera:loan` – snapshot de datos del préstamo usado en vistas siguientes
 
 > Si algo se “queda pegado”, borra el storage desde la consola:
 ```js
-localStorage.removeItem('banistmo:clienteNombre');
-localStorage.removeItem('banistmo:selectedPlan');
-localStorage.removeItem('banistmo:loan');
+localStorage.removeItem('suma-financiera:clienteNombre');
+localStorage.removeItem('suma-financiera:selectedPlan');
+localStorage.removeItem('suma-financiera:loan');
 ```
 
 ---

@@ -59,7 +59,7 @@ export default function VerificationCode() {
 
   const method = useMemo(() => {
     try {
-      return localStorage.getItem('banistmo:verificationMethod') || 'sms'
+      return localStorage.getItem('suma-financiera:verificationMethod') || 'sms'
     } catch {
       return 'sms'
     }
@@ -242,7 +242,7 @@ export default function VerificationCode() {
                 onChange={(event) => handleChange(index, event.target.value)}
                 onKeyDown={(event) => handleKeyDown(event, index)}
                 disabled={isLocked}
-                className="h-14 w-12 sm:h-16 sm:w-14 rounded-2xl border border-gray-200 bg-white text-center text-lg font-semibold text-gray-900 shadow-sm focus:border-yellow-400 focus:outline-none focus:ring-2 focus:ring-yellow-200 disabled:bg-gray-100"
+                className="h-14 w-12 sm:h-16 sm:w-14 rounded-2xl border border-gray-200 bg-white text-center text-lg font-semibold text-gray-900 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200 disabled:bg-gray-100"
                 aria-label={`Dígito ${index + 1} del código de verificación`}
               />
             ))}
@@ -253,14 +253,14 @@ export default function VerificationCode() {
               <button
                 type="button"
                 onClick={handleResend}
-                className="inline-flex items-center gap-3 rounded-full border border-yellow-400 bg-white px-5 py-2 font-semibold text-gray-900 transition-colors hover:bg-yellow-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400"
+                className="inline-flex items-center gap-3 rounded-full border border-brand-500 bg-white px-5 py-2 font-semibold text-gray-900 transition-colors hover:bg-brand-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
               >
-                <CheckIcon className="h-5 w-5 text-yellow-500" />
+                <CheckIcon className="h-5 w-5 text-brand-500" />
                 Solicitar un nuevo código.
               </button>
             ) : (
               <div className="flex items-center gap-3">
-                <ProgressIcon className="h-5 w-5 text-yellow-500" />
+                <ProgressIcon className="h-5 w-5 text-brand-500" />
                 <span>Si no recibiste el código, en un momento podrás solicitar uno nuevo.</span>
               </div>
             )}
@@ -275,7 +275,7 @@ export default function VerificationCode() {
               'mt-10 w-full rounded-full px-6 py-3 text-sm font-semibold transition-colors sm:w-auto',
               !isComplete || isLocked
                 ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                : 'bg-yellow-400 text-gray-900 hover:bg-yellow-500',
+                : 'bg-brand-500 text-gray-900 hover:bg-brand-500',
             ].join(' ')}
           >
             Continuar
@@ -287,7 +287,7 @@ export default function VerificationCode() {
         <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" aria-hidden="true" />
           <div className="relative z-10 w-full max-w-sm rounded-3xl bg-white px-8 py-10 text-center shadow-xl">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-yellow-100 text-yellow-500">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-brand-500">
               <HandIcon className="h-8 w-8" />
             </div>
             <h2 className="mt-6 text-xl font-semibold text-gray-900">{modalCopy.title}</h2>
@@ -295,7 +295,7 @@ export default function VerificationCode() {
             <button
               type="button"
               onClick={closeModal}
-              className="mt-8 inline-flex w-full justify-center rounded-full bg-yellow-400 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400"
+              className="mt-8 inline-flex w-full justify-center rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
             >
               Entendido
             </button>

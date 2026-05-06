@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
-import logoBanistmo from '../../assets/logobanistmo.png'
+
+const SUMA_LOGO_URL = 'https://images.email-platform.com/venturestars/logo-SUMA.png?v=20260506'
 
 export default function Header() {
   const location = useLocation()
@@ -13,8 +14,8 @@ export default function Header() {
 
   const onExit = () => {
     try {
-      localStorage.removeItem('banistmo:selectedPlan')
-      // localStorage.removeItem('banistmo:loan') // descomenta si también quieres limpiar esto
+      localStorage.removeItem('suma-financiera:selectedPlan')
+      // localStorage.removeItem('suma-financiera:loan') // descomenta si también quieres limpiar esto
     } catch {}
     setShowExitConfirm(false)
     navigate('/')
@@ -22,16 +23,17 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 inset-x-0 z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-gray-100 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-14 grid grid-cols-3 items-center">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 sm:h-24 grid grid-cols-3 items-center">
         {/* Slot izquierdo (vacío para mantener el logo perfectamente centrado) */}
         <div />
 
         {/* Logo centrado */}
-        <div className="justify-self-center">
+        <div className="justify-self-center flex items-center justify-center">
           <img
-            src={logoBanistmo}
-            alt="Banistmo"
-            className="w-[200px] h-auto cursor-pointer"
+            src={SUMA_LOGO_URL}
+            alt="Suma Financiera"
+            loading="eager"
+            className="h-14 sm:h-16 w-auto max-w-[240px] object-contain cursor-pointer"
             onClick={() => navigate('/')}
           />
         </div>
@@ -92,7 +94,7 @@ function ExitConfirmationModal({ onConfirm, onCancel }) {
           <button
             type="button"
             onClick={onConfirm}
-            className="w-full rounded-full bg-yellow-400 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-yellow-400"
+            className="w-full rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
           >
             Sí, salir
           </button>

