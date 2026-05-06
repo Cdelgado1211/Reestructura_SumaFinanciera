@@ -5,7 +5,6 @@ import { isServiceErrorResponse } from '../utils/serviceResponse'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 import DatePickerButton from '../components/form/DatePickerButton'
 import PrivacyNoticeBody from '../components/privacy/PrivacyNoticeBody'
-import pantalla1 from '../assets/pantalla1.png'   // tu imagen local
 
 export default function IntroVerification() {
   const navigate = useNavigate()
@@ -234,14 +233,6 @@ export default function IntroVerification() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Tarjeta izquierda */}
           <section className="bg-white rounded-2xl shadow p-6 sm:p-8 flex flex-col items-center order-2 md:order-1">
-            <div className="w-64 h-48 sm:w-72 sm:h-56 rounded-xl overflow-hidden mb-6 bg-gray-100">
-              <img
-                src={pantalla1}
-                alt="Persona feliz de Reestructura tu deuda"
-                className="w-full h-full object-cover"
-              />
-            </div>
-
             <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
               Reestructuración de deuda
             </h2>
