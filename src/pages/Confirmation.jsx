@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
-import checkCompleted from '../assets/checkcompleted.png'
 
 const formatCurrency = (value) => {
   if (value == null || value === '') return '—'
@@ -264,8 +263,7 @@ export default function Confirmation() {
             <section className="text-left">
               <div className="rounded-xl border border-gray-200 p-4">
                 <div className="text-center">
-                  <CheckCelebration />
-                  <h2 className="mt-2 text-xl font-semibold text-gray-900">Felicidades</h2>
+                  <h2 className="text-xl font-semibold text-gray-900">Felicidades</h2>
                   <p className="mt-1 text-gray-700">
                     ¡Hemos recibido tu solicitud de Reestructuración de deuda con éxito!
                   </p>
@@ -330,15 +328,5 @@ function Item({ label, value, helper }) {
         <div className="text-[11px] leading-[15px] text-gray-500 mt-1">{helper}</div>
       ) : null}
     </div>
-  )
-}
-
-function CheckCelebration() {
-  return (
-    <img
-      src={checkCompleted}
-      alt="Confirmación exitosa"
-      className="mx-auto"
-    />
   )
 }

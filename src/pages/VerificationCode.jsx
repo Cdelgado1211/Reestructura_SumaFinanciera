@@ -287,10 +287,7 @@ export default function VerificationCode() {
         <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" aria-hidden="true" />
           <div className="relative z-10 w-full max-w-sm rounded-3xl bg-white px-8 py-10 text-center shadow-xl">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-brand-100 text-brand-500">
-              <HandIcon className="h-8 w-8" />
-            </div>
-            <h2 className="mt-6 text-xl font-semibold text-gray-900">{modalCopy.title}</h2>
+            <h2 className="text-xl font-semibold text-gray-900">{modalCopy.title}</h2>
             <p className="mt-3 text-sm text-gray-600">{modalCopy.description}</p>
             <button
               type="button"
@@ -326,55 +323,6 @@ function CheckIcon({ className }) {
       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" opacity="0.2" />
       <path
         d="M16.2 9.5 11 15l-3.2-3.2"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-function HandIcon({ className }) {
-  return (
-    <svg viewBox="0 0 32 32" fill="none" className={className} aria-hidden="true">
-      <path
-        d="M13.667 3.333a2 2 0 0 1 2-2h.666a2 2 0 0 1 2 2v10"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10 7a2 2 0 0 1 2-2v0a2 2 0 0 1 2 2v7.333"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M8 9.333A2 2 0 0 1 10 7v0a2 2 0 0 1 2 2v6"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6 12a2 2 0 0 1 2-2v0a2 2 0 0 1 2 2v5.333"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M20 11.333V5.333a2 2 0 0 1 2-2v0a2 2 0 0 1 2 2v9.333"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M6 13.333v7.334c0 5.333 4 8 10 8s10-2.667 10-8V12a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2"
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"

@@ -229,33 +229,8 @@ export default function IntroVerification() {
 
   return (
     <div className="w-full py-8">
-      <div className="mx-auto max-w-6xl px-4 sm:px-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Tarjeta izquierda */}
-          <section className="bg-white rounded-2xl shadow p-6 sm:p-8 flex flex-col items-center order-2 md:order-1">
-            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
-              Reestructuración de deuda
-            </h2>
-            <p className="text-center text-gray-600 mt-3 max-w-[40ch]">
-              Es tu oportunidad para tener la tranquilidad de estar al día con tus pagos
-            </p>
-
-            <div className="mt-6 space-y-4 w-full max-w-sm">
-              <Feature
-                icon={<CalendarIcon className="w-6 h-6" />}
-                boldText="Ajusta tu plan de pagos"
-                restText=", rápido, sencillo y sin complicaciones."
-              />
-              <Feature
-                icon={<ShieldIcon className="w-6 h-6" />}
-                boldText="Gana control sobre tus finanzas personales"
-                restText=", con pagos más bajos."
-              />
-            </div>
-          </section>
-
-          {/* Tarjeta derecha */}
-          <section className="bg-white rounded-2xl shadow p-6 sm:p-8 order-1 md:order-2">
+      <div className="mx-auto max-w-3xl px-4 sm:px-6">
+          <section className="bg-white rounded-2xl shadow p-6 sm:p-8">
             <form onSubmit={onSubmit} className="max-w-md mx-auto">
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 text-center">
                 ¡Hola {primerNombre}!
@@ -368,7 +343,6 @@ export default function IntroVerification() {
               </div>
             </form>
           </section>
-        </div>
       </div>
       {showPrivacyModal && (
         <PrivacyNoticeModal
@@ -540,15 +514,6 @@ function CalendarIcon({ className }) {
   )
 }
 
-function ShieldIcon({ className }) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
-      <path d="M12 3l7 3v6c0 5-3.5 7.5-7 9-3.5-1.5-7-4-7-9V6l7-3z" stroke="currentColor" />
-      <path d="M9 12l2 2 4-4" stroke="currentColor" />
-    </svg>
-  )
-}
-
 function IdCardIcon({ className }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -557,17 +522,5 @@ function IdCardIcon({ className }) {
       <path d="M6.5 15.5c0-1.38 1.57-2.5 3.5-2.5s3.5 1.12 3.5 2.5" stroke="currentColor" />
       <path d="M14.5 10.5h4M14.5 13h4" stroke="currentColor" />
     </svg>
-  )
-}
-
-function Feature({ icon, boldText, restText }) {
-  return (
-    <div className="flex items-start gap-3">
-      <div className="shrink-0 text-gray-700">{icon}</div>
-      <p className="text-gray-900 leading-snug">
-        <span className="font-semibold">{boldText}</span>
-        {restText ? <span>{restText}</span> : null}
-      </p>
-    </div>
   )
 }

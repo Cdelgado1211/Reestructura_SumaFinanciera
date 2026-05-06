@@ -384,7 +384,7 @@ function Stepper({ current = 1 }) {
   const steps = [
     { id: 1, label: 'Plan de pago' },
     { id: 2, label: 'Verificación' },
-    { id: 3, label: 'Disposiciones legales' },
+    { id: 3, label: 'Términos y condiciones' },
   ]
 
   const total = steps.length

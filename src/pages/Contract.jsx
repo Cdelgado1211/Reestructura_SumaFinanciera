@@ -311,7 +311,7 @@ export default function Contract() {
               Reestructuración de deuda
             </h1>
             <p className="text-gray-600">
-              Lee y acepta las disposiciones legales
+              Lee y acepta los términos y condiciones
             </p>
           </div>
 
@@ -322,37 +322,28 @@ export default function Contract() {
                 className="rounded-xl bg-white max-h-[60vh] sm:max-h-[58vh] overflow-y-auto p-6 pr-4"
                 aria-label="Términos y condiciones (desplázate para leer)"
               >
-                <h3 className="text-center font-semibold text-gray-900">DISPOSICIONES LEGALES</h3>
+                <h3 className="text-center font-semibold text-gray-900">TÉRMINOS Y CONDICIONES</h3>
 
                 <div className="prose-sm text-sm text-gray-800 mt-4 space-y-4">
                   <p>
-                    En este acto, usted se ratifica de las obligaciones adquiridas con relación al crédito
-                    descrito en la presente página (en adelante, el “Crédito”), y acepta que, por este
-                    medio, se formalizan modificaciones específicas a determinados términos y condiciones
-                    del Crédito y de su respectiva documentación legal, conforme a la opción aquí
-                    seleccionada por usted. Asimismo, usted autoriza y acepta que SUMA FINANCIERA, S.A. (en
-                    adelante, el “Banco”) proceda a instalar e implementar dichas modificaciones del
-                    Crédito en su sistema interno.
+                    Al utilizar esta plataforma, usted confirma que la información ingresada es correcta,
+                    completa y corresponde al titular del crédito. Cualquier inconsistencia podría impedir
+                    el procesamiento de su solicitud.
                   </p>
                   <p>
-                    Usted declara y acepta que el Crédito y su respectiva documentación legal,
-                    continuarán en pleno vigor y efecto, tal como por este medio quedan enmendados, y que,
-                    salvo por las modificaciones expresamente aquí realizadas por usted, todas las demás
-                    disposiciones, declaraciones y obligaciones de dicho Crédito y su respectiva
-                    documentación legal, permanecerán vigentes y sin alteración, y con toda su validez y
-                    fuerza legal.
+                    La solicitud de reestructuración será evaluada con base en las políticas internas y en
+                    la información disponible al momento de la gestión. El envío de la solicitud no
+                    constituye aprobación automática.
                   </p>
                   <p>
-                    Usted igualmente declara que las declaraciones y modificaciones que usted por este
-                    medio realiza, no constituyen novación de las obligaciones contraídas frente al BANCO
-                    mediante el Crédito.
+                    Al confirmar su selección, usted autoriza el tratamiento de los datos necesarios para
+                    ejecutar, registrar y dar seguimiento al proceso de reestructuración de deuda por medios
+                    digitales.
                   </p>
                   <p>
-                    Al seleccionar “Acepto”, usted declara que ha leído, ha comprendido y está conforme
-                    con las presentes disposiciones legales, así como con las condiciones aplicables a las
-                    modificaciones del Crédito realizadas a través de la presente plataforma. Asimismo,
-                    usted reconoce y acepta el uso de la presente herramienta digital para formalizar el
-                    proceso de modificación del Crédito.
+                    Las condiciones vigentes de su crédito se mantendrán aplicables hasta que la
+                    reestructuración sea formalmente confirmada y reflejada en el sistema. Si no está de
+                    acuerdo con estos términos y condiciones, no continúe con el proceso.
                   </p>
                 </div>
               </div>
@@ -371,7 +362,7 @@ export default function Contract() {
                 onChange={(e) => setAccepted(e.target.checked)}
                 className="mt-1 h-4 w-4 rounded border-gray-300 text-brand-500 focus:ring-brand-500"
               />
-              <span className="text-gray-800 font-semibold">Aceptar Disposiciones Legales</span>
+              <span className="text-gray-800 font-semibold">Aceptar Términos y condiciones</span>
             </label>
 
             {submitError && (
@@ -414,7 +405,7 @@ function Stepper({ current = 1 }) {
   const steps = [
     { id: 1, label: 'Plan de pago' },
     { id: 2, label: 'Verificación' },
-    { id: 3, label: 'Disposiciones legales' },
+    { id: 3, label: 'Términos y condiciones' },
   ]
 
   const total = steps.length

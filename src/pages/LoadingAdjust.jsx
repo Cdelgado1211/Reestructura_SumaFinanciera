@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
-import clock from '../assets/clock.png' // ⬅️ asegúrate de tener src/assets/clock.png
 
 export default function LoadingAdjust() {
   const navigate = useNavigate()
@@ -34,9 +33,6 @@ export default function LoadingAdjust() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6">
         {/* Tarjeta maestro */}
         <div className="bg-white rounded-2xl shadow p-10 flex flex-col items-center text-center">
-          {/* Imagen del reloj */}
-          <img src={clock} alt="Reloj" className="mb-20 object-contain" />
-
           <h1 className="text-2xl font-semibold text-gray-900">Un momento</h1>
           <p className="mt-2 text-gray-600">
             Estamos ajustando el plan de pago
