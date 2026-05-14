@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import ProcessStepper from '../components/layout/ProcessStepper'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
 
@@ -299,24 +300,21 @@ export default function Contract() {
   }
 
   return (
-    <div className="py-0">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        {/* Tarjeta maestro a alto de viewport */}
-        <div className="bg-white sm:rounded-2xl shadow min-h-[calc(100vh-3rem)] sm:min-h-[calc(100vh-2rem)] mb-8 sm:my-4 flex flex-col">
-          {/* Header */}
-          <div className="p-5 md:p-6">
-            <Stepper current={3} />
+    <div className="py-6">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm md:p-6">
+          <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
+            <aside className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4">
+              <ProcessStepper current={3} />
+            </aside>
 
-            <h1 className="mt-4 text-2xl font-semibold text-gray-900">
-              Reestructuración de deuda
-            </h1>
-            <p className="text-gray-600">
-              Lee y acepta los términos y condiciones
-            </p>
-          </div>
+            <section className="flex min-h-[70vh] flex-col">
+              <div>
+                <h1 className="text-xl font-semibold text-gray-900 md:text-2xl">Reestructuración de deuda</h1>
+                <p className="text-gray-600">Lee y acepta los términos y condiciones</p>
+              </div>
 
-          {/* Contenido scrollable (flex-1) */}
-          <div className="px-5 md:px-6">
+              <div className="mt-6">
             <div className="rounded-2xl border border-gray-200">
               <div
                 className="rounded-xl bg-white max-h-[60vh] sm:max-h-[58vh] overflow-y-auto p-6 pr-4"
@@ -351,10 +349,7 @@ export default function Contract() {
           </div>
 
           {/* Footer fijo dentro de la tarjeta: checkbox + acciones */}
-          <div
-            className="px-5 md:px-6 pt-4 mt-auto border-t border-gray-100 bg-white"
-            style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 2.5rem)' }}
-          >
+              <div className="pt-4 mt-auto border-t border-gray-100 bg-white">
             <label className="flex items-start gap-3 text-sm">
               <input
                 type="checkbox"
@@ -393,70 +388,10 @@ export default function Contract() {
                 Cancelar
               </button>
             </div>
+              </div>
+            </section>
           </div>
         </div>
-      </div>
-    </div>
-  )
-}
-
-/* ===== Stepper unificado (línea base + progreso + puntos; etiquetas debajo) ===== */
-function Stepper({ current = 1 }) {
-  const steps = [
-    { id: 1, label: 'Plan de pago' },
-    { id: 2, label: 'Verificación' },
-    { id: 3, label: 'Términos y condiciones' },
-  ]
-
-  const total = steps.length
-  const idx = Math.min(Math.max(current, 1), total)
-  const progressPercent = total > 1 ? ((idx - 1) / (total - 1)) * 100 : 0
-
-  return (
-    <div className="mb-2">
-      {/* Línea base + progreso */}
-      <div className="relative h-8">
-        {/* Línea gris */}
-        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[3px] bg-gray-200 rounded" />
-        {/* Línea verde de progreso */}
-        <div
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-brand-500 rounded transition-all"
-          style={{ width: `${progressPercent}%` }}
-        />
-        {/* Puntos */}
-        {steps.map((s, i) => {
-          const left = (i / (total - 1)) * 100
-          const isActive = s.id === idx
-          const isDone = s.id < idx
-
-          return (
-            <div
-              key={s.id}
-              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
-              style={{ left: `${left}%` }}
-            >
-              <div
-                className={[
-                  'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-colors',
-                  isActive
-                    ? 'bg-brand-500 text-white border-brand-500'
-                    : isDone
-                      ? 'bg-brand-100 text-brand-700 border-brand-500'
-                      : 'bg-gray-100 text-gray-600 border-gray-300'
-                ].join(' ')}
-              >
-                {s.id}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-
-      {/* Etiquetas debajo */}
-      <div className="mt-2 grid grid-cols-3 text-sm text-gray-600">
-        <div className="text-left">{steps[0].label}</div>
-        <div className="text-center">{steps[1].label}</div>
-        <div className="text-right">{steps[2].label}</div>
       </div>
     </div>
   )

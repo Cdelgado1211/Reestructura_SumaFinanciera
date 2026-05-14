@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react'
+import ProcessStepper from '../components/layout/ProcessStepper'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { isServiceErrorResponse } from '../utils/serviceResponse'
 import { buildPathWithDana, getDanaParamFromSearch, persistDanaParam } from '../utils/dana'
@@ -529,7 +530,7 @@ export default function PlanSelection() {
         <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm md:p-6">
           <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
             <aside className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4">
-              <CompactStepper current={1} />
+              <ProcessStepper current={1} />
             </aside>
 
             <section>
@@ -547,7 +548,7 @@ export default function PlanSelection() {
 
               <section className="mt-5">
                 <h2 className="text-sm font-semibold text-gray-900">Resumen de crédito</h2>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">
                   <MiniDataCard label="Saldo actual" value={generalInfo.saldo} emphasize />
                   <MiniDataCard label="Producto" value={generalInfo.producto} />
                   <MiniDataCard label="N° de crédito" value={generalInfo.numeroCredito} />
@@ -571,12 +572,23 @@ export default function PlanSelection() {
 
                   <div className="mt-4 space-y-3">
                     {plans.map((plan) => (
-                      <MonthlyOptionButton
-                        key={plan.id}
-                        plan={plan}
-                        checked={selectedPlan === plan.id}
-                        onSelect={() => setSelectedPlan(plan.id)}
-                      />
+                      <div key={plan.id} className="space-y-2">
+                        <MonthlyOptionButton
+                          plan={plan}
+                          checked={selectedPlan === plan.id}
+                          onSelect={() => setSelectedPlan(plan.id)}
+                        />
+                        {selectedPlan === plan.id && (
+                          <div className="rounded-xl border border-brand-100 bg-white p-3 md:hidden">
+                            <ul className="space-y-2">
+                              <DetailRow icon={<IconAlarm />} label="Nuevo plazo" value={plan.extLabel} />
+                              <DetailRow icon={<IconPlant />} label="Tasa de interés anual" value={plan.tasaLabel} />
+                              <DetailRow icon={<IconCalendar />} label="Próxima fecha de pago" value={plan.fechaLabel} />
+                            </ul>
+                            <p className="mt-3 text-xs text-gray-500">(Letras por pagar + Extensión)</p>
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
 
@@ -587,14 +599,14 @@ export default function PlanSelection() {
                   )}
                 </div>
 
-                <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5">
+                <div className="hidden rounded-2xl border border-gray-200 bg-white p-4 md:block md:p-5">
                   <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Plan seleccionado</h3>
 
                   {selectedPlanDetails ? (
                     <>
                       <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50/60 p-4">
                         <p className="text-xs uppercase tracking-wide text-gray-600">{selectedPlanDetails.titulo}</p>
-                        <p className="mt-1 text-3xl font-extrabold text-gray-900">{selectedPlanDetails.cuotaLabel}</p>
+                        <p className="mt-1 text-[2rem] font-extrabold text-gray-900">{selectedPlanDetails.cuotaLabel}</p>
                         <p className="text-sm text-gray-600">Letra mensual</p>
                       </div>
 
@@ -667,52 +679,17 @@ export default function PlanSelection() {
   )
 }
 
-function CompactStepper({ current = 1 }) {
-  const steps = [
-    { id: 1, label: 'Plan de pago' },
-    { id: 2, label: 'Verificación' },
-    { id: 3, label: 'Términos y condiciones' },
-  ]
-
-  return (
-    <nav aria-label="Progreso del flujo">
-      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Proceso</p>
-      <ol className="mt-3 space-y-3">
-        {steps.map((step) => {
-          const isActive = step.id === current
-          const isDone = step.id < current
-
-          return (
-            <li key={step.id} className="flex items-center gap-3">
-              <span
-                className={[
-                  'flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold',
-                  isActive
-                    ? 'border-brand-500 bg-brand-500 text-white'
-                    : isDone
-                      ? 'border-brand-400 bg-brand-100 text-brand-700'
-                      : 'border-gray-300 bg-white text-gray-500',
-                ].join(' ')}
-                aria-hidden="true"
-              >
-                {step.id}
-              </span>
-              <span className={isActive ? 'text-sm font-semibold text-gray-900' : 'text-sm text-gray-600'}>
-                {step.label}
-              </span>
-            </li>
-          )
-        })}
-      </ol>
-    </nav>
-  )
-}
-
 function MiniDataCard({ label, value, emphasize = false }) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white px-3 py-3 shadow-sm">
       <p className="text-[11px] uppercase tracking-wide text-gray-500">{label}</p>
-      <p className={emphasize ? 'mt-1 text-2xl font-extrabold text-gray-900' : 'mt-1 text-base font-semibold text-gray-900'}>
+      <p
+        className={
+          emphasize
+            ? 'mt-1 font-extrabold leading-tight text-gray-900 [overflow-wrap:anywhere] text-[clamp(1.2rem,1.9vw,1.75rem)]'
+            : 'mt-1 text-base font-semibold leading-tight text-gray-900 [overflow-wrap:anywhere]'
+        }
+      >
         {value}
       </p>
     </div>
@@ -735,7 +712,7 @@ function MonthlyOptionButton({ plan, checked, onSelect }) {
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-wide text-gray-500">{plan.titulo}</p>
-          <p className="mt-1 text-3xl font-extrabold leading-none text-gray-900">{plan.cuotaLabel}</p>
+          <p className="mt-1 text-[2rem] font-extrabold leading-none text-gray-900">{plan.cuotaLabel}</p>
           <p className="mt-1 text-sm text-gray-600">Letra mensual</p>
         </div>
         <span
