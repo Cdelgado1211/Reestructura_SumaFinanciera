@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-const SUMA_LOGO_URL = 'https://images.email-platform.com/venturestars/logo-SUMA.png?v=20260506'
+const SUMA_LOGO_URL = 'https://images.email-platform.com/venturestars/mibanco_logo_67b5af9.png'
 
 export default function Header() {
   const location = useLocation()

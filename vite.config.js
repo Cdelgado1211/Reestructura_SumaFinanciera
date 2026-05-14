@@ -14,12 +14,18 @@ const securityHeaders = {
   Server: 'Suma Financiera-Frontend',
 }
 
-export default defineConfig({
+const devSecurityHeaders = {
+  ...securityHeaders,
+}
+
+delete devSecurityHeaders['Content-Security-Policy']
+
+export default defineConfig(({ command }) => ({
   plugins: [react()],
   server: {
-    headers: securityHeaders,
+    headers: command === 'serve' ? devSecurityHeaders : securityHeaders,
   },
   preview: {
     headers: securityHeaders,
   },
-})
+}))

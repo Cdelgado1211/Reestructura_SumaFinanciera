@@ -49,7 +49,7 @@ export default function ErrorScreen() {
                 </p>
               </div>
               <a
-                href="https://www.sumafinanciera.com/"
+                href="https://r4conecta.io/"
                 className="inline-flex items-center justify-center rounded-full bg-brand-500 px-8 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
               >
                 Entendido
@@ -71,7 +71,7 @@ export default function ErrorScreen() {
               <p className="text-gray-600">{description}</p>
             </div>
             <a
-              href="https://www.sumafinanciera.com/"
+              href="https://r4conecta.io/"
               className="inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
             >
               Entendido
@@ -91,7 +91,7 @@ export default function ErrorScreen() {
             <p className="text-gray-600">{description}</p>
           </div>
           <a
-            href="https://www.sumafinanciera.com/"
+            href="https://r4conecta.io/"
             className="inline-flex items-center justify-center rounded-full bg-brand-500 px-6 py-3 font-semibold text-gray-900 shadow focus:outline-none focus:ring-2 focus:ring-brand-300 focus:ring-offset-2"
           >
             Entendido
