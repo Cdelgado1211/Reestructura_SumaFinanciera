@@ -31,7 +31,7 @@ export default function Header() {
         <div className="justify-self-center flex items-center justify-center">
           <img
             src={SUMA_LOGO_URL}
-            alt="Suma Financiera"
+            alt="R4"
             loading="eager"
             className="h-14 sm:h-16 w-auto max-w-[240px] object-contain cursor-pointer"
             onClick={() => navigate('/')}

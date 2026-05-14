@@ -6,7 +6,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
       <div>
         <h2 className="privacy-heading uppercase text-black">Aviso de privacidad</h2>
         <p className="mt-3 privacy-body">
-          En Suma Financiera reconocemos la importancia de la seguridad, la privacidad y la
+          En R4 reconocemos la importancia de la seguridad, la privacidad y la
           confidencialidad de los datos de nuestros clientes, usuarios, colaboradores,
           proveedores, accionistas, aliados y en general de todo titular de datos personales con
           los que nos relacionamos; y es por ello que en cumplimiento de lo establecido en la Ley
@@ -53,7 +53,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
       <p className="privacy-body">
         En cumplimiento de las disposiciones legales vigentes sobre Protección de Datos
         Personales en Panamá, por medio del presente Aviso de Privacidad, le informamos los
-        términos y condiciones que emplea Suma Financiera en el tratamiento y Protección de sus datos
+        términos y condiciones que emplea R4 en el tratamiento y Protección de sus datos
         personales; por lo cual, nos permitimos solicitarle leer detenidamente la siguiente
         información a saber:
       </p>
@@ -65,8 +65,8 @@ export default function PrivacyNoticeBody({ className = '' }) {
         <p className="privacy-body">
           Con motivo de la prestación de sus productos y servicios, así como por virtud de
           cualquier relación jurídica, comercial, mercantil, civil, laboral, regulatoria o de
-          cualquier otra índole, que Suma Financiera sostenga con todas las personas con las que se
-          relaciona, en el giro de cualquiera de estas actividades, Suma Financiera obtiene de su titular
+          cualquier otra índole, que R4 sostenga con todas las personas con las que se
+          relaciona, en el giro de cualquiera de estas actividades, R4 obtiene de su titular
           datos personales que permitan identificar o hacer identificables a sus clientes y
           relacionados, como los son a manera enunciativa más no limitativa: nombres, apellidos,
           alias, textos, imágenes, fotos, videos, voz, domicilios, números de documento de
@@ -89,7 +89,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
           ¿Quién es el responsable del tratamiento de los datos personales recopilados?
         </h3>
         <p className="privacy-body">
-          Suma Financiera, de acuerdo a la Ley 81 sobre Protección de Datos Personales, y en virtud de la
+          R4, de acuerdo a la Ley 81 sobre Protección de Datos Personales, y en virtud de la
           relación directa o indirecta (jurídica, comercial, mercantil, civil, laboral, regulatoria o
           de cualquier otra índole), que mantiene o mantuvo con usted, es la entidad responsable
           del tratamiento de sus datos personales, y por tanto, en su condición de entidad
@@ -105,7 +105,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
           recopilamos?
         </h3>
         <p className="privacy-body">
-          Los datos personales que Suma Financiera obtiene de su titular podrán ser compartidos o de
+          Los datos personales que R4 obtiene de su titular podrán ser compartidos o de
           cualquier otra forma tratados con su casa matriz, o las siguientes entidades nacionales o
           extranjeras (siempre que el país receptor cuente con un nivel de protección de datos
           personales igual o superior): agencias de información de datos públicos o privados,
@@ -119,7 +119,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
           <li className="privacy-body">Evaluación de riesgo.</li>
           <li className="privacy-body">
             Contactarle por los medios suministrados por usted, por información inherente a los
-            productos o servicios que Suma Financiera le presta u ofrece.
+            productos o servicios que R4 le presta u ofrece.
           </li>
           <li className="privacy-body">
             Validar su identidad, en las interacciones con el titular de datos personales,
@@ -128,7 +128,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
           </li>
           <li className="privacy-body">
             Ejecutar obligaciones derivadas de un contrato suscrito por el titular de datos
-            personales en la prestación de los productos y servicios con Suma Financiera, incluyendo la
+            personales en la prestación de los productos y servicios con R4, incluyendo la
             entrega del servicio, la gestión del cobro de obligaciones, el procesamiento de pagos y
             transferencias.
           </li>
@@ -154,7 +154,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
             Confirmarle y actualizar información de sus datos personales.
           </li>
           <li className="privacy-body">
-            Gestionar los riesgos a los cuales Suma Financiera está expuesto en el desarrollo de sus
+            Gestionar los riesgos a los cuales R4 está expuesto en el desarrollo de sus
             negocios.
           </li>
           <li className="privacy-body">
@@ -178,17 +178,17 @@ export default function PrivacyNoticeBody({ className = '' }) {
             actividades propias de nuestro negocio.
           </li>
           <li className="privacy-body">
-            El ejercicio de los derechos de Suma Financiera, incluyendo el proceso administrativos,
+            El ejercicio de los derechos de R4, incluyendo el proceso administrativos,
             judiciales y tributarios.
           </li>
           <li className="privacy-body">Fines estadísticos, luego de un proceso de disociación o anonimización.</li>
           <li className="privacy-body">
             Definición, estructuración y ejecución de transacciones estratégicas para la operación,
-            modelo de negocio y oferta de servicios de Suma Financiera, lo cual podrá implicar la
+            modelo de negocio y oferta de servicios de R4, lo cual podrá implicar la
             transmisión o transferencia de los datos personales a entidades del Grupo y/o terceros.
           </li>
           <li className="privacy-body">
-            Cualquier otra finalidad requerida para el desarrollo del objeto social de Suma Financiera y
+            Cualquier otra finalidad requerida para el desarrollo del objeto social de R4 y
             para fines compatibles con los propósitos anteriores, incluyendo el uso de distintos
             medios y canales, de acuerdo con los avances tecnológicos.
           </li>
@@ -215,12 +215,12 @@ export default function PrivacyNoticeBody({ className = '' }) {
             Recopilar, registrar y en general procesar sus datos personales, para optimizar su
             experiencia y conocer sus preferencias, monitorear su información, y para presentar
             contenidos y publicidad relacionados con sus preferencias cuando navegan por los sitios
-            web, plataformas y/o aplicativos tecnológicos y/o digitales de Suma Financiera, incluyendo el uso
+            web, plataformas y/o aplicativos tecnológicos y/o digitales de R4, incluyendo el uso
             de cookies propias y de terceros.
           </li>
           <li className="privacy-body">
             Compartirla con aliados estratégicos, para que estos puedan ofrecerle beneficios y
-            servicios asociados a los productos y servicios de Suma Financiera; con entidades del Grupo,
+            servicios asociados a los productos y servicios de R4; con entidades del Grupo,
             para que estas a su vez puedan procesarla, para contactarlo, verificar y actualizar su
             información, ofrecerle beneficios, productos y servicios, a través de distintos medios y
             canales, así como medir, reportar y gestionar su desempeño comercial y administrativo,
@@ -234,11 +234,11 @@ export default function PrivacyNoticeBody({ className = '' }) {
           </li>
           <li className="privacy-body">
             Transferir datos personales a un país o jurisdicción distinta, donde quienes reciban los
-            datos personales no apliquen estándares equivalentes a los de Suma Financiera en materia de
+            datos personales no apliquen estándares equivalentes a los de R4 en materia de
             protección de datos personales.
           </li>
           <li className="privacy-body">
-            Realizar encuestas de satisfacción concerniente a los servicios prestados por Suma Financiera.
+            Realizar encuestas de satisfacción concerniente a los servicios prestados por R4.
           </li>
           <li className="privacy-body">
             Entregar datos personales a favor de un tercero autorizado por el titular de los datos
@@ -329,7 +329,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
           ¿Cuál es la vigencia y plazo para el tratamiento de sus datos personales?
         </h3>
         <p className="privacy-body">
-          Suma Financiera, dependiendo del producto o servicio, conservará y tratará sus datos personales,
+          R4, dependiendo del producto o servicio, conservará y tratará sus datos personales,
           por el plazo que establezcan y permitan las normas de Prevención de Blanqueo de
           Capitales, Financiamiento del Terrorismo, Proliferación de armas de destrucción masiva y
           delitos conexos como Evasión Fiscal y Corrupción en Panamá, demás normas establecidas por
@@ -343,7 +343,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
           Vigencia y modificaciones al Aviso de Privacidad
         </h3>
         <p className="privacy-body">
-          Las condiciones del presente aviso estarán vigentes a partir de su publicación, y Suma Financiera se
+          Las condiciones del presente aviso estarán vigentes a partir de su publicación, y R4 se
           reserva el derecho de poder revisarlas para su actualización o modificaciones, revisar y
           actualizar las presentes Condiciones del Aviso de Privacidad, y sus cambios entrarán en vigor
           inmediatamente después de su publicación y se aplicarán a todo el acceso y uso del Sitio
@@ -384,7 +384,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
             atención directa, comercialización o venta de los bienes o servicios pactados.
           </li>
           <li className="privacy-body">
-            Cuando sea necesario para la aplicación de contratos en Suma Financiera en los que el titular de
+            Cuando sea necesario para la aplicación de contratos en R4 en los que el titular de
             los datos sea parte o tenga interés.
           </li>
           <li className="privacy-body">
@@ -413,32 +413,32 @@ export default function PrivacyNoticeBody({ className = '' }) {
           </li>
           <li className="privacy-body">
             Para aquellos tratamientos cuya finalidad sea la de preservar la seguridad de las personas
-            y las instalaciones de Suma Financiera.
+            y las instalaciones de R4.
           </li>
           <li className="privacy-body">
             Cuando el tratamiento sea necesario para el cumplimiento de requerimientos u
-            obligaciones exigidas por el ente regulador que corresponda a Suma Financiera.
+            obligaciones exigidas por el ente regulador que corresponda a R4.
           </li>
           <li className="privacy-body">
             Cuando el tratamiento sea necesario para la debida administración y gestión de los
             distintos riesgos.
           </li>
           <li className="privacy-body">
-            Cuando los datos sean utilizados o compartidos por Suma Financiera, con la propietaria de acciones
+            Cuando los datos sean utilizados o compartidos por R4, con la propietaria de acciones
             bancarias, subsidiarias u otra sociedad del grupo bancario para el ejercicio de las funciones
             propias de la entidad, siempre que no sea para fines de mercadeo;
           </li>
           <li className="privacy-body">
-            Cuando el tratamiento esté basado en un interés legítimo de Suma Financiera derivado de la
+            Cuando el tratamiento esté basado en un interés legítimo de R4 derivado de la
             relación o vínculo existente con el titular de datos personales, por razón de un producto o
-            servicio de Suma Financiera.
+            servicio de R4.
           </li>
           <li className="privacy-body">
             Cuando el tratamiento sea necesario para la transferencia, comunicación o interconexión de
             los datos personales a un custodio de bases de datos, a un proveedor de servicios de
-            Suma Financiera o a terceros par la gestión de la relación contractual Suma Financiera-titular de datos
+            R4 o a terceros par la gestión de la relación contractual R4-titular de datos
             personales, siempre que sea relacionado para con la prestación de un servicio o producto de
-            Suma Financiera y de mercadeo.
+            R4 y de mercadeo.
           </li>
           <li className="privacy-body">
             Cuando el tratamiento de datos sea necesario para el cumplimiento de los requerimientos
@@ -449,7 +449,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
         </ul>
         <p className="privacy-body">
           Por otra parte, la remisión al titular de los datos de comunicación de carácter publicitaria,
-          comercial o de mercadeo sobre productos o servicios de Suma Financiera requerirá de su
+          comercial o de mercadeo sobre productos o servicios de R4 requerirá de su
           consentimiento, previo, informado e inequívoco.
         </p>
       </div>
@@ -460,7 +460,7 @@ export default function PrivacyNoticeBody({ className = '' }) {
         </h3>
         <p className="privacy-body">
           A todos los titulares de los datos personales se les reconoce sus Derechos ARCO dentro de
-          Suma Financiera, éstos comprenden los derechos a acceso, rectificación, cancelación, oposición y
+          R4, éstos comprenden los derechos a acceso, rectificación, cancelación, oposición y
           portabilidad (ARCO).
         </p>
         <p className="privacy-body">
@@ -478,24 +478,24 @@ export default function PrivacyNoticeBody({ className = '' }) {
         </h3>
         <p className="privacy-body">
           El titular de datos personales que considere vulnerado el ejercicio de los derechos ARCO podrá
-          presentar ante Suma Financiera, como responsable del tratamiento de los datos, toda solicitud,
+          presentar ante R4, como responsable del tratamiento de los datos, toda solicitud,
           reclamación, queja y controversia vinculada con la protección de datos personales.
         </p>
         <p className="privacy-body">
-          En caso de que Suma Financiera no cumpla con atender la solicitud concerniente al ejercicio de los
+          En caso de que R4 no cumpla con atender la solicitud concerniente al ejercicio de los
           Derechos ARCO o el titular de datos personales se encuentre disconforme con la decisión
-          adoptada por Suma Financiera, el mismo podrá interponer un reclamo ante su ente regulador. Para
+          adoptada por R4, el mismo podrá interponer un reclamo ante su ente regulador. Para
           tales fines, el titular de datos personales tendrá un plazo de 30 días calendario, los cuales
-          empezarán a regir a partir de la fecha en que obtuvo respuesta formal por parte de Suma Financiera
+          empezarán a regir a partir de la fecha en que obtuvo respuesta formal por parte de R4
           o cuando no hayamos cumplido con resolver la solicitud o reclamo en el plazo
           correspondiente.
         </p>
         <p className="privacy-body">Entes Reguladores:</p>
         <ul className="list-disc space-y-2 pl-6">
-          <li className="privacy-body">Suma Financiera, S.A.: Superintendencia de Bancos de Panamá</li>
-          <li className="privacy-body">Suma Financiera Investment Corporation, S.A.: Superintendencia de Bancos de Panamá</li>
-          <li className="privacy-body">Leasing Suma Financiera, S.A.: Superintendencia de Bancos de Panamá</li>
-          <li className="privacy-body">Valores Suma Financiera, S.A.: Superintendencia de Valores de Panamá</li>
+          <li className="privacy-body">R4, S.A.: Superintendencia de Bancos de Panamá</li>
+          <li className="privacy-body">R4 Investment Corporation, S.A.: Superintendencia de Bancos de Panamá</li>
+          <li className="privacy-body">Leasing R4, S.A.: Superintendencia de Bancos de Panamá</li>
+          <li className="privacy-body">Valores R4, S.A.: Superintendencia de Valores de Panamá</li>
         </ul>
       </div>
     </article>

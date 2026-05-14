@@ -30,7 +30,7 @@ function Footer() {
           </svg>
           Conciliación con los clientes (507) 233-8510 / 8520
         </span>
-        <span className='text-center md:text-left'>Copyright © 2025 Suma Financiera</span>
+        <span className='text-center md:text-left'>Copyright © 2025 R4</span>
       </div>
     </footer>
   )
