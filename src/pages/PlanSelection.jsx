@@ -591,9 +591,9 @@ export default function PlanSelection() {
 
             {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="space-y-3">
               {plans.map((plan) => (
-                <PlanCard
+                <PlanListItem
                   key={plan.id}
                   plan={plan}
                   checked={selectedPlan === plan.id}
@@ -710,59 +710,86 @@ function Stepper({ current = 1 }) {
 }
 
 /* ------------ PlanCard e iconos ------------ */
-function PlanCard({ plan, checked, onSelect }) {
+function PlanListItem({ plan, checked, onSelect }) {
   return (
     <label
       className={[
-        'relative block h-full w-full rounded-2xl border-2 bg-white p-4 cursor-pointer transition-shadow',
-        checked ? 'border-brand-500 ring-2 ring-brand-300 shadow-md' : 'border-gray-200 hover:shadow',
+        'relative block w-full cursor-pointer overflow-hidden rounded-2xl border bg-white transition-all',
+        checked ? 'border-brand-500 ring-2 ring-brand-200 shadow-md' : 'border-gray-200 hover:border-gray-300',
       ].join(' ')}
       onClick={onSelect}
     >
-      {/* círculo/check en esquina derecha */}
-      <span
+      <div
         className={[
-          'absolute top-3 right-3 w-5 h-5 rounded-full border flex items-center justify-center',
-          checked ? 'bg-brand-500 border-brand-500' : 'border-gray-300 bg-white',
+          'grid gap-3 px-4 py-4 md:grid-cols-[auto_1.1fr_1fr_1fr_auto] md:items-center',
+          checked ? 'bg-gradient-to-r from-brand-50/80 to-white' : 'bg-white',
         ].join(' ')}
       >
-        {checked ? <CheckIcon /> : null}
-      </span>
+        <span
+          className={[
+            'flex h-6 w-6 items-center justify-center rounded-full border',
+            checked ? 'border-brand-500 bg-brand-500' : 'border-gray-300 bg-white',
+          ].join(' ')}
+          aria-hidden="true"
+        >
+          {checked ? <CheckIcon /> : null}
+        </span>
 
-      <div className="text-xs text-gray-600">{plan.titulo}</div>
-      <div className="text-xl sm:text-2xl font-extrabold text-gray-900">{plan.cuotaLabel}</div>
-      <div className="text-xs text-gray-500">Letra mensual</div>
+        <div className="min-w-0">
+          <div className="text-xs uppercase tracking-wide text-gray-500">{plan.titulo}</div>
+          <div className="text-2xl font-extrabold leading-tight text-gray-900">{plan.cuotaLabel}</div>
+          <div className="text-xs text-gray-500">Letra mensual</div>
+        </div>
 
-      <ul className="mt-3 space-y-2 text-sm text-gray-800">
-        <li className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-            <IconAlarm />
-          </span>
-          <span className="min-w-0 flex flex-col leading-tight text-gray-800">
-            <span className="text-sm text-gray-600">Nuevo plazo</span>
-            <span className="text-base font-semibold text-gray-900 break-words">{plan.extLabel}</span>
-            <span className="text-[11px] leading-[15px] text-gray-500 break-words">(Letras por pagar + Extensión)</span>
-          </span>
-        </li>
-        <li className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-            <IconPlant />
-          </span>
-          <span className="min-w-0 flex flex-col leading-tight text-gray-800">
-            <span className="text-sm text-gray-600">Tasa de interés anual</span>
-            <span className="text-base font-semibold text-gray-900 break-words">{plan.tasaLabel}</span>
-          </span>
-        </li>
-        <li className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-full bg-gray-100">
-            <IconCalendar />
-          </span>
-          <span className="min-w-0 flex flex-col leading-tight text-gray-800">
-            <span className="text-sm text-gray-600">Próxima fecha de pago</span>
-            <span className="text-base font-semibold text-gray-900 break-words">{plan.fechaLabel}</span>
-          </span>
-        </li>
-      </ul>
+        <div className="min-w-0">
+          <div className="text-xs uppercase tracking-wide text-gray-500">Nuevo plazo</div>
+          <div className="text-lg font-bold text-gray-900">{plan.extLabel}</div>
+        </div>
+
+        <div className="min-w-0">
+          <div className="text-xs uppercase tracking-wide text-gray-500">Tasa anual</div>
+          <div className="text-lg font-bold text-gray-900">{plan.tasaLabel}</div>
+        </div>
+
+        <div className="hidden text-xs font-medium text-gray-500 md:block">
+          {checked ? 'Seleccionado' : 'Seleccionar'}
+        </div>
+      </div>
+
+      {checked && (
+        <div className="border-t border-brand-100 bg-white px-4 py-4">
+          <ul className="grid gap-3 md:grid-cols-3 text-sm text-gray-800">
+            <li className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+                <IconAlarm />
+              </span>
+              <span className="min-w-0 flex flex-col leading-tight">
+                <span className="text-xs text-gray-500">Plazo total</span>
+                <span className="font-semibold text-gray-900">{plan.extLabel}</span>
+              </span>
+            </li>
+            <li className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+                <IconPlant />
+              </span>
+              <span className="min-w-0 flex flex-col leading-tight">
+                <span className="text-xs text-gray-500">Interés anual</span>
+                <span className="font-semibold text-gray-900">{plan.tasaLabel}</span>
+              </span>
+            </li>
+            <li className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
+              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
+                <IconCalendar />
+              </span>
+              <span className="min-w-0 flex flex-col leading-tight">
+                <span className="text-xs text-gray-500">Próximo pago</span>
+                <span className="font-semibold text-gray-900">{plan.fechaLabel}</span>
+              </span>
+            </li>
+          </ul>
+          <p className="mt-3 text-xs text-gray-500">(Letras por pagar + Extensión)</p>
+        </div>
+      )}
     </label>
   )
 }
