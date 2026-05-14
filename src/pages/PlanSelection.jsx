@@ -548,8 +548,8 @@ export default function PlanSelection() {
 
               <section className="mt-5">
                 <h2 className="text-sm font-semibold text-gray-900">Resumen de crédito</h2>
-                <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-[repeat(auto-fit,minmax(170px,1fr))]">
-                  <MiniDataCard label="Saldo actual" value={generalInfo.saldo} emphasize />
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
+                  <MiniDataCard label="Saldo actual" value={generalInfo.saldo} emphasize className="xl:col-span-2" />
                   <MiniDataCard label="Producto" value={generalInfo.producto} />
                   <MiniDataCard label="N° de crédito" value={generalInfo.numeroCredito} />
                   <MiniDataCard label="Plazo actual" value={generalInfo.plazoActual} />
@@ -679,15 +679,15 @@ export default function PlanSelection() {
   )
 }
 
-function MiniDataCard({ label, value, emphasize = false }) {
+function MiniDataCard({ label, value, emphasize = false, className = '' }) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white px-3 py-3 shadow-sm">
+    <div className={`rounded-xl border border-gray-200 bg-white px-3 py-3 shadow-sm ${className}`}>
       <p className="text-[11px] uppercase tracking-wide text-gray-500">{label}</p>
       <p
         className={
           emphasize
-            ? 'mt-1 font-extrabold leading-tight text-gray-900 [overflow-wrap:anywhere] text-[clamp(1.2rem,1.9vw,1.75rem)]'
-            : 'mt-1 text-base font-semibold leading-tight text-gray-900 [overflow-wrap:anywhere]'
+            ? 'mt-1 font-extrabold leading-tight text-gray-900 whitespace-nowrap text-[clamp(1.1rem,1.6vw,1.65rem)]'
+            : 'mt-1 text-base font-semibold leading-tight text-gray-900'
         }
       >
         {value}
