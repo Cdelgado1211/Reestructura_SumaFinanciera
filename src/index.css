@@ -2,29 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Fondo y color de texto globales */
 @layer base {
   body {
-    @apply bg-gray-50 text-gray-900;
+    font-family: 'Montserrat', 'Avenir Next', Avenir, 'Segoe UI', 'Trebuchet MS', sans-serif;
+    @apply text-slate-900;
+    background:
+      radial-gradient(circle at 95% 0%, rgba(255, 90, 0, 0.08), transparent 28%),
+      radial-gradient(circle at 0% 100%, rgba(55, 65, 81, 0.08), transparent 30%),
+      linear-gradient(180deg, #f3f4f6 0%, #f8fafc 48%, #f3f4f6 100%);
+    min-height: 100vh;
   }
 }
 
 @layer components {
+  .app-shell .bg-white {
+    background-color: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    box-shadow: 0 20px 38px -28px rgba(15, 23, 42, 0.45);
+    backdrop-filter: blur(5px);
+    border-radius: 1.25rem;
+  }
+
+  .app-shell input,
+  .app-shell select,
+  .app-shell textarea {
+    @apply rounded-xl border-slate-300;
+  }
+
+  .app-shell button {
+    transition: transform 180ms ease, box-shadow 180ms ease, filter 180ms ease;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .app-shell button:not(:disabled):hover {
+    transform: translateY(-1px);
+    filter: saturate(1.06);
+  }
+
+  .app-shell button.bg-brand-500 {
+    color: #fff;
+    box-shadow: 0 10px 20px -12px rgba(255, 90, 0, 0.7);
+  }
+
+  .app-shell button.bg-brand-500:hover {
+    background-color: #e85100;
+  }
+
+  .app-shell h1,
+  .app-shell h2 {
+    letter-spacing: -0.02em;
+  }
+
   .privacy-heading {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: 'Avenir Next', Avenir, 'Segoe UI', sans-serif;
     font-weight: 700;
     font-size: 16px;
     line-height: 24px;
-    letter-spacing: -0.38px;
+    letter-spacing: -0.2px;
     text-align: center;
   }
 
   .privacy-body {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-family: 'Avenir Next', Avenir, 'Segoe UI', sans-serif;
     font-weight: 400;
     font-size: 14px;
-    line-height: 18px;
-    letter-spacing: -0.002em;
+    line-height: 20px;
+    letter-spacing: 0;
   }
 }
 

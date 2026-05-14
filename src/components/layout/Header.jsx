@@ -22,32 +22,29 @@ export default function Header() {
   }
 
   return (
-    <header className="sticky top-0 inset-x-0 z-40 bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/80 border-b border-gray-100 shadow-sm">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-20 sm:h-24 grid grid-cols-3 items-center">
-        {/* Slot izquierdo (vacío para mantener el logo perfectamente centrado) */}
+    <header className="sticky inset-x-0 top-0 z-40 border-b border-slate-300/90 bg-[#f7f7f8]/95 backdrop-blur-md supports-[backdrop-filter]:bg-[#f7f7f8]/85">
+      <div className="mx-auto grid h-20 max-w-6xl grid-cols-3 items-center px-4 sm:h-24 sm:px-6">
         <div />
 
-        {/* Logo centrado */}
         <div className="justify-self-center flex items-center justify-center">
           <img
             src={SUMA_LOGO_URL}
             alt="R4"
             loading="eager"
-            className="h-14 sm:h-16 w-auto max-w-[240px] object-contain cursor-pointer"
+            className="h-14 w-auto max-w-[250px] cursor-pointer object-contain sm:h-16"
             onClick={() => navigate('/')}
           />
         </div>
 
-        {/* Icono Salir (solo después de la primera pantalla) */}
         <div className="justify-self-end">
           {showExit && (
             <button
               onClick={() => setShowExitConfirm(true)}
-              className="inline-flex items-center gap-2 text-sm text-gray-600 hover:text-gray-900"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-sm text-white shadow-sm hover:bg-slate-900"
               aria-label="Salir"
               title="Salir"
             >
-              <ExitIcon className="w-5 h-5" />
+              <ExitIcon className="h-5 w-5" />
               <span className="hidden sm:inline">Salir</span>
             </button>
           )}
@@ -61,7 +58,6 @@ export default function Header() {
   )
 }
 
-/* Icono de salir */
 function ExitIcon({ className = '' }) {
   return (
     <svg viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -74,34 +70,34 @@ function ExitIcon({ className = '' }) {
 function ExitConfirmationModal({ onConfirm, onCancel }) {
   return createPortal(
     <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-      <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" aria-hidden="true" onClick={onCancel} />
+      <div className="absolute inset-0 bg-slate-900/45 backdrop-blur-sm" aria-hidden="true" onClick={onCancel} />
       <div
-        className="relative z-10 w-full max-w-sm rounded-3xl bg-white px-8 py-10 text-center shadow-xl"
+        className="relative z-10 w-full max-w-sm rounded-3xl border border-slate-100 bg-white px-8 py-10 text-center shadow-xl"
         role="dialog"
         aria-modal="true"
         aria-labelledby="exit-confirmation-title"
       >
-        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-[#E5F2FF]">
-          <LightbulbIcon className="h-10 w-10 text-[#006FCF]" />
+        <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand-50">
+          <LightbulbIcon className="h-10 w-10 text-brand-600" />
         </div>
-        <h2 id="exit-confirmation-title" className="mt-6 text-xl font-semibold text-gray-900">
+        <h2 id="exit-confirmation-title" className="mt-6 text-xl font-semibold text-slate-900">
           Salida del portal
         </h2>
-        <p className="mt-3 text-sm text-gray-600">
+        <p className="mt-3 text-sm text-slate-600">
           ¿Estás seguro que deseas salir de la página de Reestructuración de deuda?
         </p>
         <div className="mt-8 space-y-3">
           <button
             type="button"
             onClick={onConfirm}
-            className="w-full rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-gray-900 transition-colors hover:bg-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
+            className="w-full rounded-full bg-brand-500 px-6 py-3 text-sm font-semibold text-white transition-colors hover:bg-brand-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500"
           >
             Sí, salir
           </button>
           <button
             type="button"
             onClick={onCancel}
-            className="w-full rounded-full border border-gray-200 px-6 py-3 text-sm font-semibold text-gray-700 transition-colors hover:border-gray-300 hover:text-gray-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-300"
+            className="w-full rounded-full border border-slate-200 px-6 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-300"
           >
             No, regresar
           </button>
