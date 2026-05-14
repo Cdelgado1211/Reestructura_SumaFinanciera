@@ -438,7 +438,7 @@ export default function PlanSelection() {
       return resolvedPlans
     }
 
-    const mergedPlans = planDefinitions
+    return planDefinitions
       .map((definition) => {
         const backendPlan = resolvedPlans.find((plan) => plan.id === definition.id)
         if (backendPlan) {
@@ -448,8 +448,6 @@ export default function PlanSelection() {
         return demoPlans.find((plan) => plan.id === definition.id) || null
       })
       .filter(Boolean)
-
-    return mergedPlans
   }, [record])
 
   useEffect(() => {
@@ -473,6 +471,14 @@ export default function PlanSelection() {
       console.error('No se pudo leer el plan almacenado', parseError)
     }
   }, [plans])
+
+  const selectedPlanDetails = useMemo(() => {
+    if (!selectedPlan) {
+      return plans[0] || null
+    }
+
+    return plans.find((item) => item.id === selectedPlan) || plans[0] || null
+  }, [plans, selectedPlan])
 
   const onContinuar = () => {
     if (!selectedPlan) return
@@ -519,299 +525,256 @@ export default function PlanSelection() {
 
   return (
     <div className="py-6">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6">
-        {/* Tarjeta maestro */}
-        <div className="bg-white rounded-2xl shadow p-5 md:p-6">
-          {/* Stepper */}
-          <Stepper current={1} />
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="rounded-3xl border border-gray-200 bg-white p-4 shadow-sm md:p-6">
+          <div className="grid gap-6 lg:grid-cols-[220px_1fr]">
+            <aside className="rounded-2xl border border-gray-200 bg-gray-50/70 p-4">
+              <CompactStepper current={1} />
+            </aside>
 
-          {/* Título + intro */}
-          <div className="mt-3">
-            <h1 className="text-lg md:text-xl font-semibold text-gray-900">Reestructuración de deuda</h1>
-            <p className="text-gray-600 text-sm">
-              Bienvenido, aquí podrás reestructurar tus pagos y ponerte al día con {productDisplay}.
-            </p>
-          </div>
+            <section>
+              <header>
+                <h1 className="text-xl font-semibold text-gray-900 md:text-2xl">Simulador de reestructuración</h1>
+                <p className="mt-1 text-sm text-gray-600">
+                  Bienvenido, aquí podrás reestructurar tus pagos y ponerte al día con {productDisplay}.
+                </p>
+              </header>
 
-          {/* Nombre */}
-          <div className="mt-4">
-            <div className="rounded-xl border border-gray-200 px-4 py-3 bg-white">
-              <label className="block text-sm text-gray-700 mb-1">Nombre</label>
-              {record?.NOMBRE || record?.nombre || '—'}
-            </div>
-          </div>
-
-          {/* Información de tu préstamo actual (una sola tarjeta, sin sub-cards) */}
-          <div className="mt-6">
-            <h2 className="text-sm font-medium text-gray-900 mb-3">
-              Información de {productDisplay}
-            </h2>
-
-            <div className="rounded-2xl border border-gray-200 p-6">
-              <div>
-                <div className="text-sm text-gray-600">Saldo total actual:</div>
-                <div className="text-3xl font-extrabold text-gray-900 mt-1">{generalInfo.saldo}</div>
+              <div className="mt-4 rounded-2xl border border-gray-200 bg-white px-4 py-3">
+                <p className="text-xs uppercase tracking-wide text-gray-500">Nombre</p>
+                <p className="mt-1 text-lg font-semibold text-gray-900">{record?.NOMBRE || record?.nombre || '—'}</p>
               </div>
 
-              <div className="mt-6 grid gap-6 md:grid-cols-3">
-                <InfoField
-                  label="Producto"
-                  value={generalInfo.producto}
-                  className="md:col-start-1 md:row-start-1"
-                />
-                <InfoField
-                  label="N° de Crédito"
-                  value={generalInfo.numeroCredito}
-                  className="md:col-start-1 md:row-start-2"
-                />
-                <InfoField
-                  label="Plazo actual"
-                  value={generalInfo.plazoActual}
-                  className="md:col-start-2 md:row-start-1"
-                />
-                <InfoField
-                  label="Tasa actual"
-                  value={generalInfo.tasaActual}
-                  className="md:col-start-2 md:row-start-2"
-                />
+              <section className="mt-5">
+                <h2 className="text-sm font-semibold text-gray-900">Resumen de crédito</h2>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+                  <MiniDataCard label="Saldo actual" value={generalInfo.saldo} emphasize />
+                  <MiniDataCard label="Producto" value={generalInfo.producto} />
+                  <MiniDataCard label="N° de crédito" value={generalInfo.numeroCredito} />
+                  <MiniDataCard label="Plazo actual" value={generalInfo.plazoActual} />
+                  <MiniDataCard label="Tasa actual" value={generalInfo.tasaActual} />
+                </div>
+              </section>
+
+              <section className="mt-6 grid gap-5 xl:grid-cols-[1.2fr_0.8fr] xl:items-start">
+                <div className="rounded-2xl border border-gray-200 bg-gray-50/50 p-4 md:p-5">
+                  <h2 className="text-base font-semibold text-gray-900">¿Cuánto quieres pagar al mes?</h2>
+                  <p className="mt-1 text-sm text-gray-600">
+                    El nuevo plazo incluye las letras que aún tienes por pagar y te ofrece un tiempo adicional. Elige la opción que mejor se adapte a ti.
+                  </p>
+
+                  {loading && (
+                    <p className="mt-3 text-sm text-gray-500">Cargando opciones de reestructuración…</p>
+                  )}
+
+                  {error && <p className="mt-3 text-sm text-red-600">{error}</p>}
+
+                  <div className="mt-4 space-y-3">
+                    {plans.map((plan) => (
+                      <MonthlyOptionButton
+                        key={plan.id}
+                        plan={plan}
+                        checked={selectedPlan === plan.id}
+                        onSelect={() => setSelectedPlan(plan.id)}
+                      />
+                    ))}
+                  </div>
+
+                  {!loading && !error && plans.length === 0 && (
+                    <p className="mt-3 text-sm text-gray-600">
+                      No hay planes disponibles en este momento. Intenta nuevamente más tarde.
+                    </p>
+                  )}
+                </div>
+
+                <div className="rounded-2xl border border-gray-200 bg-white p-4 md:p-5">
+                  <h3 className="text-sm font-semibold uppercase tracking-wide text-gray-500">Plan seleccionado</h3>
+
+                  {selectedPlanDetails ? (
+                    <>
+                      <div className="mt-3 rounded-xl border border-brand-200 bg-brand-50/60 p-4">
+                        <p className="text-xs uppercase tracking-wide text-gray-600">{selectedPlanDetails.titulo}</p>
+                        <p className="mt-1 text-3xl font-extrabold text-gray-900">{selectedPlanDetails.cuotaLabel}</p>
+                        <p className="text-sm text-gray-600">Letra mensual</p>
+                      </div>
+
+                      <ul className="mt-4 space-y-3">
+                        <DetailRow icon={<IconAlarm />} label="Nuevo plazo" value={selectedPlanDetails.extLabel} />
+                        <DetailRow icon={<IconPlant />} label="Tasa de interés anual" value={selectedPlanDetails.tasaLabel} />
+                        <DetailRow icon={<IconCalendar />} label="Próxima fecha de pago" value={selectedPlanDetails.fechaLabel} />
+                      </ul>
+
+                      <p className="mt-4 text-xs text-gray-500">(Letras por pagar + Extensión)</p>
+                    </>
+                  ) : (
+                    <p className="mt-3 text-sm text-gray-600">Selecciona una opción para ver el detalle del plan.</p>
+                  )}
+                </div>
+              </section>
+
+              <div className="hidden md:flex mt-6 items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => navigate(buildPathWithDana('/', danaParam))}
+                  className="rounded-full border border-gray-300 px-6 py-2.5 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  disabled={!selectedPlan}
+                  onClick={onContinuar}
+                  className={[
+                    'rounded-full px-7 py-2.5 font-semibold transition-colors',
+                    selectedPlan
+                      ? 'bg-brand-500 text-white hover:bg-brand-600'
+                      : 'cursor-not-allowed bg-brand-200 text-gray-500',
+                  ].join(' ')}
+                >
+                  Continuar
+                </button>
               </div>
-            </div>
-          </div>
-
-          {/* Opciones */}
-          <div className="mt-5">
-            <h2 className="text-sm font-medium text-gray-900 mb-3">
-              El nuevo plazo incluye las letras que aún tienes por pagar y te ofrece un tiempo adicional.
-              Elige la opción que mejor se adapte a ti.
-            </h2>
-
-            {loading && (
-              <p className="text-sm text-gray-500 mb-3">Cargando opciones de reestructuración…</p>
-            )}
-
-            {error && <p className="text-sm text-red-600 mb-3">{error}</p>}
-
-            <div className="space-y-3">
-              {plans.map((plan) => (
-                <PlanListItem
-                  key={plan.id}
-                  plan={plan}
-                  checked={selectedPlan === plan.id}
-                  onSelect={() => setSelectedPlan(plan.id)}
-                />
-              ))}
-            </div>
-
-            {!loading && !error && plans.length === 0 && (
-              <p className="text-sm text-gray-600 mt-3">
-                No hay planes disponibles en este momento. Intenta nuevamente más tarde.
-              </p>
-            )}
-
-            {/* Botones */}
-            <div className="mt-5 flex flex-col sm:flex-row gap-3 justify-center ">
-              <button
-                type="button"
-                disabled={!selectedPlan}
-                onClick={onContinuar}
-                className={[
-                  'px-6 py-2.5 rounded-full font-semibold transition-colors sm:order-2',
-                  selectedPlan
-                    ? 'bg-brand-500 hover:bg-brand-500 text-gray-900'
-                    : 'bg-brand-200 text-gray-500 cursor-not-allowed',
-                ].join(' ')}
-              >
-                Continuar
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate(buildPathWithDana('/', danaParam))}
-                className="px-6 py-2.5 rounded-full border border-gray-300 text-gray-700 hover:bg-gray-50 sm:order-1"
-              >
-                Cancelar
-              </button>
-            </div>
+            </section>
           </div>
         </div>
       </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-gray-200 bg-white/95 p-3 shadow-[0_-8px_24px_-18px_rgba(15,23,42,0.45)] backdrop-blur md:hidden">
+        <div className="mx-auto flex max-w-6xl gap-3 px-1">
+          <button
+            type="button"
+            onClick={() => navigate(buildPathWithDana('/', danaParam))}
+            className="flex-1 rounded-full border border-gray-300 px-4 py-2.5 font-semibold text-gray-700"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            disabled={!selectedPlan}
+            onClick={onContinuar}
+            className={[
+              'flex-1 rounded-full px-4 py-2.5 font-semibold',
+              selectedPlan ? 'bg-brand-500 text-white' : 'cursor-not-allowed bg-brand-200 text-gray-500',
+            ].join(' ')}
+          >
+            Continuar
+          </button>
+        </div>
+      </div>
+
+      <div className="h-20 md:hidden" aria-hidden="true" />
     </div>
   )
 }
 
-function InfoField({ label, value, className = '' }) {
-  return (
-    <div className={className}>
-      <div className="text-sm text-gray-600">{label}</div>
-      <div className="text-base font-bold text-gray-900 mt-1">{value}</div>
-    </div>
-  )
-}
-
-/* ------------ Stepper nuevo (estilo igual al screenshot) ------------ */
-function Stepper({ current = 1 }) {
+function CompactStepper({ current = 1 }) {
   const steps = [
     { id: 1, label: 'Plan de pago' },
     { id: 2, label: 'Verificación' },
     { id: 3, label: 'Términos y condiciones' },
   ]
 
-  const total = steps.length
-  const idx = Math.min(Math.max(current, 1), total)
-  const progressPercent = total > 1 ? ((idx - 1) / (total - 1)) * 100 : 0
-
   return (
-    <div className="mb-4">
-      {/* Línea base + progreso */}
-      <div className="relative h-8">
-        {/* Línea gris */}
-        <div className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-[3px] bg-gray-200 rounded" />
-        {/* Línea verde de progreso */}
-        <div
-          className="absolute left-0 top-1/2 -translate-y-1/2 h-[3px] bg-brand-500 rounded transition-all"
-          style={{ width: `${progressPercent}%` }}
-        />
-        {/* Puntos */}
-        {steps.map((s, i) => {
-          const left = total > 1 ? (i / (total - 1)) * 100 : 0
-          const isActive = s.id === idx
-          const isDone = s.id < idx
+    <nav aria-label="Progreso del flujo">
+      <p className="text-xs font-semibold uppercase tracking-wide text-gray-500">Proceso</p>
+      <ol className="mt-3 space-y-3">
+        {steps.map((step) => {
+          const isActive = step.id === current
+          const isDone = step.id < current
 
           return (
-            <div
-              key={s.id}
-              className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
-              style={{ left: `${left}%` }}
-            >
-              <div
+            <li key={step.id} className="flex items-center gap-3">
+              <span
                 className={[
-                  'w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold border transition-colors',
+                  'flex h-7 w-7 items-center justify-center rounded-full border text-xs font-bold',
                   isActive
-                    ? 'bg-brand-500 text-white border-brand-500'
+                    ? 'border-brand-500 bg-brand-500 text-white'
                     : isDone
-                      ? 'bg-brand-100 text-brand-700 border-brand-500'
-                      : 'bg-gray-100 text-gray-600 border-gray-300',
+                      ? 'border-brand-400 bg-brand-100 text-brand-700'
+                      : 'border-gray-300 bg-white text-gray-500',
                 ].join(' ')}
+                aria-hidden="true"
               >
-                {s.id}
-              </div>
-            </div>
+                {step.id}
+              </span>
+              <span className={isActive ? 'text-sm font-semibold text-gray-900' : 'text-sm text-gray-600'}>
+                {step.label}
+              </span>
+            </li>
           )
         })}
-      </div>
+      </ol>
+    </nav>
+  )
+}
 
-      {/* Etiquetas debajo */}
-      <div className="mt-2 grid grid-cols-3 text-sm text-gray-600">
-        <div className="text-left">{steps[0].label}</div>
-        <div className="text-center">{steps[1].label}</div>
-        <div className="text-right">{steps[2].label}</div>
-      </div>
+function MiniDataCard({ label, value, emphasize = false }) {
+  return (
+    <div className="rounded-xl border border-gray-200 bg-white px-3 py-3 shadow-sm">
+      <p className="text-[11px] uppercase tracking-wide text-gray-500">{label}</p>
+      <p className={emphasize ? 'mt-1 text-2xl font-extrabold text-gray-900' : 'mt-1 text-base font-semibold text-gray-900'}>
+        {value}
+      </p>
     </div>
   )
 }
 
-/* ------------ PlanCard e iconos ------------ */
-function PlanListItem({ plan, checked, onSelect }) {
+function MonthlyOptionButton({ plan, checked, onSelect }) {
   return (
-    <label
-      className={[
-        'relative block w-full cursor-pointer overflow-hidden rounded-2xl border bg-white transition-all',
-        checked ? 'border-brand-500 ring-2 ring-brand-200 shadow-md' : 'border-gray-200 hover:border-gray-300',
-      ].join(' ')}
+    <button
+      type="button"
       onClick={onSelect}
+      className={[
+        'w-full rounded-2xl border px-4 py-4 text-left transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-400',
+        checked
+          ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-200 shadow-sm'
+          : 'border-gray-200 bg-white hover:border-brand-300 hover:bg-orange-50/30',
+      ].join(' ')}
+      aria-pressed={checked}
     >
-      <div
-        className={[
-          'grid gap-3 px-4 py-4 md:grid-cols-[auto_1.1fr_1fr_1fr_auto] md:items-center',
-          checked ? 'bg-gradient-to-r from-brand-50/80 to-white' : 'bg-white',
-        ].join(' ')}
-      >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-gray-500">{plan.titulo}</p>
+          <p className="mt-1 text-3xl font-extrabold leading-none text-gray-900">{plan.cuotaLabel}</p>
+          <p className="mt-1 text-sm text-gray-600">Letra mensual</p>
+        </div>
         <span
           className={[
-            'flex h-6 w-6 items-center justify-center rounded-full border',
-            checked ? 'border-brand-500 bg-brand-500' : 'border-gray-300 bg-white',
+            'mt-1 flex h-6 w-6 items-center justify-center rounded-full border',
+            checked ? 'border-brand-500 bg-brand-500 text-white' : 'border-gray-300 bg-white text-transparent',
           ].join(' ')}
           aria-hidden="true"
         >
-          {checked ? <CheckIcon /> : null}
+          <CheckIcon />
         </span>
-
-        <div className="min-w-0">
-          <div className="text-xs uppercase tracking-wide text-gray-500">{plan.titulo}</div>
-          <div className="text-2xl font-extrabold leading-tight text-gray-900">{plan.cuotaLabel}</div>
-          <div className="text-xs text-gray-500">Letra mensual</div>
-        </div>
-
-        <div className="min-w-0">
-          <div className="text-xs uppercase tracking-wide text-gray-500">Nuevo plazo</div>
-          <div className="text-lg font-bold text-gray-900">{plan.extLabel}</div>
-        </div>
-
-        <div className="min-w-0">
-          <div className="text-xs uppercase tracking-wide text-gray-500">Tasa anual</div>
-          <div className="text-lg font-bold text-gray-900">{plan.tasaLabel}</div>
-        </div>
-
-        <div className="hidden text-xs font-medium text-gray-500 md:block">
-          {checked ? 'Seleccionado' : 'Seleccionar'}
-        </div>
       </div>
-
-      {checked && (
-        <div className="border-t border-brand-100 bg-white px-4 py-4">
-          <ul className="grid gap-3 md:grid-cols-3 text-sm text-gray-800">
-            <li className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
-                <IconAlarm />
-              </span>
-              <span className="min-w-0 flex flex-col leading-tight">
-                <span className="text-xs text-gray-500">Plazo total</span>
-                <span className="font-semibold text-gray-900">{plan.extLabel}</span>
-              </span>
-            </li>
-            <li className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
-                <IconPlant />
-              </span>
-              <span className="min-w-0 flex flex-col leading-tight">
-                <span className="text-xs text-gray-500">Interés anual</span>
-                <span className="font-semibold text-gray-900">{plan.tasaLabel}</span>
-              </span>
-            </li>
-            <li className="flex items-center gap-3 rounded-xl bg-gray-50 px-3 py-2">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white">
-                <IconCalendar />
-              </span>
-              <span className="min-w-0 flex flex-col leading-tight">
-                <span className="text-xs text-gray-500">Próximo pago</span>
-                <span className="font-semibold text-gray-900">{plan.fechaLabel}</span>
-              </span>
-            </li>
-          </ul>
-          <p className="mt-3 text-xs text-gray-500">(Letras por pagar + Extensión)</p>
-        </div>
-      )}
-    </label>
+    </button>
   )
 }
 
-/* ------------ Iconos (24px máx) ------------ */
+function DetailRow({ icon, label, value }) {
+  return (
+    <li className="flex items-center gap-3 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5">
+      <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-gray-700">{icon}</span>
+      <span className="min-w-0">
+        <span className="block text-xs text-gray-500">{label}</span>
+        <span className="block font-semibold text-gray-900">{value}</span>
+      </span>
+    </li>
+  )
+}
+
 function CheckIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M6 12l4 4 8-8" stroke="white" strokeWidth="2" />
+      <path d="M6 12l4 4 8-8" stroke="currentColor" strokeWidth="2" />
     </svg>
   )
 }
+
 function IconAlarm() {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="text-gray-600"
-    >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
       <circle cx="12" cy="13" r="6" stroke="currentColor" strokeWidth="1.6" />
       <path d="M12 10.5V13l2 1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
       <path
@@ -824,16 +787,10 @@ function IconAlarm() {
     </svg>
   )
 }
+
 function IconPlant() {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="text-gray-600"
-    >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
       <path
         d="M12 20v-7.5c0-2.5 1.7-4.7 4.1-5.4 1.5-.4 3.3-.4 4.9.6-1 3-3.4 4.8-5.8 4.8h-1.2"
         stroke="currentColor"
@@ -853,16 +810,10 @@ function IconPlant() {
     </svg>
   )
 }
+
 function IconCalendar() {
   return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill="none"
-      aria-hidden="true"
-      className="text-gray-600"
-    >
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" className="text-gray-600">
       <rect x="4" y="5" width="16" height="15" rx="2.5" stroke="currentColor" strokeWidth="1.6" />
       <path d="M4 9.5h16" stroke="currentColor" strokeWidth="1.6" />
       <path d="M9 3.5v3M15 3.5v3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
