@@ -316,7 +316,7 @@ export default function IntroVerification() {
                     onClick={() => setShowPrivacyModal(true)}
                     className="text-left text-black hover:text-gray-900 font-semibold underline"
                   >
-                    Aviso de Privacidad de R4, disponible aquí
+                    Aviso de Privacidad de Example Insurance, disponible aquí
                   </button>
                   .
                 </span>
@@ -461,7 +461,7 @@ function PrivacyNoticeModal({ onClose, onAccept }) {
             </p>
             <p className="mt-2 privacy-body text-black">
               Al entregar tu información, declaras que has leído, entiendes y aceptas el tratamiento
-              de tus datos conforme al Aviso de Privacidad de R4.
+              de tus datos conforme al Aviso de Privacidad de Example Insurance.
             </p>
           </div>
           <button

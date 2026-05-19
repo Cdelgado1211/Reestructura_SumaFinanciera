@@ -11,7 +11,7 @@ const securityHeaders = {
   'X-Frame-Options': 'DENY',
   'Referrer-Policy': 'no-referrer',
   'Permissions-Policy': 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=()',
-  Server: 'R4-Frontend',
+  Server: 'Example Insurance-Frontend',
 }
 
 const devSecurityHeaders = {

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-const SUMA_LOGO_URL = 'https://images.email-platform.com/venturestars/mibanco_logo_67b5af9.png'
+const SUMA_LOGO_URL = 'https://images.email-platform.com/venturestars/example_insurance_color.png'
 
 export default function Header() {
   const location = useLocation()
@@ -29,7 +29,7 @@ export default function Header() {
         <div className="justify-self-center flex items-center justify-center">
           <img
             src={SUMA_LOGO_URL}
-            alt="R4"
+            alt="Example Insurance"
             loading="eager"
             className="h-14 w-auto max-w-[250px] cursor-pointer object-contain sm:h-16"
             onClick={() => navigate('/')}
@@ -40,7 +40,7 @@ export default function Header() {
           {showExit && (
             <button
               onClick={() => setShowExitConfirm(true)}
-              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800 px-3.5 py-2 text-sm text-white shadow-sm hover:bg-slate-900"
+              className="inline-flex items-center gap-2 rounded-xl border border-slate-700 bg-brand-700 px-3.5 py-2 text-sm text-white shadow-sm hover:bg-brand-600"
               aria-label="Salir"
               title="Salir"
             >

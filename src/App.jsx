@@ -25,7 +25,7 @@ function App() {
       <div className="pointer-events-none absolute inset-0 -z-10">
         <div className="absolute -top-24 -left-24 h-80 w-80 rounded-full bg-brand-100/55 blur-3xl" />
         <div className="absolute top-1/3 -right-24 h-72 w-72 rounded-full bg-slate-300/50 blur-3xl" />
-        <div className="absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-orange-100/50 blur-3xl" />
+        <div className="absolute -bottom-24 left-1/3 h-72 w-72 rounded-full bg-brand-200/55 blur-3xl" />
       </div>
 
       <Header />

@@ -2,7 +2,7 @@ import React from 'react'
 
 function Footer() {
   return (
-    <footer className='mt-6 border-t border-slate-200/80 bg-brand-500 text-white text-sm'>
+    <footer className='mt-6 border-t border-slate-200/80 bg-brand-700 text-white text-sm'>
       <div className='mx-auto flex max-w-6xl flex-col gap-3 px-4 py-5 text-center sm:px-6 md:flex-row md:items-center md:justify-center md:gap-8 md:text-left'>
         <a
           href='https://r4conecta.io/acerca-de/terminos-y-condiciones-de-uso'
@@ -12,7 +12,7 @@ function Footer() {
         >
           Términos y condiciones
         </a>
-        <span className='text-center text-white/90 md:text-left'>Copyright © 2025 R4</span>
+        <span className='text-center text-white/90 md:text-left'>Copyright © 2025 Example Insurance</span>
       </div>
     </footer>
   )

@@ -1,4 +1,4 @@
-# R4 – Reestructuración de Deuda (Frontend)
+# Example Insurance – Reestructuración de Deuda (Frontend)
 
 Frontend responsive de un flujo de **reestructuración de deuda** hecho con **Vite + React + Tailwind CSS**.  
 Incluye 6 pantallas: bienvenida/validación, selección de plan, verificación, contrato (T&C), espera y confirmación.
