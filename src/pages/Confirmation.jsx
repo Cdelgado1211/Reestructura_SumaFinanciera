@@ -302,7 +302,7 @@ export default function Confirmation() {
 
             <div className="mt-6">
               <a
-                href="https://r4conecta.io/"
+                href="https://es.danaconnect.com/"
                 className="inline-block px-8 py-3 rounded-full font-semibold bg-brand-500 hover:bg-brand-500 text-gray-900 transition-colors"
               >
                 Terminar

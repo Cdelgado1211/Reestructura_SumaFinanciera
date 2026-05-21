@@ -5,7 +5,7 @@ function Footer() {
     <footer className='mt-6 border-t border-slate-200/80 bg-brand-700 text-white text-sm'>
       <div className='mx-auto flex max-w-6xl flex-col gap-3 px-4 py-5 text-center sm:px-6 md:flex-row md:items-center md:justify-center md:gap-8 md:text-left'>
         <a
-          href='https://r4conecta.io/acerca-de/terminos-y-condiciones-de-uso'
+          href='https://es.danaconnect.com/'
           className='font-medium text-white underline decoration-white/70 underline-offset-4 hover:text-white'
           target='_blank'
           rel='noopener noreferrer'
